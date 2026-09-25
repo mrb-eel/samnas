@@ -1,0 +1,1175 @@
+# CHAPTER FIVE: MORNING ARRANGEMENTS
+# 04:30 to 06:30. What Ari wants. Who helps. The room, the paper, six o'clock,
+# a minute of the future, the fog, tomorrow, the Casio.
+
+=== ch5_start
+@chapter 5 "Morning Arrangements"
+~ clk = 270
+->> tick
+@comp exchange
+@set exchange
+@cam inez_eye
+@xwin 1 off
+@xwin 2 lamp on "HOLD"
+@xwin 3 wave 200 "DOOR 200"
+@xwin 4 text x "209 DESK"
+@view none
+@amb exchange_relays
+@clear
+SOUND: A mug put down on a relay rack, which Inez would kill anybody else for doing.
+INEZ: Right. What you can do. I'll say it once, plainly, and then it's yours.
+INEZ: One. The room. The token's in your bag in G/1. Somebody fetches it. You go on 201. Somebody holds the place for twenty minutes. You come out of that basin hungry and cold and a person.
+INEZ: Two. The paper. Either Sal's packet, which makes you the building's everything, or the old form, which just makes you you. That's separate from the room. You can do the room and pick either paper.
+INEZ: Three. You stay on the line. I keep you on the frame, hold running on your {pref_hold}. But I'm sixty-eight and I sleep, so there'd be rules.
+~ k_three_options = true
+* [ask] "What rules?"
+    -> ch5_rules
+* [ask] "What would you do?"
+    INEZ: Not my body. Not my call.
+    INEZ: I'd want to know what it was like to be hungry, probably. That's me, though. I like knowing what things do.
+    * [ask] "What rules? For staying on the line."
+        -> ch5_rules
+* [ask] "Can I change my mind later?"
+    INEZ: The room's been here since fifty-one. It'll be here in a month. Sal's packet might not. The old form will. They printed a lot of them.
+    INEZ: It's not now or never. It's now or later. Sal would say that's the same thing. It isn't.
+    ~ k_reversible = true
+    * [ask] "What rules? For staying on the line."
+        -> ch5_rules
+
+=== ch5_rules
+INEZ: Calls between eight and eleven. Unless somebody's in trouble, and then any time, but they have to actually be in trouble.
+INEZ: Nobody has to lend you their eyes. You ask, they can say no, and that's the end of it.
+INEZ: You can say no as well. To calls. To anyone. Including me.
+INEZ: I check the frame Mondays and Thursdays. I write down how, for whoever comes after me, because somebody will have to come after me.
+INEZ: And nobody sits with you. You're not a vigil. You're a tenant.
+~ k_shared_terms = true
+* "What if the council finds the frame?"
+    INEZ: Then we'll have a fight about it. They've forgotten it for twenty years. I'm counting on them being consistent.
+    ~ k_shared_risk = true
+* "A tenant."
+    INEZ: Rent's the tape. You have to listen to whatever's on hold. That's the rent.
+* "Okay."
+-> ch5_jad_rings
+
+=== ch5_jad_rings
+~ clk = 280
+->> tick
+@ring jad
+SOUND: Jad.
+* [answer] Answer.
+    -> ch5_jad_call
+* [decline] Let it ring.
+    ~ jad_declined_ch5 = true
+    SOUND: It rings itself out. He doesn't ring again.
+    if jad_letter_ok:
+        @text jad "Printing the letter. You said do it. I won't ring again unless you ring me. J."
+    else:
+        @text jad "I won't ring again unless you ring me. J."
+    @callable jad ch5_jad_call_back
+    -> ch5_hub
+
+=== ch5_jad_call_back
+~ jad_declined_ch5 = false
+~ jad_rang_back = true
+@acoustic shop
+@call jad
+@view none
+JAD: You rang.
+JAD: Thank you. I didn't think you would.
+->> ch5_jad_body
+@hangup
+@callable jad off "At the shop."
+return
+
+=== ch5_jad_call
+@acoustic shop
+@call jad
+@view none
+@amb2 copyshop
+->> ch5_jad_body
+@hangup
+@amb2 off
+@callable jad off "At the shop."
+-> ch5_hub
+
+=== ch5_jad_body
+~ answered_jad_ch5 = true
+@set copyshop
+@cam jad_eye
+if jad_confess_mode == "kicked" or jad_confess_mode == "left":
+    JAD: I'm at the shop. I'm going to say one thing and then you can hang up.
+else:
+    JAD: I'm at the shop.
+JAD: Can I ask you something? You can say no. I'm asking.
+if jad_letter_ok:
+    JAD: You said do the letter. I've done it. It says it was me: my name, my form clinic, my one-page version. It separates you from their forms. Forty-two copies, one for under every door.
+    JAD: I'm asking if you still want me to put them under the doors. Because once they're under the doors, they're under the doors.
+else:
+    JAD: Do you want me to print the letter? It says it was me. It takes you off their forms. Forty-two copies, one under every door.
+    JAD: It costs about what the coach costs. That's not a reason. I'm just telling you what it costs.
+~ jad_asked = true
+* "Yes. Do it."
+    ~ jad_letter_ok = true
+    ~ jad_letter = "yes"
+    JAD: Okay.
+    JAD: Okay. Thank you for... okay.
+* "No. Don't."
+    ~ jad_letter = "no"
+    ~ jad_letter_ok = false
+    JAD: Right.
+    A pause. The copier nearest him runs its light along the glass on its own.
+    JAD: Right. Okay. I won't.
+    ~ jad_accepted_no = true
+    if jad_told_stop:
+        JAD: You said don't do anything else for you. I asked anyway. I said I'd ask. I've asked.
+* "Why are you asking me? It's your name on it."
+    JAD: Because it's your name on everything else, and nobody asked you about any of that.
+    * "Do it."
+        ~ jad_letter_ok = true
+        ~ jad_letter = "yes"
+        JAD: Okay.
+    * "Don't."
+        ~ jad_letter = "no"
+        ~ jad_letter_ok = false
+        JAD: Okay. I won't.
+        ~ jad_accepted_no = true
+if jad_letter == "yes":
+    ~ docs_letter = true
+    @text_doc jad jad_letter "Here's what it says. Going under the doors now."
+* [ask] {not holder_asked_jad} "Would you hold the place? If I go into the room."
+    ~ holder_asked_jad = true
+    JAD: Yes.
+    JAD: I mean... yes, if you want me. Not because I owe you. I do owe you. That's not why.
+    ~ holder_jad_ok = true
+* "Where will you be at six?"
+    JAD: Here. Then home. Then the coach is at ten past seven, if I'm getting it.
+    JAD: I haven't decided. I keep not deciding. It's a skill.
+    ~ k_harwick = true
+* "Don't ring me again."
+    ~ told_jad_away = true
+    JAD: Okay.
+    JAD: Okay. I won't.
+    ~ jad_accepted_no = true
+* "That's all?"
+    JAD: That's all. I didn't want to do anything else without asking. I've been doing things without asking for about six weeks.
+return
+
+# ------------------------------------------------------------ the hub
+
+=== ch5_hub
+@comp exchange
+@set exchange
+@view none
+~ tick_n = 0
+->> tick
+if clk >= 310 and not sal_nudged:
+    ~ sal_nudged = true
+    @text sal "Twenty minutes to half five. No pressure. Some pressure. S."
+* [call] {not ch5_kaye_done} Ring Mrs. Kaye. She's up; her phone's warm.
+    ->> ch5_kaye
+    -> ch5_hub
+* [call] {not ch5_teodor_done} Ring Teodor.
+    ->> ch5_teodor
+    -> ch5_hub
+* [call] {not ch5_nell_done} Ring Nell.
+    ->> ch5_nell
+    -> ch5_hub
++ [ask] {not inez_ask_done} Ask Inez something.
+    ->> ch5_inez_ask
+    -> ch5_hub
+* [call] {jad_declined_ch5 and not jad_rang_back} Ring Jad after all.
+    ->> ch5_jad_call_back
+    -> ch5_hub
++ [go] I know what I want.
+    -> ch5_decide
+
+# ------------------------------------------------------------ Mrs. Kaye
+
+=== ch5_kaye
+~ ch5_kaye_done = true
+~ clk += 8
+->> tick
+@set building
+@cam main
+@acoustic flat
+@call kaye
+@view none
+@amb2 kaye_kitchen
+SOUND: A kettle coming to the boil, and a radio with the volume at one.
+KAYE: Hello, dear. I thought it might be you. Nobody else rings at this time. Nobody else is awake at this time except that man on the fifth floor, and he only rings you.
+* [ask] "Can I tell you what I am?"
+    KAYE: Go on.
+    * "I'm not from the council. I'm not a young woman with glasses. I'm not anyone yet."
+        ~ told_kaye_truth = true
+        KAYE: No. I gathered that, dear. I was there. I was sat on the cushion.
+        KAYE: Still. It's nice to be told. People don't tell you things at my age, they tell your daughter.
+    * "I'm what happened when you all rang the same number."
+        ~ told_kaye_truth = true
+        KAYE: Well. That's what I thought a council was, when I was a girl.
+* "How are you?"
+    KAYE: Tired. Wide awake. Seventy-nine. Is that three things or one?
+if p_kaye_thursday == "made":
+    KAYE: You said you'd come on Thursday. In your message.
+    * "I'll still come, if I can walk to the bus."
+        ~ kaye_confirmed = true
+        KAYE: If you can walk to the bus. That's fair. That's the honest way of putting it.
+        ~ p_kaye_thursday = "conditional"
+    * "I can't promise Thursday. I'm going to make sure somebody else can."
+        ~ p_kaye_thursday = "renegotiated"
+        ~ kaye_renegotiated = true
+        KAYE: Oh.
+        KAYE: Well. Thank you for saying. Before Thursday. That's something.
+        ~ need_kaye_arr = true
+    * "Let's talk about Thursday later."
+        ~ kaye_deferred_thursday = true
+        KAYE: Later's fine, dear. Later's most of what I've got.
+else:
+    KAYE: I shall need someone on Thursday, you know. For my eye.
+    * "I'll take you. If I can walk by then."
+        ~ p_kaye_thursday = "conditional"
+        KAYE: If you can walk. That's fair.
+    * "I'll make sure someone takes you."
+        ~ p_kaye_thursday = "arranging"
+        ~ need_kaye_arr = true
+        KAYE: That's all I wanted, really. Someone. I don't need it to be anyone.
+    * "I can't do Thursday."
+        ~ p_kaye_thursday = "declined"
+        ~ need_kaye_arr = true
+        KAYE: No. No, well. I'll ask the surgery about the hospital car.
+        KAYE: They send a man. He smokes.
+KAYE: I'd got used to the idea of you, you know. The glasses and so on.
+KAYE: I'll get used to the other one.
+@hangup
+@amb2 off
+return
+
+# ------------------------------------------------------------ Teodor
+
+=== ch5_teodor
+~ ch5_teodor_done = true
+~ clk += 9
+->> tick
+@set office
+@cam teodor_eye
+@acoustic flat
+@call teodor
+@view none
+TEODOR: Ari.
+TEODOR: I've been up. I'm always up. What do you need?
+-> ch5_teodor_q
+
+=== ch5_teodor_q
+* [ask] "The coat. Do you want it back?"
+    if told_teodor_not_him:
+        TEODOR: Keep it.
+        TEODOR: It's cold down there. He's not coming for it. And you're not him, so it's just a coat now. It's allowed to be just a coat.
+        ~ coat_fate = "kept"
+    else:
+        TEODOR: I...
+        TEODOR: Yes. I think yes. I'll hang it back up. Is that all right?
+        * "It's yours. Of course."
+            ~ coat_fate = "returned"
+            TEODOR: Thank you.
+        * "I'd like to keep it. If that's all right."
+            ~ coat_fate = "kept"
+            TEODOR: Then keep it. The sleeves are long.
+            ARI: I know.
+    -> ch5_teodor_q
+* [ask] {need_kaye_arr or p_kaye_thursday == "made" or p_kaye_thursday == null} "Could you take Mrs. Kaye to St Anne's on Thursday?"
+    TEODOR: St Anne's. Eye unit. Round by the car park, the lift that smells of soup.
+    TEODOR: I know the way. I took my wife there, a long time ago. Yes.
+    ~ arr_kaye_offer_teodor = true
+    ~ arr_kaye = "teodor"
+    -> ch5_teodor_q
+* [ask] {not holder_asked_teodor} "Would you hold the place? In the room, for twenty minutes."
+    ~ holder_asked_teodor = true
+    if told_teodor_not_him or teodor_gentle:
+        TEODOR: Yes.
+        TEODOR: I held a line four years for somebody who never picked up. I can hold one twenty minutes for somebody who does.
+        ~ holder_teodor_ok = true
+    else:
+        TEODOR: I'd want to.
+        TEODOR: I don't think I should. I'd be holding it for the wrong person. You'd come out and I'd be looking for the length in the sleeves.
+        ~ holder_teodor_declined = true
+    -> ch5_teodor_q
+* [ask] "If the desk's gone, who helps at three in the morning?"
+    TEODOR: I'm up at three anyway. If somebody needs somebody at three, I can be somebody.
+    TEODOR: Not every night. My knees. Most nights.
+    ~ rota_teodor = true
+    -> ch5_teodor_q
+* "That's all. Thank you."
+    TEODOR: It's nothing. It's three in the morning somewhere.
+    @hangup
+    return
+
+# ------------------------------------------------------------ Nell
+
+=== ch5_nell
+~ ch5_nell_done = true
+~ clk += 8
+->> tick
+@set nell
+@cam nell_eye
+@acoustic flat
+@call nell
+@view none
+@amb2 flat_night
+NELL: I'm up. Tobi's up. Nobody in this flat has slept since the moth.
+if not b_nell_phone and not nell_apology:
+    NELL: You read my phone.
+    * "I did. I'm sorry."
+        ~ nell_apology = true
+        NELL: Okay. Right. Thank you. Don't again.
+    * "It said Fake Ari."
+        NELL: It did. It doesn't now. Moving on.
+-> ch5_nell_q
+
+=== ch5_nell_q
+* [ask] {need_kaye_arr or p_kaye_thursday == "made" or p_kaye_thursday == null} "Could you take Mrs. Kaye on Thursday?"
+    NELL: Thursday. What time?
+    ARI: The 36 at five to eight.
+    NELL: I've got Thursday off, as it happens. I'll take Bernadette. Don't tell her I swapped it.
+    ARI: Did you swap it?
+    NELL: I'm going to swap it.
+    ~ arr_kaye_offer_nell = true
+    ~ arr_kaye = "nell"
+    -> ch5_nell_q
+* [ask] "If the desk's gone, who does the things the desk did?"
+    NELL: Us. Obviously. That's the joke, isn't it. It was always going to be us.
+    NELL: I can do Tuesday nights. Not every Tuesday. Most. I'm doing a group chat. An actual one, with actual people in it. No offence.
+    ~ rota_nell = true
+    -> ch5_nell_q
+* [ask] "What's Tobi doing up?"
+    NELL: Doing your face. For the drawing. She wants to know what colour your eyes are.
+    * "Tell her to pick."
+        ~ pref_eyes = "tobi"
+        NELL: She'll pick green. She picks green for everything. Even me.
+    * "Grey. Like the tiles in the dark."
+        ~ pref_eyes = "grey"
+        NELL: Grey like the tiles in the dark. She'll love that. She'll ask what tiles.
+    * "I don't know yet."
+        ~ pref_eyes = "unknown"
+        NELL: She says she'll leave them for later, then. She's very relaxed about leaving things for later. She gets that from me.
+    -> ch5_nell_q
+* "That's all. Go to sleep."
+    NELL: Funny. You're funny. Night, Ari.
+    @hangup
+    @amb2 off
+    return
+
+# ------------------------------------------------------------ Inez
+
+=== ch5_inez_ask
+* [ask] {not holder_asked_inez} "Would you hold the place?"
+    ~ holder_asked_inez = true
+    if b_inez:
+        INEZ: Yes. I've held worse. I held the second floor together with a Virgin for fifteen years.
+    else:
+        INEZ: Yes. I'll hold it properly. I won't be chatty.
+        INEZ: I don't need to like you to do it right.
+    ~ holder_inez_ok = true
+    return
+* [ask] "Would you check the frame for me? Mondays and Thursdays. If I stay."
+    INEZ: I already said. It's already written down.
+    ~ rota_inez = true
+    return
+* [ask] {not k_reversible} "Can I change my mind later?"
+    INEZ: It's now or later. Not now or never.
+    ~ k_reversible = true
+    return
+* [ask] {not k_shared_terms} "What would the rules be? For staying on the line."
+    ->> ch5_rules_short
+    return
+* "Nothing. Never mind."
+    ~ inez_ask_done = true
+    INEZ: Mm.
+    return
+
+=== ch5_rules_short
+INEZ: Calls eight till eleven, unless someone's actually in trouble. Nobody has to lend you their eyes. You can say no too. I check the frame Mondays and Thursdays, and I write down how. Nobody sits with you. You're a tenant, not a vigil.
+~ k_shared_terms = true
+return
+
+# ------------------------------------------------------------ the decision
+
+=== ch5_decide
+~ rota_count = 0
+if rota_nell:
+    ~ rota_count += 1
+if rota_teodor:
+    ~ rota_count += 1
+if rota_inez:
+    ~ rota_count += 1
+if jad_letter_ok:
+    ~ rota_count += 1
+INEZ: Go on, then.
+* "I want to come through. And take the job."
+    ~ end_body = true
+    ~ end_appointment = "accepted"
+    INEZ: The room and the packet. Right.
+    -> ch5_holder
+* "I want to come through. Not the job."
+    ~ end_body = true
+    ~ end_appointment = "refused"
+    INEZ: The room and the old form. Right.
+    -> ch5_holder
+* {k_shared_terms} "I want to stay on the line. For now."
+    ~ end_body = false
+    ~ end_appointment = "none"
+    INEZ: On the frame, then. Under the rules.
+    INEZ: Say yes to the rules. Out loud. I want it said.
+    * "Yes. To the rules."
+        ~ shared_consent = true
+        INEZ: Good.
+    * "Yes. And I want to be able to change my mind."
+        ~ shared_consent = true
+        ~ k_reversible = true
+        INEZ: That's the first rule. I just didn't say it.
+    -> ch5_shared
+* {not k_shared_terms} "Tell me about staying on the line first."
+    ->> ch5_rules_short
+    -> ch5_decide
++ "Not yet. I want to talk to someone first."
+    -> ch5_hub
+
+=== ch5_holder
+if holder_jad_ok or holder_teodor_ok or holder_inez_ok:
+    INEZ: Who's holding the place?
+else:
+    INEZ: Somebody has to hold the place. Who are you asking?
+* {holder_jad_ok} "Jad said he would."
+    ~ holder = "jad"
+* {not holder_asked_jad and not told_jad_away} Ask Jad.
+    ~ holder_asked_jad = true
+    ~ asked_jad_now = true
+    @sent jad "Would you hold the place? In the room. Twenty minutes."
+    @text jad "Yes. On my way. Five minutes."
+    ~ holder_jad_ok = true
+    ~ holder = "jad"
+* {holder_teodor_ok} "Teodor said he would."
+    ~ holder = "teodor"
+* {not holder_asked_teodor and (told_teodor_not_him or teodor_gentle)} Ask Teodor.
+    ~ holder_asked_teodor = true
+    TEODOR: Yes. Of course yes. I'm coming down.
+    ~ holder_teodor_ok = true
+    ~ holder = "teodor"
+* {holder_inez_ok} "You. If you still will."
+    ~ holder = "inez"
+    INEZ: I said I would.
+* {not holder_asked_inez} "You. Would you?"
+    ~ holder_asked_inez = true
+    ~ holder_inez_ok = true
+    ~ holder = "inez"
+    if b_inez:
+        INEZ: Yes.
+    else:
+        INEZ: Yes. Properly. Not chatty.
+INEZ: And somebody fetch the token out of that bag.
+if holder == "jad":
+    JAD: I'm getting it. I've got it. It's in my hand.
+elif holder == "teodor":
+    TEODOR: I'm in the office. I have it. It's heavier than I thought.
+else:
+    INEZ: I'll get it myself. Nobody touch my frame while I'm gone. You especially.
+if not coat_fate:
+    INEZ: And bring the coat. It's cold in there.
+elif coat_fate == "kept":
+    INEZ: And bring the coat. It's yours now, Teodor says. It's cold in there.
+else:
+    INEZ: Take my coat, then. It's cold in there. It'll be short in the arms. Everything's short in the arms on somebody.
+-> ch5_arrival
+
+# ------------------------------------------------------------ the arrival
+
+=== ch5_arrival
+~ clk = 305
+->> tick
+@comp room
+@set receiving
+@cam main
+@view plan
+@acoustic tiles
+@amb receiving_room
+@clear
+The room, by its shape: cold tiles, the basin, the drain. The handset on 201 has somebody at it. You can feel the line go warm the way a hand warms a bannister.
+SOUND: A brass token dropping into a meter. A crank, turned three times. Water, starting somewhere far off and coming nearer in the pipes.
+@state meter on
+@state cradle on
+~ arrival_started = true
+if holder == "jad":
+    ->> hold_jad
+elif holder == "teodor":
+    ->> hold_teodor
+else:
+    ->> hold_inez
+-> ch5_rupture
+
+=== hold_jad
+JAD: Okay. I'm on. I'm holding. Is that how you say it? I'm holding the place.
+JAD: Inez says I have to keep talking. I can do that. I can do that all day. People pay me not to.
+* "Tell me about paper."
+    JAD: Paper. Right. Eighty gsm is normal. Hundred is posh. A hundred and twenty is someone's wedding. Three hundred's a card, and anything over that you shouldn't put through my machine, and people do.
+* "Tell me about the dog."
+    JAD: The lurcher. Eleven. The ninth photo. She came back at close, you know. After. To buy a frame. We don't sell frames. I sold her a frame.
+* "Tell me something true."
+    JAD: I'm scared I'll say the wrong thing and you'll come out wrong.
+    JAD: That's not how it works. Inez says that's not how it works. I'm scared anyway.
+@state fog on
+SOUND: The water's in the basin now. The tiles above it have fogged in a patch the length of a person.
+JAD: Still here?
+ARI: Still here.
+JAD: Good.
+JAD: I never asked you what you wanted. All night. I asked you where you were and what you remembered. I didn't ask what you wanted.
+if end_appointment == "accepted":
+    JAD: You're doing the job. Okay. You can stop, you know. You can quit it. You can quit it and still live here. I'll still ring.
+    ~ jad_right_to_stop = true
+elif end_appointment == "refused":
+    JAD: You're not doing the job. Good. I mean, not good. Yours. Good that it's yours.
+JAD: Five more minutes, Inez says. Five more minutes of me talking about paper.
+return
+
+=== hold_teodor
+TEODOR: I'm here. I'm holding.
+TEODOR: Inez says talk. I'm not a talker. I was a tram mechanic. We talked to trams.
+* "Talk to me like a tram."
+    TEODOR: Good morning. You're making a noise in the front bogie. Nobody's ever made that noise. I'll have to take you apart and I'll put you back together better.
+    TEODOR: That's what we said. Mostly we said worse things.
+* "Tell me about your lengths."
+    TEODOR: Twenty. Deep end to shallow is twenty-five metres, so it's a kilometre if you count there and back as two, which I do. Then the chair. Then a hundred.
+* "Tell me about Mikael."
+    TEODOR: No.
+    TEODOR: Later. Not while I'm holding this. I'd hold the wrong thing.
+@state fog on
+SOUND: The water in the basin. The fog on the tiles, the length of a person.
+TEODOR: Still there?
+ARI: Still here.
+TEODOR: Good. Good.
+TEODOR: I used to ring at three because nobody was awake to be bothered. You were awake. I'm sorry I bothered you.
+* "You didn't."
+* "You did. I didn't mind."
+    TEODOR: That's the nicest thing anybody's said to me in four years, and it's a complaint.
+TEODOR: Five more minutes. I'll count. I'm good at counting.
+return
+
+=== hold_inez
+if b_inez:
+    INEZ: I'm on. I'm holding. Talk to me or I'll talk to you, and I'll talk about relays.
+else:
+    INEZ: I'm on. I'm holding.
+    INEZ: I said I wouldn't be chatty. I'll be a bit chatty. It's the rule.
+* "Talk about relays."
+    INEZ: Strowger. Nineteen fifties. A step-by-step selector goes up, then goes round. That's all it does. It goes up, and then it goes round, and it finds you.
+    INEZ: It's the most beautiful thing I've ever looked after. Don't tell Celeste.
+* "Tell me about Mr. Pardoe."
+    INEZ: He counted to ten with his hand on your head. That's all I remember. That and the lights.
+    INEZ: You've got that now as well, so I suppose that's two of us remembering it.
+* "Tell me about Celeste."
+    INEZ: She sings in the car. Badly. She rings on Sundays at nine and I let it ring twice so she knows I'm not waiting by it.
+@state fog on
+SOUND: The water in the basin. The fog on the tiles, the length of a person.
+INEZ: Still there?
+ARI: Still here.
+INEZ: Good. That's what the handset's for. Somebody asks, somebody answers.
+INEZ: Five more minutes.
+return
+
+=== ch5_rupture
+@state cradle full
+Weight, first. Like before.
+And then it doesn't go.
+@rupture
+@comp call
+@set receiving
+@cam ari_eye
+@view ari
+@amb receiving_room
+@music off
+~ arrived = true
+Tiles. A ceiling of small white tiles, low and close, the grout lines not quite straight.
+That's how it looks. That's how it looks to you. Nobody is lending you anything.
+Cold, everywhere the water isn't. Warm, everywhere it is. A weight on your chest that turns out to be your chest.
+if holder == "jad":
+    Someone at the edge of what you can see, with a phone receiver still at his ear, not saying anything, because he's forgotten how to stop holding.
+elif holder == "teodor":
+    Someone at the edge of what you can see, tall, holding a receiver in both hands, counting under his breath past a hundred.
+else:
+    Someone at the edge of what you can see, in overalls, with a receiver on her shoulder, looking at you the way she looks at a repair that's held.
+if coat_fate == "returned":
+    Somebody puts a coat over you. Not the brown one. A work coat, smelling of flux and oil. Short in the arms.
+else:
+    Somebody puts a coat over you. Brown corduroy. The sleeves come down past your hands.
+* Sit up.
+    ~ first_act = "sit"
+    It takes three goes. Nobody tells you how. Your body knows some of it and not the rest, like a building knows its wiring and not its paint.
+* Look at your hand.
+    ~ first_act = "hand"
+    It's a hand. It's got a thumb. The skin by the thumbnail is whole. There's nothing written on it.
+* Stay lying down a minute.
+    ~ first_act = "lie"
+    Nobody hurries you. The fog on the tiles above you clears slowly, from the edges in.
+There's a mirror on the wall, gone brown at the edges.
+* [look] Look.
+    ~ looked_mirror = true
+    @state mirror on
+    Through the steam, a shape the size of a person, in a brown coat or a work coat, the colour of the tiles where the light hits. A face you can't hold still long enough to learn.
+    You'll have time.
+* Not yet.
+    ~ looked_mirror = false
+    You look at the ceiling instead. There's plenty of time to look at a face. The poster said so.
+SOUND: Your stomach. Loud, in a tiled room.
+THINK: You're hungry. The poster said you would be.
+if holder == "jad":
+    JAD: Oh. Okay. Hi.
+    JAD: Hi. Do you want toast? I'm going to get you toast. I'm going to get you so much toast.
+elif holder == "teodor":
+    TEODOR: There's tea. In the flask. Milk, no sugar. I guessed.
+else:
+    INEZ: There's a camping stove. There's soup. It's the soup you'd expect.
+-> ch5_register
+
+# ------------------------------------------------------------ registration
+
+=== ch5_register
+~ clk = 340
+->> tick
+@set receiving
+@cam ari_eye
+@view ari
+SOUND: Boots on the tiles outside. Someone out of breath. Paper.
+Sal comes in with the folder held against their chest and their coat still on, and stops in the doorway, and looks at you.
+SAL: Right.
+SAL: Right. Okay. Hello.
+SAL: That's the first time I've seen one before the paperwork. Normally they come to me dressed.
+if end_appointment == "accepted":
+    -> ch5_register_accept
+else:
+    -> ch5_register_r1
+
+=== ch5_register_accept
+SAL: The packet. You're sure.
+SAL: I'll read it you again. I promised myself I'd read it to someone.
+@show_doc arp2_under
+SAL: Continuous. Forty-two households. Nine sixty per hour of active. G/1, charge applies.
+* [ask] "Cross out continuous."
+    ~ asked_limits = true
+    if rota_count >= 2:
+        SAL: If you've got people who'll put their actual names down as sharing it, their real names this time, I'll strike it and initial it.
+        if rota_nell:
+            SAL: Amadi, Tuesdays.
+        if rota_teodor:
+            SAL: Vass, nights, most.
+        if rota_inez:
+            SAL: Carvalho, the frame. Whatever that means.
+        if jad_letter_ok:
+            SAL: And a letter under forty-two doors saying the forms were one man's idea, which means upstairs can't pretend it was a groundswell.
+        SAL: Nights, then. Ten till six, four nights. The rest is them, in writing.
+        SAL: Upstairs will hate it. Upstairs can come down here.
+        ~ end_limits = true
+        ~ sal_missed_bus = true
+    else:
+        SAL: I can't. Not on my own say-so. If there were names beside yours, actual names sharing it, I could. There aren't.
+        SAL: I'm sorry. I am.
+        ~ end_limits = false
+* Sign it as it is.
+    ~ end_limits = false
+@state sign on
+You hold a pen for the first time. It's lighter than it should be, or you're stronger. You write ARI in the box, in capitals, because that's how it's written everywhere else.
+SOUND: Carbon. The one box going through to two pages.
+if holder == "jad":
+    JAD: Witness. J. Mansour. Here.
+elif holder == "teodor":
+    TEODOR: Witness. T. Vass. Here. I've got good handwriting. Tram depot.
+else:
+    INEZ: Witness. I. Carvalho.
+~ chosen_name = "Ari"
+~ docs_packet = true
+@gallery_add arp2_under
+-> ch5_six
+
+=== ch5_register_r1
+SAL: The old form. You're sure.
+SAL: It's one page. It doesn't do anything else. It just says you arrived and what you're called.
+@show_doc r1_standalone
+SAL: Name?
+* "Ari."
+    ~ chosen_name = "Ari"
+    SAL: Ari. Just Ari?
+    ARI: Just Ari. For now.
+* Something else.
+    @input_name chosen_name "REGISTRATION OF ARRIVAL. Name, in full:"
+    SAL: {chosen_name}.
+    SAL: Good name. Better than the sample.
+~ docs_r1 = true
+@state sign on
+You hold a pen for the first time. It's lighter than it should be. You write {chosen_name} in the box. Your handwriting is somebody's. It's yours; you just haven't met it.
+if holder == "jad":
+    JAD: Witness. J. Mansour. Here.
+elif holder == "teodor":
+    TEODOR: Witness. T. Vass. Here.
+else:
+    INEZ: Witness. I. Carvalho.
+SAL: I'll key it Monday. By hand. There isn't a screen for it, so I'll have to talk someone in IT into making one, and I'll be very tiresome about it.
+SAL: And the RA-3. I'm writing "declined by nominee" across it. In pen. They'll have to find someone else to be the building.
+~ declined_ra3 = true
+-> ch5_six
+
+=== ch5_shared
+~ clk = 330
+->> tick
+@comp exchange
+@set exchange
+@xwin 1 off
+@xwin 2 lamp on "HOLD"
+@music off
+SOUND: Boots on the plant-room steps. Paper.
+SAL: I've been told to come to the boiler room. I've never been told to come to a boiler room in my life, and I've worked for the council for nineteen years.
+INEZ: It's a frame room.
+SAL: It's got a boiler in it.
+SAL: Right. Ari. You're staying... on that.
+SAL: There's a box for this. On the old form. "Arrival deferred at the request of the person." Nobody's ever ticked it. I didn't know what it was for.
+@show_doc r1_standalone
+SAL: Witness?
+INEZ: I. Carvalho.
+SAL: I'll key it Monday. Deferred isn't nothing. It's a person on record who hasn't come through yet. You can't appoint somebody who's deferred, either. I checked. Twice.
+~ docs_r1_deferred = true
+~ declined_ra3 = true
+SAL: The nine forms go back as contact not available as described. The closure goes ahead at six, because it was always going to. Then the building complains, in writing, if it's got any sense.
+if jad_letter_ok:
+    SAL: There's a letter under my door already. Under every door. Somebody's been busy.
+~ chosen_name = "Ari"
+@text_doc inez rota_note "Taped to the frame. Don't move it."
+@show_doc rota_note
+-> ch5_six
+
+# ------------------------------------------------------------ six o'clock
+
+=== ch5_six
+~ clk = 358
+->> tick
+if end_body:
+    SAL: It's two minutes to six. I've got a bus.
+else:
+    SAL: It's two minutes to six. I've got a bus.
+if sal_missed_bus:
+    SAL: I had a bus. That was the six-twelve, that was.
+    SAL: Six-fifty. Brilliant. Fine. It's fine. I'll sit on the steps and watch the fog.
+else:
+    SAL: I'll make it if I run. I'm not going to run.
+@amb off
+~ clk = 360
+->> tick
+SOUND: At six, somewhere in the frame, a relay drops out and doesn't come back.
+@xwin 4 text x "209 GONE"
+if end_body:
+    You don't hear it. You're in a room with tiles and a body, and a relay is just a noise somewhere else now.
+    Somebody tells you later. Two-oh-nine. The desk.
+else:
+    INEZ: That's the desk.
+    INEZ: Thirty-five years, and it goes out like a lightbulb.
+~ service_closed = true
+-> ch5_future
+
+# ------------------------------------------------------------ a minute of the future
+
+=== ch5_future
+~ clk = 365
+->> tick
+if end_appointment == "accepted":
+    -> future_accept
+elif end_appointment == "refused":
+    -> future_refuse
+else:
+    -> future_shared
+
+=== future_accept
+@comp room
+@set office
+@cam main
+@view ari
+@amb office_room
+@state morning on
+@clear
+G/1. Your office. That's what it says on the lanyard Sal left on the desk: COMMUNITY RESPONDER. ARI. G/1.
+if end_limits:
+    @show_doc roster_limited
+else:
+    @show_doc roster_continuous
+if end_limits:
+    On the wall by the door, a roster in Sal's handwriting with lines through it and initials. ARI: NIGHTS, 22:00 TO 06:00, MON TO THU. Under it, in four other hands: N. AMADI, TUES. T. VASS, NIGHTS (MOST). I. CARVALHO, FRAME. And a note in Nell's writing: DAYS ARE NOBODY'S. THAT'S THE POINT.
+else:
+    On the wall by the door, a roster in Sal's handwriting. ARI. And across every day, every hour, one word: CONTINUOUS.
+SOUND: A council phone on the desk. Ringing.
+It's six minutes past six.
+* [answer] Answer it.
+KAYE: No, dear, it's only me. I just wanted to hear it answered.
+if end_limits and jad_right_to_stop:
+    KAYE: Nell says you're not on till ten tonight. I'll let you go. Go and have your toast.
+    KAYE: Thursday's Nell, is it? Lovely. You can come and have a biscuit after, if you like. Not to help. For a biscuit.
+    ~ future_tone = "workable"
+    The phone goes back in its cradle, and stays there. The kettle, which somebody filled, starts to tick.
+elif end_limits or jad_right_to_stop or rota_count >= 2:
+    KAYE: I know you're not really on yet. I won't keep you.
+    SOUND: As soon as it's down, it rings again. 6C. Mr. Hollis can't find his glasses.
+    You find his glasses. They're on his head. It takes nine minutes, and the stairs, and your legs don't know stairs yet.
+    ~ future_tone = "uneasy"
+else:
+    KAYE: While you're here, dear...
+    KAYE: Thursday. And there's the bulb in my hall. And the man in 6C's been banging.
+    SOUND: The phone rings again before it's properly down.
+    SOUND: And again.
+    It's eight minutes past six. The tea in Teodor's flask is still hot. You don't get to it.
+    ~ future_tone = "exploitative"
+-> ch5_jad_final
+
+=== future_refuse
+@comp room
+@set lobby
+@cam main
+@view ari
+@amb lobby_morning
+@state morning on
+@state desk closed
+@clear
+The lobby, with you in it. The desk lamp is off. The tube over it is dark, or it's ticking; either way, it's somebody else's problem now.
+if coat_fate == "returned":
+    You're in Inez's work coat, short in the arms, with the old form folded in the pocket. {chosen_name}. Registered. Nobody's anything.
+else:
+    You're in the brown coat, long in the arms, with the old form folded in the pocket. {chosen_name}. Registered. Nobody's anything.
+They come down one at a time to see. That's the only word for it.
+NELL: Oh my god. Look at you.
+NELL: Good. Good for you. God, I'm jealous. Nobody's anything. I'd love to be nobody's anything for a morning.
+KAYE: Hello, dear. You're not what I thought.
+KAYE: I'd got used to the idea of you. I'll get used to this one.
+She doesn't sound as if she will, quite yet. She holds your hand anyway, and pats it twice, the way you'd pat a dog you've been told is friendly.
+TEODOR: Good morning.
+TEODOR: Could you...
+He stops.
+TEODOR: No. No. I'll ring the surgery myself. I've got a telephone.
+~ teodor_caught = true
+if jad_letter_ok:
+    There's a letter under every door in the building. Jad's name at the bottom, his form clinic, his one-page version. Nell's holding hers.
+    NELL: We're taking this to the housing office at nine. All of us. Sal's report, Jad's letter, and nine very annoyed people in coats.
+    ~ future_tone = "challenge"
+else:
+    NELL: I've started a group chat. FERRIER COURT ACTUAL HUMANS. It's got eleven people in it already, and one of them's June, so God help us.
+    NELL: Tuesdays are me. Teodor's doing nights, most. We'll sort Thursday.
+    ~ future_tone = "rota"
+if need_kaye_arr and arr_kaye == "":
+    KAYE: Nobody's said about Thursday, dear.
+    NELL: I'll do Thursday.
+    ~ arr_kaye = "nell"
+    ~ arr_kaye_late = true
+INEZ: G/1's yours till somebody notices. The council doesn't know it exists.
+* "I'll stay. For now."
+    ~ stay_building = true
+    INEZ: For now's the only length a tenancy comes in.
+* "I want to see outside first."
+    ~ stay_building = false
+    ~ going_out = true
+    NELL: Outside's foggy. Outside's mostly a bus stop.
+    ARI: I want to see the bus stop.
+-> ch5_jad_final
+
+=== future_shared
+@comp exchange
+@set exchange
+@view none
+@xwin 1 off
+@xwin 2 lamp on "HOLD"
+@music hold_{pref_hold}
+@state morning on
+@clear
+Six o'clock goes past on the hold, and you're there for all of it.
+if pref_hold == "rain":
+    Rain on a skylight, recorded in March 2003. It isn't raining anywhere. It's raining on you.
+elif pref_hold == "lamps":
+    Lamp three's hum, with the flutter in it. It isn't lighting anything. It's keeping you.
+else:
+    The council's organ, four notes and round again. You've decided you don't mind it. You've decided it's trying.
+@music off
+Taped to the frame, under the Virgin's raised hand, a page of Inez's writing.
+if rota_count >= 2:
+    Under it, in other hands, names. Nell, Tuesdays. Teodor, nights, most. And somebody has written in green biro at the bottom: RING IF YOU WANT, NOT IF YOU SHOULD.
+else:
+    Under it, in pencil, one other name. Inez has left room for more.
+SOUND: Inez's chair creaks. A mug.
+INEZ: I'm going to bed. Don't ring me before Monday unless the building's on fire.
+INEZ: You can ring me if it's a small fire.
+Later, somebody will climb down the ladder into the deep end and leave the old speakerphone on the chair, plugged into a long cable, for anybody who wants to sit on the tiles and talk. Nobody has to.
+-> ch5_jad_final
+
+# ------------------------------------------------------------ Jad
+
+=== ch5_jad_final
+~ clk = 370
+->> tick
+if told_jad_away or (jad_declined_ch5 and not jad_rang_back):
+    ~ jad_state = "estranged"
+elif jad_letter == "yes" or holder == "jad" or jad_accepted_no:
+    ~ jad_state = "reconciled"
+else:
+    ~ jad_state = "uneasy"
+if jad_state == "estranged":
+    if jad_letter_ok:
+        @text jad "The letter's under all the doors. Coach is at ten past seven. I'm getting it. I'm not asking you anything. J."
+    else:
+        @text jad "Sal's got the forms. I didn't print anything. You said not to. Coach is at ten past seven, I'm getting it. I'm not asking you anything. J."
+    ~ jad_harwick = "go"
+    THINK: He isn't asking you anything. That's the whole message.
+    -> ch5_view_call
+@ring jad
+SOUND: Jad.
+* [answer] Answer.
+if end_body:
+    @view ari
+    You answer it with a hand. It's heavier than it looked.
+else:
+    @view none
+JAD: The coach is ten past seven. I could still get it.
+JAD: Do you want me to stay? You can say no. I'm asking. I'm asking what you want, and whatever it is, that's what it is.
+~ jad_asked_harwick = true
+* "Go."
+    ~ jad_harwick = "go"
+    JAD: Okay.
+    A long breath, the kind you do before lifting something, and then he doesn't lift it, he just puts it down.
+    JAD: Okay. Yeah. I'll go.
+* "Stay."
+    ~ jad_harwick = "stay"
+    JAD: Okay.
+    JAD: I'll ring them. I'll say I'm not coming. Again. They'll love that.
+    JAD: No, it's fine. It's what I want as well. I just wanted it to be what you want first.
+* "I don't want to decide that for you."
+    ~ jad_harwick = "his"
+    JAD: That's...
+    JAD: Yeah. That's fair. That's the actual answer, isn't it.
+    JAD: I'm going to go and get it, then. And ring you from it. If that's all right.
+    ~ jad_harwick_go = true
+if jad_harwick == "his":
+    ~ jad_harwick = "go"
+if jad_state == "uneasy":
+    JAD: I know you haven't... I know it's not fixed. I'm not asking for fixed.
+@hangup
+-> ch5_view_call
+
+# ------------------------------------------------------------ somebody wants you there
+
+=== ch5_view_call
+~ clk = 375
+->> tick
+if end_body:
+    @faint on
+if jad_state == "reconciled":
+    ~ view_caller = "jad"
+elif b_inez:
+    ~ view_caller = "inez"
+elif b_dima and (p_dima_call == "kept" or p_dima_call == "renegotiated_kept"):
+    ~ view_caller = "dima"
+elif told_teodor_not_him or teodor_gentle:
+    ~ view_caller = "teodor"
+else:
+    ~ view_caller = "nell"
+@ring {view_caller}
+SOUND: Ringing. Three notes up. The third one stops short, like it always has.
+* [answer] Answer.
+if view_caller == "jad":
+    -> view_jad
+elif view_caller == "inez":
+    -> view_inez
+elif view_caller == "dima":
+    -> view_dima
+elif view_caller == "teodor":
+    -> view_teodor
+else:
+    -> view_nell
+
+=== view_jad
+if jad_harwick == "go":
+    @set street fog
+    @cam bus_top
+else:
+    @set courtyard fog
+    @cam roof
+@acoustic street
+@call jad
+@view none
+@amb fog_morning
+JAD: Are you busy?
+JAD: I'm not ringing for anything. Look at this.
+* [look] Look.
+@view jad
+if end_body:
+    It's fainter than it was. Inez said it would go. It hasn't gone yet.
+if jad_harwick == "go":
+    The top deck of a bus, the front seat. The fog has come in off the river and filled the street to the height of the first floor. The tops of the lamp posts stick out of it, lit, one after another, like a row of people standing in water up to their necks.
+    The bus goes through it slowly. Nothing else is moving.
+else:
+    The roof of Ferrier Court. The fog has come in off the river and filled the courtyard to the height of the third floor. The roofs of the other wing stick out of it like the edge of a pool.
+    In the lit window across the way, just above the white, a standard lamp with its shade on.
+    JAD: He got it through.
+~ saw_fog = true
+JAD: That's all. I just wanted you to see it.
+-> ch5_tomorrow
+
+=== view_inez
+@set pool fog
+@cam inez_eye
+@acoustic pool
+@call inez
+@view none
+@amb fog_morning
+INEZ: Are you busy? No. Look at this.
+* [look] Look.
+@view inez
+if end_body:
+    It's fainter than it was. She said it would go. It hasn't gone yet.
+The pool hall. Somebody has left the fire door open onto the yard, and the fog has come in off the river and poured down into the pool, and filled it.
+To the brim. White, and still, and the lamps under it lit, so it glows from underneath.
+The chair in the deep end is gone under it. The ladder goes down into it and doesn't come out.
+~ saw_fog = true
+INEZ: The pool's full.
+INEZ: First time since eighty-eight.
+-> ch5_tomorrow
+
+=== view_dima
+@set bakery fog
+@cam dima_eye
+@acoustic bakery
+@call dima
+@view none
+@amb fog_morning
+DIMA: Are you busy? I'm not asking for anything. I'm on the loading bay. Look.
+* [look] Look.
+@view dima
+if end_body:
+    It's fainter than it was. Somebody said it would go. It hasn't gone yet.
+The loading bay, and past it the yard, and past that nothing: fog, all the way up. A rack of loaves wheeled out to cool in it, steaming, so you can't tell where the bread stops and the weather starts.
+A van's headlights come on somewhere inside the white and go nowhere.
+~ saw_fog = true
+DIMA: That's it. That's all. I just thought you should see it.
+-> ch5_tomorrow
+
+=== view_teodor
+@set courtyard fog
+@cam teodor_window
+@acoustic flat
+@call teodor
+@view none
+@amb fog_morning
+TEODOR: It's not three. I know. I'm not ringing because it's three. Look out of my window.
+* [look] Look.
+@view teodor
+if end_body:
+    It's fainter than it was. It hasn't gone yet.
+From the fifth floor, the courtyard is gone. Fog, level, all the way across, up to the windows of the third floor.
+On the third floor of the other wing, just above the white, a lit window. A standard lamp in it with its shade on.
+TEODOR: He got it through. The lamp man. I've been watching him all week.
+~ saw_fog = true
+-> ch5_tomorrow
+
+=== view_nell
+@set nell fog
+@cam nell_window
+@acoustic flat
+@call nell
+@view none
+@amb fog_morning
+NELL: Are you busy? Tobi wanted you to see this. That's all. She's not asking for anything. She's just pointing.
+* [look] Look.
+@view nell
+if end_body:
+    It's fainter than it was. It hasn't gone yet.
+A window with a child's handprints on it at the height of a child. Outside, fog, filling the courtyard to the third floor, level as water.
+TOBI: It's a swimming pool.
+NELL: It's weather.
+TOBI: It's a swimming pool.
+~ saw_fog = true
+-> ch5_tomorrow
+
+# ------------------------------------------------------------ tomorrow
+
+=== ch5_tomorrow
+if view_caller == "jad":
+    JAD: Can I ask you something? It's small.
+    if pref_food == "bread":
+        JAD: What do you want for breakfast tomorrow? Dima's going to bring bread whatever happens. I'm asking what else.
+    else:
+        JAD: What do you want for breakfast tomorrow? Not because I'm fixing anything. I just want to know what you'd want.
+    * "Toast. Forty slices, each one a bit darker."
+        JAD: The ninth one. I'll know it when I see it.
+    * "Tomorrow."
+        JAD: Tomorrow's not a breakfast.
+        ARI: It's what I want.
+        JAD: ...Yeah. Okay. Tomorrow, then.
+    * "I don't know yet. Ask me tomorrow."
+        JAD: I will. I'll ask you tomorrow.
+elif view_caller == "inez":
+    INEZ: I'm testing the lamps tomorrow night. Proper test, all six. You can come and watch if you want. Or not.
+    * "Tomorrow."
+        INEZ: Tomorrow.
+    * "Leave them on a bit longer, tomorrow."
+        INEZ: Yes.
+elif view_caller == "dima":
+    DIMA: I'm bringing you a slipper tomorrow. A roll. Before the van. You'll have to have a mouth.
+    if end_body:
+        ARI: I've got a mouth.
+        DIMA: Then tomorrow.
+    else:
+        ARI: I'll borrow yours.
+        DIMA: You will not. You can watch me eat it. Tomorrow.
+    DIMA: Still moving Wednesday. Bringing the {pref_chilli}. You can visit. It's forty minutes on the nineteen.
+elif view_caller == "teodor":
+    TEODOR: Tomorrow I'll do my lengths. Twenty. You could count. I lose count at fourteen. I always have.
+    * "Tomorrow. I'll count."
+        TEODOR: Good.
+    * "I'll start at fourteen."
+        TEODOR: That's cheating.
+        ARI: It's helping.
+        TEODOR: Tomorrow, then.
+else:
+    NELL: Tobi says come and see her drawing tomorrow. She's done the face. She won't show me.
+    * "Tomorrow."
+        NELL: She'll pretend she doesn't care. She'll be at the door from seven.
+    * "What colour are the eyes?"
+        NELL: She says it's a surprise. She says you have to come and find out. Tomorrow.
+~ said_tomorrow = true
+@hangup
+@faint off
+if b_dima and view_caller != "dima":
+    @text dima "still moving weds. bringing the {pref_chilli}. u can visit. 40 mins on the 19"
+-> ch5_casio
+
+# ------------------------------------------------------------ the casio
+
+=== ch5_casio
+~ clk = 390
+->> tick
+if end_body:
+    @comp room
+    @set office
+    @view ari
+    @cam main
+    Somebody has left Inez's Casio on the desk in G/1. The masking tape on it has been crossed out and rewritten underneath: TEST TONES. OR NOT.
+    Nobody's here. Nobody needs anything played.
+else:
+    @comp exchange
+    @set exchange
+    @view none
+    Inez has wired the Casio into 247 before going up to bed, so the keys come through on your line. The masking tape on it has been crossed out and rewritten underneath: TEST TONES. OR NOT.
+    Nobody's on the line. Nobody needs anything played.
+@casio
+if casio_resolved:
+    ~ phrase_resolved = true
+    SOUND: Five notes. The last one goes down, and stops there, and doesn't want anything after it.
+elif casio_played > 0:
+    SOUND: A few notes, in the order you wanted them.
+else:
+    SOUND: Nothing. The keys, and the quiet over them.
+Outside, the fog is starting to lift off the courtyard from the top down.
+@wait 1.5
+if end_appointment == "accepted":
+    @ending accept "On Call"
+elif end_appointment == "refused":
+    @ending refuse "{chosen_name}"
+else:
+    @ending shared "On Hold"
+-> END

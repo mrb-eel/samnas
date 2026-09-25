@@ -1,0 +1,607 @@
+# CHAPTER ONE: THE BAG
+# 23:14 to 00:05. Jad outside, a bag, a door, the office, two descriptions.
+
+=== start
+->> init_vars
+@phone_lock on
+@comp black
+@time 23:14
+@amb line_dark
+@chapter 1 "The Bag"
+@clear
+SOUND: Relays. A run of small clicks, a stop, another run.
+There's no direction to it yet. There's no floor for it to come up through. There are the clicks, and under them a hum that could be a room if it tried.
+@ring jad
+@wait 1.0
+SOUND: Ringing. Three notes going up, and the third one stops short, as if it forgot the rest.
+THINK: That's for me.
+* [answer] Answer it.
+    -> ch1_call
+* [decline] Let it ring.
+    ~ let_ring = true
+    SOUND: It rings itself out. The relays settle.
+    @ring off
+    @wait 1.4
+    @ring jad
+    SOUND: It starts again straight away. Whoever it is has pressed redial.
+    THINK: Still for me.
+    * [answer] Answer it.
+        -> ch1_call
+
+=== ch1_call
+@set street
+@cam jad_eye
+@acoustic street
+@call jad
+@view none
+@amb street_night
+SOUND: Wind across a microphone. Someone breathing close to it.
+JAD: Can you hear me?
+* "Yes."
+    JAD: Oh.
+    JAD: Okay. Good. Sorry. I was ready for the beep.
+    ~ ch1_open = "yes"
+* "There's a scraping noise."
+    JAD: My zip. Hang on.
+    SOUND: The scraping stops. A bus passes somewhere close to him.
+    JAD: Better?
+    ARI: I think so.
+    ~ ch1_open = "noise"
+* "Who's Jad?"
+    JAD: I am. It'll say Jad because I'm the one ringing.
+    JAD: Unless it says something else. What does it say?
+    ARI: Jad.
+    JAD: Then I'm Jad.
+    ~ ch1_open = "who"
+if let_ring:
+    JAD: You let it ring out, the first time.
+    * "I wasn't sure it was for me."
+        JAD: It's your number. I'd say it's for you.
+    * "I was busy."
+        JAD: Busy. Right.
+        JAD: Doing what?
+        ARI: Clicking.
+        His breath goes short on the line, the way it does when somebody nearly laughs and decides not to.
+JAD: Right. Good. I've got your bag.
+ARI: What bag?
+JAD: Blue one. Your name's on the handle.
+ARI: Is there a coat in it?
+A pause.
+JAD: Yeah.
+ARI: I thought there would be.
+THINK: You did think that. You don't know when you thought it.
+JAD: You want me to check the pockets?
+-> ch1_pockets
+
+=== ch1_pockets
+* "Please."
+    ~ jad_pockets = "allowed"
+    SOUND: Plastic. Corduroy dragged over plastic.
+    JAD: Bus ticket. Old. Route nineteen, all zones, March two thousand and nineteen.
+    JAD: And a plectrum. Guitar pick. Green. Somebody's chewed it.
+    ~ k_pocket_things = true
+    * "I don't play the guitar."
+        JAD: Someone did.
+        He says it lightly and then doesn't say anything after it.
+    * "Chewed?"
+        JAD: Round the edge. Like a dog's had it. Or someone who was thinking.
+    * "Put them back."
+        JAD: Back they go.
+        SOUND: A pocket, a pocket.
+* "Don't go through it."
+    ~ jad_pockets = "refused"
+    JAD: Fair.
+    SOUND: A zip closing halfway, slowly, so it won't catch the cloth.
+    JAD: I'll leave it. It's yours.
+    THINK: He says that easily.
+* "What colour is the coat?"
+    ~ asked_colour = true
+    JAD: Sort of brown.
+    ARI: That doesn't help.
+    JAD: I'm under a green light. I'm sort of brown.
+    JAD: So. Pockets?
+    -> ch1_pockets
+JAD: Look, I can't describe it better than that. It's a coat. It's got a collar. I'm not a coat man.
+JAD: I could send you a picture.
+* [look] "No. Can I look from where you are?"
+    -> ch1_first_look
+* "What's wrong with coats?"
+    JAD: Nothing's wrong with coats. I've got one coat. It's the one I'm wearing. That's the whole relationship.
+    JAD: Do you want the picture?
+    * [look] "No. Can I look from where you are?"
+        -> ch1_first_look
+
+=== ch1_first_look
+A pause. The bus is long gone. Near him, something metal knocks against a pole in the wind, twice.
+JAD: I don't know what that means.
+JAD: Sure. Go on, then.
+@view jad
+SOUND: The line doesn't change. Everything else does.
+Green, first. A green cross in a chemist's window across the road, flashing, and the whole street taking the colour each time it comes on.
+Then a hand inside a blue plastic bag, holding it open. There's a split in the skin beside the thumbnail, half healed, the edges gone white. The thumb moves a folded slip of paper out of the way to get at the cloth underneath.
+You are looking down because he's looking down. You didn't choose that.
+JAD: Huh.
+JAD: That's weird. It's like someone's reading over my shoulder.
+* "It's me."
+    JAD: Yeah. I got that.
+* "Sorry."
+    JAD: No, it's fine. It's warm. The back of my neck's gone warm.
+* Say nothing. Look at the coat.
+    He goes still. Then he lifts the coat into the light for you anyway.
+~ k_can_look = true
+@state bag open
+@spot coat 0.30 0.42 0.34 0.34
+@spot slip 0.12 0.62 0.22 0.20
+@spot key 0.66 0.66 0.16 0.16
+@spot token 0.52 0.74 0.12 0.14
+-> ch1_bag
+
+=== ch1_bag
+* [look][spot:coat] The coat.
+    Brown corduroy, rubbed pale at the elbows and cuffs. Under the green cross it goes the colour of pond water, then back to brown.
+    He turns the collar out for you. A woven name tape, the kind someone sews in by hand: M. VASS.
+    ~ k_nametape = true
+    * "Who's M. Vass?"
+        JAD: There's a Vass on the fifth floor.
+        That's all he says about it. He folds the collar back down.
+    * "Is it mine?"
+        JAD: It was in your bag.
+        THINK: That isn't yes. You notice it isn't yes.
+    * Keep looking at the sleeves.
+        They're long. Whoever it was cut for had arms longer than the man holding it.
+    -> ch1_bag
+* [read][spot:slip] The folded slip.
+    He unfolds it against his knee.
+    @show_doc slip
+    @gallery_add slip
+    ~ k_slip = true
+    ARI: Arrival.
+    JAD: Council words. Everything's an arrival or a departure with them.
+    JAD: Half five. Lobby. That's half five this morning, not tomorrow night. I checked.
+    * "What's responder induction?"
+        JAD: Training, probably. Where they show you where the kettle is.
+        JAD: I'm guessing. I don't know.
+    * "Bring one witness?"
+        JAD: Yeah. That bit's weird.
+    * "Who sent it?"
+        JAD: It says Community Services. It'll have come out of a machine in a basement.
+    -> ch1_bag
+* [look][spot:key] The key.
+    A Yale key on a split ring with a brown card tag. Somebody has written on the tag in thick marker: 247.
+    ~ k_keytag = true
+    THINK: The top of your phone says the same number. ext 247.
+    JAD: That's the lifeguard office. Ground floor, by the pool door. G/1.
+    ARI: There's a pool?
+    JAD: There was. There's a pool-shaped hole. We're all living on top of it.
+    -> ch1_bag
+* [look][spot:token] The brass disc.
+    A brass token, heavier than a coin, stamped round the rim: F.S.B. RECEIVING. In the middle, 47.
+    ~ k_token_seen = true
+    JAD: Ferrier Street Baths. That's this place, underneath. They'd have had lockers. You put a token in, you get a key.
+    THINK: A locker somewhere, with things of yours in it.
+    * "I had a locker."
+        JAD: Maybe.
+        JAD: Or you picked it up somewhere. People keep tokens. My mum's got a biscuit tin full of them from places that don't exist any more.
+    * "What's receiving?"
+        JAD: Deliveries, I'd have thought. Towels. Chlorine.
+        He turns it over. The back is smooth, worn by thumbs.
+    -> ch1_bag
+* {k_slip} That's enough for now.
+    -> ch1_door
+
+=== ch1_door
+@spots_clear
+@state bag closed
+@cam door
+JAD: Okay. Here's the actual problem.
+He looks up, and so do you. A glass door with wire mesh set into it in diamonds. Beside it, a steel panel with a grille and forty-two buttons. Some of the buttons have names taped on. Most don't.
+JAD: Intercom's been dead since August. And at eleven they changed the fobs over, for the closure, so mine's a bit of plastic now.
+He holds it to the reader to show you. A red light. Nothing else.
+JAD: So I'm outside.
+* "Where am I?"
+    JAD: You tell me. Where does it feel like?
+    * "Near water."
+        ~ ari_felt = "water"
+        JAD: Well. You'd be right, down there.
+    * "Somewhere with relays."
+        ~ ari_felt = "relays"
+        JAD: Relays. Right. Okay.
+    * "Nowhere yet."
+        ~ ari_felt = "nowhere"
+        JAD: That's... yeah. Okay.
+* "Can't you ring someone?"
+    JAD: I rang you.
+    JAD: That came out wrong. I mean you're who picked up.
+* "How do I get you in?"
+    JAD: That's the spirit.
+JAD: Your number's 247. 247 rings in the lifeguard office, inside. So you're inside. Sort of.
+JAD: From any phone in the building you dial 200, and that gets you the door panel. Then you press nine and the door lets go.
+ARI: I haven't got a phone. I'm on the phone.
+JAD: Then do whatever it is you do.
+THINK: There's a keypad. You know where it is the way people know where their hands are. You don't know how you know that about people.
+* [dial] Dial 200.
+    -> ch1_panel
+
+=== ch1_panel
+@sfx dial_200
+SOUND: Three tones. A hiss. The street arrives a second time.
+Now there are two streets. One through Jad's phone, one through the grille in the steel panel a metre from his ear. A bus goes past in both of them, and the second one is a fraction late.
+JAD: Is that you? The panel's hissing at me.
+* [dial] Press 9.
+    -> ch1_release
+* "Hello."
+    ~ spoke_through_panel = true
+    Your voice comes out of the grille beside him, tinny and far too loud, and he flinches away from the wall.
+    JAD: Jesus.
+    JAD: Okay. That's you in the door now. That's fine. Nine. Press nine.
+    * [dial] Press 9.
+        -> ch1_release
+
+=== ch1_release
+@sfx dial_9
+@sfx door_buzz
+SOUND: A buzz from the door, then the clunk of the lock letting go.
+He shoves the door with his shoulder before it can change its mind.
+SOUND: The second street drops away. There's one of everything again.
+JAD: ...Did you do that?
+* "Yes."
+* "The phone did."
+    JAD: The phone did. Sure.
+* "I think so."
+JAD: Okay.
+He doesn't move for a second. The door rests against his shoulder.
+JAD: Thanks.
+THINK: It's what you're there for.
+The sentence arrives already finished, like something read out to you. You didn't make it.
+* "It's what I'm here for."
+    ~ said_there_for = true
+    JAD: Is it.
+    He says it flat, not quite a question, and lets the door close behind him.
+* "Any time."
+    ~ said_any_time = true
+    JAD: Don't say any time. People hear any time.
+* "I don't know how I did it."
+    JAD: Join the club.
+-> ch1_lobby
+
+=== ch1_lobby
+@set lobby
+@cam jad_eye
+@acoustic lobby
+@amb lobby_hum
+@time 23:24
+The lobby is long and low, lit by one tube over the desk. Brown floor tiles. A row of orange plastic chairs bolted to a rail. Pigeonholes. A vending machine with a hand-written sign, EXACT MONEY ONLY, and under it in a different pen, AND EVEN THEN.
+The desk has a sign on a little stand: BACK IN 10 MINS. S. Next to it, a printed bus timetable with one time circled twice.
+SOUND: The tube over the desk hums. There's a tick in the hum, once a second, like a clock that's fallen behind.
+@spot notice 0.62 0.20 0.20 0.26
+@spot chairs 0.02 0.55 0.34 0.30
+@spot tray 0.44 0.58 0.16 0.14
+@spot tube 0.36 0.02 0.30 0.10
+-> ch1_lobby_look
+
+=== ch1_lobby_look
+* [read][spot:notice] The notice on the board.
+    @show_doc notice_lobby
+    @gallery_add notice_lobby
+    ~ k_notice = true
+    Jad has stopped in front of it. His thumb goes to the corner where the tape is lifting and presses it flat. He keeps it there longer than tape needs.
+    * "That's me."
+        JAD: That's your name, yeah.
+    * "What's a Community Responder?"
+        JAD: Someone who answers. When the desk's gone.
+        JAD: It's new. They made it up.
+        His thumb comes off the tape.
+    * "Thirty-five years."
+        JAD: Since before I was born. Sal's done the last eight of them.
+    -> ch1_lobby_look
+* [look][spot:chairs] The chairs.
+    Eight orange chairs on a rail, all facing the desk. The third has a crocheted cushion tied on with wool, pink and green squares.
+    ~ k_kaye_chair = true
+    JAD: Mrs. Kaye's. She waits there on Thursdays for the escort.
+    JAD: Waited. I don't know what the tense is.
+    -> ch1_lobby_look
+* [look][spot:tray] The wire tray on the desk.
+    A wire tray labelled DPC-1 RETURNS in felt-tip. A squared-off stack of forms. On the top one, in blue biro, the corner of a box: Contact name: ARI.
+    ~ k_tray = true
+    Jad's hand comes into view and turns the stack face down. Then he seems to hear himself doing it.
+    JAD: Sal's. It's confidential.
+    -> ch1_lobby_look
+* [listen][spot:tube] The tube over the desk.
+    Close to, you can hear that the tick is the starter trying, once a second, to do something it last managed years ago.
+    * "That's horrible."
+        ~ pref_hum = "hate"
+        JAD: It's been like that since June. You stop hearing it.
+        ARI: I won't.
+        JAD: No. Maybe you won't.
+    * "I like it."
+        ~ pref_hum = "like"
+        JAD: You like it.
+        ARI: It's trying.
+        JAD: ...Yeah. All right. It is.
+    * Keep listening.
+        ~ pref_hum = "listened"
+        He stands under it with you and doesn't ask why.
+    -> ch1_lobby_look
+* {k_notice} Go on. The office.
+    -> ch1_corridor
+
+=== ch1_corridor
+@spots_clear
+@cam corridor
+@time 23:27
+A corridor off the back of the lobby. Fire doors held open with wedges. A smell you can't smell, only see: bleach-coloured light, a mop bucket.
+JAD: Had a woman in tonight, right at close. Wanted forty copies of a photo of her dog.
+JAD: Each one a bit darker than the one before.
+* "Why?"
+    JAD: She said she'd know the right one when she saw it.
+* "What kind of dog?"
+    JAD: Lurcher. Grey round the mouth. He's eleven. She said every photo she's got of him looks like a different dog.
+    JAD: So. Forty goes at the right one.
+* "Forty?"
+    JAD: Forty. She'd worked it out. She said less than forty and you're guessing.
+JAD: It was the ninth. She held it up and said, there he is. Like he'd walked in.
+* "And the other thirty-one?"
+    JAD: She paid for forty. They're in the recycling. There are thirty-one slightly wrong dogs in a bin on Aldine Street.
+    ~ pref_funny = "dogs"
+* "I'd have wanted all forty."
+    JAD: Yeah? What for?
+    ARI: To watch him get darker.
+    JAD: ...That's a good point. I should tell her.
+    JAD: I'm not going to tell her.
+    ~ pref_funny = "dogs"
+* "That's a bit sad."
+    JAD: Is it? She was happy.
+    ARI: The other thirty-one.
+    JAD: They're not sad. They're just wrong. There's a difference. I work in a copy shop, I'd know.
+    ~ pref_sad_dogs = true
+~ jad_fun = true
+JAD: You're easy to talk to. For a...
+He stops walking.
+JAD: I was going to say for a phone. That's not how I meant it.
+JAD: Anyway. This is you.
+-> ch1_office
+
+=== ch1_office
+
+@set office
+@comp room
+@view plan
+@cam main
+@acoustic office
+@amb office_room
+@time 23:31
+SOUND: A handle rattling. A door that won't.
+JAD: Lift and shove. Everything down here is lift and shove.
+SOUND: The door gives all at once.
+And the room is there, all of it at once, in a way that isn't seeing. The phone on the desk is your phone. You know this room the way you know the phone: the corners, where the window is, where the cold comes in under the door.
+A small office. A window onto the pool hall, black. A desk with a beige phone. A camp bed made up with a blanket. A kettle on a filing cabinet. A coat hook with nothing on it.
+Jad stands in the middle of it with the bag hanging off his wrist.
+@spot bed 0.05 0.52 0.36 0.30
+@spot mug 0.66 0.40 0.12 0.14
+@spot window 0.34 0.08 0.40 0.34
+@spot phone 0.52 0.44 0.14 0.14
+-> ch1_office_look
+
+=== ch1_office_look
+* [look][spot:bed] The camp bed.
+    ~ k_prepared = true
+    Made, with the corners folded under properly. The blanket is crocheted, pink and green squares, the same as the cushion on the chair in the lobby.
+    JAD: Someone's made you a bed.
+    * "Who?"
+        JAD: People.
+        He puts the bag down at the foot of it, carefully, as if the bed might mind.
+    * "I don't sleep."
+        JAD: Do you know that?
+        ARI: No.
+        JAD: Then leave it made.
+    THINK: Somebody expected you home.
+    -> ch1_office_look
+* [look][spot:mug] The mug on the cabinet.
+    A mug with a teabag already in it, dry. The handle is turned out to the right.
+    JAD: Somebody's optimistic.
+    -> ch1_office_look
+* [look][spot:phone] The desk phone.
+    -> ch1_desk_phone
+* [look][spot:window] The window.
+    -> ch1_window
+* {k_desk_phone and k_window} Ask him what happens now.
+    -> ch1_what_now
+
+=== ch1_desk_phone
+~ k_desk_phone = true
+It's beige, with a label on the handset in the same marker as the key tag: 247.
+JAD: So if you're 247...
+He picks up the receiver. He keeps his own phone at his other ear.
+* "Don't."
+    Your word comes out of the receiver in his left hand a moment after you use it. Thin, and higher than you expected. It's the first time you've heard your voice from outside.
+    You didn't know you'd expected anything.
+* "Hello?"
+    It comes out of the receiver in his left hand a moment after you use it. Thin, and higher than you expected. It's the first time you've heard your voice from outside.
+    You didn't know you'd expected anything.
+* Say nothing.
+    JAD: Hello?
+    It reaches you twice. Once from his phone and once, a moment late, from the receiver in his other hand, which is also you. He hears the second one too.
+JAD: Yeah. You're in there as well.
+He puts the receiver back very gently, the way you put down something you don't want to wake.
+JAD: Okay. Right.
+JAD: Here's what we know. You're on 247. That's this phone. You're not in this room, because I'm in this room and so's a bed and nobody's in the bed.
+JAD: If this is Nell doing a voice, it's very good and I'll buy her a drink. If it isn't Nell, I'd honestly quite like it to be Nell.
+A pause.
+JAD: That was a joke.
+* "Who's Nell?"
+    JAD: Third floor. Does voices. Wouldn't do this.
+* "I'm not Nell."
+    JAD: No. I didn't think you were.
+* "It was nearly a joke."
+    JAD: Thanks. I'll take nearly.
+-> ch1_office_look
+
+=== ch1_window
+~ k_window = true
+* [look] "Can I look? Through you, at the window."
+    JAD: Go on.
+@comp call
+@view jad
+@cam window
+The window is black glass with the office laid over it. There's the lamp, the camp bed, the kettle. There's a man in a grey zip-up jacket, thirty or so, tired around the eyes, looking straight at you and not at you.
+You look for yourself in it. There's nobody else.
+Further in, past the reflection, far below, the dark of the pool hall. And something moving in it. Slowly, left to right, the height of a person. Then it's gone behind the reflection of the lamp.
+* "Something moved down there."
+    ~ k_pool_movement = true
+    JAD: Where?
+    He leans in and cups a hand against the glass, and the reflection goes. Now you can see the pool hall: blue-black, the white lip of the edge, the shape of a diving board with no board on it. Nothing moves.
+    JAD: It's the pool. There's nothing in the pool.
+* "I can see you."
+    JAD: What?
+    ARI: In the window. You. Not me.
+    He turns his back on the glass, and the view turns with him: bed, door, the bag on the floor.
+    JAD: Sorry. That's a strange thing to be told.
+    ~ told_jad_reflection = true
+@comp room
+@view plan
+@cam main
+-> ch1_office_look
+
+=== ch1_what_now
+JAD: So. What do you want? Right now. What are you trying to do?
+* "Find out where I belong."
+    ~ ari_goal = "belong"
+    JAD: Right. Okay. That's a normal thing to want.
+* "Find out what I am."
+    ~ ari_goal = "what"
+    JAD: Start small, why don't you.
+* "I don't know yet."
+    ~ ari_goal = "unknown"
+    JAD: That's allowed.
+He takes the slip out of the bag again and reads it, though he's already read it.
+JAD: Half five, lobby. That's six hours. I can help before then. If you want.
+* "Yes."
+    ~ jad_help = "accepted"
+    JAD: Good. Okay. Good.
+* "Why would you?"
+    ~ jad_help = "questioned"
+    JAD: Because I've got your bag.
+    It isn't an answer and he knows it isn't. He says it anyway.
+* "I'll manage."
+    ~ jad_help = "declined"
+    JAD: Right. Sure.
+    For a second he sounds like someone who's been told there are enough chairs.
+    JAD: I'll help a bit anyway. You can tell me to stop.
+-> ch1_teodor
+
+=== ch1_teodor
+@sfx knock
+SOUND: Three knocks on the office door. Careful ones, evenly spaced.
+@state teodor door
+@portrait teodor neutral oval
+A tall old man in the doorway: dressing gown over trousers, outdoor shoes, a tartan flask held against his chest in both hands. White eyebrows like two small moustaches.
+TEODOR: I saw the light. Is he here?
+JAD: Who?
+TEODOR: Ari.
+Jad glances down at his phone, which is you.
+JAD: Not... yet.
+Teodor sees the coat, folded on the camp bed where Jad has left it.
+TEODOR: Good. He'll want that. It's cold down here at night. The boiler's been off since the eighties.
+TEODOR: Tall lad. Dark hair. He'll want the length in the sleeves.
+THINK: Tall. Dark. You try the words on. They don't fit or not fit. They sit there.
+~ k_desc_teodor = true
+* Speak to him through Jad's phone.
+    ~ spoke_teodor_ch1 = true
+    ARI: Hello, Teodor.
+    His eyes go to the phone in Jad's hand. He steps closer to it, and leans down a little, the way people lean to a microphone at a wedding.
+    TEODOR: Ari.
+    TEODOR: You sound tired. Of course. First night.
+    He puts the flask on the desk, next to your phone.
+    TEODOR: Tea. Milk, no sugar. If you take sugar, I'm sorry, I guessed.
+    * "No sugar's fine."
+        ~ pref_tea = "no_sugar"
+        TEODOR: Good. Good.
+    * "I don't know if I take sugar."
+        TEODOR: Then you'll find out. That's the good part.
+    * "Thank you."
+        TEODOR: It's nothing.
+* Stay quiet.
+    He looks at the phone in Jad's hand for a while, then at the empty bed.
+    He puts the flask on the desk, next to your phone.
+    TEODOR: For when he comes.
+TEODOR: Tell him Teodor, 5A. He knows me. We've spoken.
+~ k_teodor_spoken = true
+He nods to Jad, who nods back, and goes. You hear his outdoor shoes all the way down the corridor.
+@portrait off
+@state teodor off
+JAD: He's all right. Teodor.
+JAD: He doesn't sleep much.
+-> ch1_kaye_text
+
+=== ch1_kaye_text
+@time 23:52
+@phone_lock off
+@contact_add kaye
+@text kaye "Dear Ari, Welcome to Ferrier Court. I hope the office is not too cold. I am so glad you are starting. I will know you on Thursday by your red glasses and your short fair hair, I am quite sure. The appointment is 8.40 so the 36 bus at 7.55 from outside. With best wishes, Bernadette Kaye (Mrs), Flat 2C"
+SOUND: Your phone buzzes. Not in the room: in you, the way a phone buzzes in a pocket.
+JAD: Is that you? Something just buzzed in the desk.
+THINK: A message. (The phone: P, Tab, or the button at the top.)
+~ k_desc_kaye = true
+* [read] Read it now.
+    @phone thread kaye
+    -> ch1_kaye_reply
+* [defer] Leave it for a minute.
+    @reply kaye ch1_kaye_reply_later "Answer Mrs. Kaye"
+    ~ p_kaye_reply = "pending"
+    -> ch1_end
+
+=== ch1_kaye_reply_later
+@phone thread kaye
+->> ch1_kaye_reply_body
+@phone close
+return
+
+=== ch1_kaye_reply
+->> ch1_kaye_reply_body
+@phone close
+-> ch1_end
+
+=== ch1_kaye_reply_body
+She writes like a letter. Full stops. A signature.
+* [text] "Thursday, the 36 at 7.55. I'll be there."
+    @sent kaye "Thursday, the 36 at 7.55. I'll be there."
+    ~ p_kaye_thursday = "made"
+    ~ p_kaye_reply = "answered"
+    THINK: You said it. It's said now. It's in her phone.
+* [text] "Who told you I have red glasses?"
+    @sent kaye "Who told you I have red glasses?"
+    ~ p_kaye_reply = "asked_glasses"
+    ~ asked_kaye_glasses = true
+    Nothing comes back. It's nearly midnight. She'll have sent it and gone to bed.
+* [text] "Can I answer you properly in the morning?"
+    @sent kaye "Can I answer you properly in the morning?"
+    ~ p_kaye_reply = "deferred"
+    ~ p_kaye_morning = "made"
+    THINK: The morning. That's a promise too, a smaller one.
+* [defer] Close it. Not yet.
+    @reply kaye ch1_kaye_reply_later "Answer Mrs. Kaye"
+    ~ p_kaye_reply = "pending"
+return
+
+=== ch1_end
+@view plan
+ARI: Someone's texted me. Mrs. Kaye.
+JAD: Bernadette. Second floor.
+ARI: She says I've got red glasses. Short fair hair.
+JAD: Right.
+ARI: And Teodor says I'm tall and dark.
+Jad says nothing. He's looking at the camp bed.
+* [ask] "What do I look like?"
+    ~ asked_look = true
+* [ask] "Which one's right?"
+    ~ asked_look = true
+JAD: I don't know.
+He sits down on the edge of the desk, not the bed.
+JAD: I've never seen you.
+@comp call
+@view jad
+@cam window
+In the black window: the lamp, the bed, the bag, a man sitting on a desk with a phone at his ear.
+That's all there is.
+@wait 1.5
+-> ch2_start

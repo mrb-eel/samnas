@@ -1,0 +1,892 @@
+# CHAPTER TWO: PEOPLE WAITING
+# 00:05 to 01:40. Drift. The building. Dima's window. Nell's moth. Sal's script.
+# Jad back. Inez rings from the frame. The pool lights.
+
+=== ch2_start
+@chapter 2 "People Waiting"
+~ clk = 5
+~ tick_n = 0
+->> tick
+@comp room
+@set office
+@view plan
+@cam main
+@amb office_room
+@clear
+Jad is sitting on the desk with his feet on the chair. He's taken his jacket off and put it back on again.
+JAD: I need to go up to mine for a bit. Twenty minutes.
+* "What for?"
+    JAD: Paperwork. It's always paperwork with me.
+    ~ jad_evasive = true
+* "Stay."
+    ~ asked_jad_stay = true
+    JAD: I'll come back. I'll ring you back. Twenty minutes.
+    JAD: I need to check something before I say something stupid.
+* "Fine."
+    JAD: Fine. Good.
+JAD: You can ring people while I'm gone. Anyone in the building. It's all on the exchange: the flats are two-something.
+JAD: Dima's up, 3D, they're on nights. Nell's always up, 3B. Don't ring Mrs. Kaye, she's in bed by half ten. Teodor you've met.
+JAD: Sal's back on the desk now, probably, so you might get Sal.
+@contact_add dima
+@contact_add nell
+@contact_add teodor
+@contact_add sal
+@callable dima ch2_dima_call
+@callable nell ch2_nell_call
+@callable teodor ch2_teodor_try
+@avail kaye off "Asleep. Her light's been off since half ten."
+@avail sal off "Sal hasn't come back to the desk yet."
+@avail jad off "Upstairs. He said he'd ring you."
+JAD: Right. I'm hanging up now. I'll ring you back.
+* "Don't."
+    JAD: I'll ring back. I promise.
+    THINK: He said promise. You file it somewhere.
+    ~ p_jad_ringback = "made"
+* "Okay."
+    ~ p_jad_ringback = "made"
+@hangup
+@amb off
+The line closes.
+For a moment you're still here, in the shape of the office, in the shape of the phone.
+~ tick_n = 12
+->> drift
+Then it's nineteen minutes past twelve, and it was seven minutes past. Nothing happened in between. Not even waiting.
+THINK: Where did that go?
+~ drifts += 1
+@set building
+@cam main
+@view plan
+@amb building_night
+The building arrives the way the office did. Not seen. Known, the way the wiring knows it.
+Six floors of flats stacked over a hollow. Forty-two phones. A lift shaft, a stair. Under all of it the pool, and off the pool a room of relays, and somewhere in the relays, you.
+Some of the phones are warm, the way a phone is warm when there's someone near it. 3D. 3B. 5A. The lobby desk.
+@state lit 3D,3B,5A,lobby
+-> ch2_hub
+
+=== ch2_hub
+@set building
+@comp room
+@view plan
+@cam main
+if ch2_dima_done and not ch2_nell_texted:
+    ~ ch2_nell_texted = true
+    ->> ch2_nell_text
+if ch2_dima_done and not ch2_sal_done:
+    -> ch2_sal
+* [call] {not ch2_dima_done} Ring 3D. Dima.
+    ->> ch2_dima_call
+    -> ch2_hub
+* [call] {not ch2_nell_done} Ring 3B. Nell.
+    ->> ch2_nell_call
+    -> ch2_hub
+* [call] {not ch2_teodor_tried} Ring 5A. Teodor.
+    ->> ch2_teodor_try
+    -> ch2_hub
+* [call] {not ch2_kaye_tried} Ring 2C. Mrs. Kaye.
+    ->> ch2_kaye_try
+    -> ch2_hub
++ {ch2_dima_done and not ch2_sal_done} Wait.
+    -> ch2_hub
++ {ch2_sal_done} Wait for Jad to ring back.
+    -> ch2_jad_back
+
+# ------------------------------------------------------------ gaps between calls
+
+=== call_gap
+if hold_fixed:
+    ~ tick_n = gap_n
+    ->> tick
+    if pref_hold == "rain":
+        SOUND: The line closes and the hold takes you: rain on a skylight, recorded twenty years ago.
+    elif pref_hold == "lamps":
+        SOUND: The line closes and the hold takes you: the pool lamps' hum, steady as a held note.
+    else:
+        SOUND: The line closes and the hold takes you: the council's organ, four notes and round again.
+else:
+    ~ tick_n = gap_n
+    ->> drift
+    ~ drifts += 1
+return
+
+# ------------------------------------------------------------ Teodor (no answer)
+
+=== ch2_teodor_try
+~ ch2_teodor_tried = true
+@callable teodor off "Doesn't pick up. His light's on."
+@sfx ring_out
+SOUND: It rings in 5A. Eight times. Nobody picks up.
+That's all it is: a phone ringing in a flat where somebody isn't, just then. His light is still on, in the shape you know him by.
+THINK: He'll be making tea. He'll be in the bathroom. People are allowed to be in the bathroom.
+~ gap_n = 3
+->> tick_only
+return
+
+=== tick_only
+~ tick_n = gap_n
+->> tick
+return
+
+# ------------------------------------------------------------ Mrs. Kaye (asleep)
+
+=== ch2_kaye_try
+~ ch2_kaye_tried = true
+It's gone half twelve. Jad said she's asleep by half ten. Her phone, on the plan, is cold.
+* [call] Ring anyway.
+    ~ rang_kaye_late = true
+    @sfx ring_out
+    SOUND: Four rings, then a click, and a tape machine starts.
+    KAYE: You've reached Bernadette Kaye. I'm not able to come to the telephone. Please speak after the tone and I'll ring you back when I'm able.
+    SOUND: A long tone.
+    * "It's Ari. I got your message. Sorry, it's late."
+        ~ left_kaye_message = true
+        SOUND: The tape keeps turning after you stop, patient, until it times out.
+    * Hang up without saying anything.
+        SOUND: The tape records a few seconds of your nothing, and stops.
+* Leave her sleeping.
+    ~ let_kaye_sleep = true
+    THINK: There's a whole Thursday still to get through before anybody needs her awake.
+return
+
+# ------------------------------------------------------------ Dima
+
+=== ch2_dima_call
+~ ch2_dima_done = true
+@callable dima off "Getting ready for work."
+@set courtyard
+@cam dima_sill
+@acoustic flat
+@call dima
+@view none
+@amb flat_night
+~ gap_n = 1
+->> tick_only
+SOUND: Four rings. A clatter: the phone knocked over and set upright.
+DIMA: Hello? Who's...
+DIMA: This says 247. That's the pool office.
+* "It's Ari."
+    DIMA: Oh! Mrs. Kaye's Ari.
+    ~ dima_intro = "ari"
+* "I don't know yet. The phone says Ari."
+    DIMA: Well, if the phone says.
+    DIMA: Mrs. Kaye's Ari, then.
+    ~ dima_intro = "unsure"
+DIMA: Hang on, I'm folding. You're on speaker. I've propped you on the windowsill against the Apricot.
+ARI: The what?
+DIMA: The Apricot. It's a chilli. Don't knock it over, it's got two on it.
+SOUND: Cloth snapped straight. A radio, low: someone reading the late news to nobody in particular.
+* [look] "Can I see? From where you're standing?"
+    DIMA: If you want to watch me fold pants. Go on.
+* [listen] Listen for a while first.
+    SOUND: Fold, smooth, fold. A drawer. The radio. A long way off, a car alarm that gives up.
+    DIMA: You're very quiet for someone who rang.
+    ARI: Can I see? From where you're standing?
+    DIMA: If you want to watch me fold pants. Go on.
+@view dima
+~ looked_dima = true
+Dima is standing at the window with a basket on the radiator shelf. Their hands come into view and go out of it with towels. A row of yoghurt pots on the sill, each with a chilli plant in it, each with a lolly-stick label.
+Beyond the glass: the courtyard, four storeys down, bins and a bike and a dead Christmas tree nobody has claimed since January. Across it, the other wing. One window lit on the third floor.
+DIMA: Oh, he's at it again.
+ARI: Who?
+DIMA: Across. Third floor, the other wing. Look.
+@state lampman 1
+In the lit window a man in a vest is carrying a standard lamp. A tall one, with a pleated shade. He walks it at a doorway. The shade meets the frame and stops. So does he.
+DIMA: He's been trying to get that lamp through that door since I got in from the shop. That was half nine.
+-> ch2_lamp
+
+=== ch2_lamp
+* [look] Keep watching.
+    ~ lamp_watch += 1
+* "Why doesn't he take the shade off?"
+    ~ lamp_shade_q = true
+    DIMA: That's what I said. Out loud. To a window.
+* [listen] Say nothing.
+    ~ lamp_watch += 1
+    The radio finishes the news and starts the weather.
+@state lampman 2
+He tips the lamp forward like a lance and tries again. The shade catches the top of the frame this time instead of the side.
+DIMA: New approach. Bold.
+* [look] Keep watching.
+    ~ lamp_watch += 1
+* "He should just take the shade off."
+    ~ lamp_petty = true
+    DIMA: He should. But he won't. He's committed now. He's past the point where taking the shade off would feel like winning.
+* "Maybe the shade doesn't come off."
+    DIMA: Every shade comes off. That's what makes it a shade.
+@state lampman 3
+He lays the whole thing nearly flat and walks it in like a stretcher. The shade drags on the carpet. He stops, horrified for it, and stands it upright again.
+@state lampman 4
+Then he just looks at it. For a long time. The lamp stands there and takes it.
+DIMA: This is the bit where he thinks.
+* [listen] Let him think.
+    ~ lamp_watch += 1
+    Fold. Smooth. Fold. Dima has stopped folding, actually. Their hands are holding a towel against their chest and not doing anything with it.
+* "What's he thinking?"
+    DIMA: That the door's got smaller. That's what I'd think.
+@state lampman 5
+He tries sideways, turning his body into the doorway with the lamp held against him, like carrying someone over a threshold.
+@state lampman 6
+A woman in a dressing gown comes up behind him, lifts the shade off the lamp in one movement, walks through the door with it, and is gone.
+He stands in the doorway holding the pole.
+He looks at the door. He looks at the pole.
+SOUND: Dima laughs. It comes up out of them sideways, the kind you can't do anything about.
+~ saw_lampman = true
+* "I'd have taken the shade off."
+    ~ pref_funny = "lamp"
+    DIMA: Everyone would've. That's why it's the best thing I've seen all week.
+* "I like him."
+    ~ pref_funny = "lamp"
+    ~ liked_lampman = true
+    DIMA: Yeah. Me too. I don't know his name. I've lived here four years and I know them all by lamp.
+* "Who is she?"
+    DIMA: No idea. Someone who knows how shades work.
+DIMA: God. Okay. Okay. I've got to pack these plants.
+-> ch2_chillies
+
+=== ch2_chillies
+@state lampman 0
+@cam dima_room
+DIMA: Do you know anything about chillies?
+* "No."
+    DIMA: Good. Nobody does. They just say they do.
+* "They're hot."
+    DIMA: Some of them. That's like saying dogs are brown.
+DIMA: I've got eleven. There's room in the van for six. The van's Wednesday.
+DIMA: I rate them by how long you can't talk after. The Fatalii's a minute and a half. The Padrón's none, unless it's the one in ten, and then it's a minute and you feel betrayed.
+They hold them up one at a time to the phone, as if you've got a vote.
+DIMA: Apricot. Lemon Drop. Fatalii. Bishop's Crown. Padrón. Hungarian Hot Wax. Joe's Long. Cheyenne. Aji Charapita. Numex Twilight. And this one, which I grew from a seed out of a takeaway and never found out what it was.
+DIMA: Pick one to save. Go on. Then it's not my fault.
+* "Bishop's Crown."
+    ~ pref_chilli = "Bishop's Crown"
+    DIMA: Don't pick it because it looks like a hat.
+    * "It does look like a hat."
+        DIMA: It does look like a hat. Fine. It was always coming. It's the best one.
+    * "I didn't."
+        DIMA: You did. It's fine. It's the best one anyway.
+* "The one from the takeaway."
+    ~ pref_chilli = "takeaway one"
+    DIMA: That's the one I was going to leave.
+    DIMA: Fine. Fine! It's coming. It's never been anywhere, it might as well go to Southmere.
+* "Numex Twilight."
+    ~ pref_chilli = "Numex Twilight"
+    DIMA: Because of the name.
+    ARI: Because of the name.
+    DIMA: It goes purple, then yellow, then orange, then red, all on the same plant. It can't decide. You'll get on.
+* "The Padrón. For the one in ten."
+    ~ pref_chilli = "Padrón"
+    DIMA: You like a gamble.
+    ARI: I like that it doesn't tell you.
+    DIMA: Mm. It's coming.
+DIMA: What do you eat, anyway? If you eat.
+* "I don't know if I eat."
+    DIMA: Everyone eats something. Even if it's just, like, the smell of other people's toast.
+    ~ pref_food = "unknown"
+* "Bread. You smell of it. Or you would."
+    ~ pref_food = "bread"
+    DIMA: I do smell of it. Permanently. My pillow smells of it. I'll bring you a heel of something in the morning, if you've got a mouth by then.
+* "Whatever's in Teodor's flask."
+    ~ pref_food = "tea"
+    DIMA: Tea, then. That's a start. That's most people's start.
+-> ch2_thursday
+
+=== ch2_thursday
+@cam dima_sill
+DIMA: Can I ask you something, while I've got you?
+DIMA: Are you taking Mrs. Kaye on Thursday?
+if p_kaye_thursday == "made":
+    ARI: I said I would. She texted me.
+    DIMA: Oh, thank God. Right, then you need to know: at St Anne's you don't go in the front, the front's got steps. Round by the car park, there's a lift that smells of soup. Eye unit's floor two. She'll say she can do the steps. She can't do the steps.
+    ~ k_kaye_route = true
+    ARI: Dima. I don't know if I can get on a bus.
+    A pause. The radio has moved on to music.
+    DIMA: Then tell her that. Soon. Don't let her find it out at the bus stop at five to eight.
+    ~ dima_warned_kaye = true
+else:
+    ARI: Should I be?
+    DIMA: Someone has to. I can't. I told her I can't. I told her in March.
+    ~ k_thursday = true
+DIMA: I used to take her. Every time. The desk would book an escort and the escort would cancel and I'd take her. And now I start on the Tuesday at the new place, and the van's Wednesday, and Thursday I have to be at the letting agent at nine because of the fob, and the fob's a whole thing, and...
+DIMA: Anyway. I can't. I'm allowed to not.
+* "You're allowed to not."
+    ~ dima_allowed = true
+    DIMA: Thank you. You're the first person who's said that like it isn't a question.
+* "Can't you swap the letting agent?"
+    ~ pushed_dima = true
+    DIMA: No.
+    DIMA: I said no. I've said no to her, I've said no to Jad, and now I'm saying it to a phone. The answer's no, and I'm allowed to go.
+    * "Sorry."
+        DIMA: It's fine. It's not fine. It's fine.
+    * "Okay."
+* "Who takes her now?"
+    DIMA: The service. Did. The desk. From six this morning it's her contact.
+    DIMA: Which is you. Apparently.
+    ~ k_thursday = true
+~ k_closure_practical = true
+DIMA: Sorry. It's not your fault they're shutting the desk. It's a lot of things. None of them are yours.
+-> ch2_dima_change
+
+=== ch2_dima_change
+DIMA: Right. I've got to get changed for work, and you're... in my eyes, sort of? Is there a way you can look away? Is that a thing?
+* [respect] "I'll look away."
+    @view none
+    ~ b_dima = true
+    The window goes. The room goes. You're back to the line: a drawer, a zip, the radio.
+    DIMA: Thanks. That's... thanks. That's more than the man upstairs does, and he's only got a telescope.
+* [respect] "I'll stay on, but I won't look."
+    @view none
+    ~ b_dima = true
+    The window goes. You're back to the line: a drawer, a zip, the radio, a foot looking for a shoe.
+    DIMA: Thanks. Genuinely.
+* [look] Keep looking.
+    ~ b_dima = false
+    You don't let go. The window, the plants, the room turning as they turn away from the glass.
+    Their hands stop on the zip of their fleece.
+    DIMA: ...You're still there, aren't you. I can feel it on my neck.
+    DIMA: Get off.
+    @view none
+    SOUND: The phone knocked flat. Then the line cut.
+    @hangup
+    ~ dima_cut_off = true
+    @callable dima off "Won't pick up for you."
+    @text dima "Don't do that again."
+    ~ gap_n = 14
+    ->> call_gap
+    return
+DIMA: Right. Ring me at three? I get a break at three and I'm always bored on it. You can tell me what you are by then.
+* "I'll ring at three."
+    ~ p_dima_call = "made"
+    DIMA: Three. Good. It's a date. It's not a date. It's a break.
+* "I might not be able to."
+    ~ p_dima_call = "maybe"
+    DIMA: Then text me if you can't. That's all I ask of anyone. Text.
+* "Why do you want to know what I am?"
+    DIMA: Because I'd like to. Is that allowed?
+    * "I'll ring at three."
+        ~ p_dima_call = "made"
+        DIMA: Three.
+    * "I don't know if I'll know by three."
+        ~ p_dima_call = "maybe"
+        DIMA: Then ring and tell me you don't know. That's still something.
+DIMA: Coat. Keys. Bread doesn't make itself.
+DIMA: Well. It does, mostly. I just watch it.
+@hangup
+@avail dima off "At work. Break at three."
+~ gap_n = 14
+->> call_gap
+return
+
+# ------------------------------------------------------------ Nell
+
+=== ch2_nell_text
+~ gap_n = 2
+->> tick_only
+@contact_add nell
+if ch2_nell_done:
+    @text_doc nell nell_form "ok so this is the form. sal says contacts have to countersign by 6 or it doesn't count. i can't believe i'm asking a phone"
+    @reply nell ch2_nell_reply "Answer Nell about the form"
+else:
+    @text_doc nell nell_form "lol. sal says my contact has to countersign by 6. so. fake ari. if ur out there. sign here"
+    @reply nell ch2_nell_reply "Answer Nell about the form"
+~ k_nell_form = true
+return
+
+=== ch2_nell_reply
+@phone thread nell
+The form is a photo of a photocopy. Nell's handwriting in the boxes. In Contact name, in different handwriting, neat capitals: ARI. Telephone: 01632 960 247. Date: 14 August.
+THINK: Fourteenth of August. That's six weeks ago. You have been here since quarter past eleven.
+~ k_six_weeks_form = true
+* [text] "I don't think I've got hands to sign with."
+    @sent nell "I don't think I've got hands to sign with."
+    ~ p_nell_sign = "honest_no"
+    NELL> ok that's the most normal thing anyone's said to me today
+    NELL> i'll ask sal what counts
+* [text] "I'll sign if I can."
+    @sent nell "I'll sign if I can."
+    ~ p_nell_sign = "made"
+    NELL> ok. thank u. weirdly
+* [text] "Who wrote my name on your form?"
+    @sent nell "Who wrote my name on your form?"
+    ~ asked_nell_who = true
+    NELL> ...
+    NELL> ask jad
+    ~ k_ask_jad = true
+@phone close
+return
+
+=== ch2_nell_call
+~ ch2_nell_done = true
+@callable nell off "Putting Tobi back to bed."
+@set nell
+@cam nell_eye
+@acoustic flat
+@call nell
+@view none
+@amb nell_bath
+~ gap_n = 1
+->> tick_only
+SOUND: One ring. Picked up so fast it must have been in her hand.
+NELL: Hello? Hello.
+NELL: Oh my god. Someone picked up.
+NELL: Who is this?
+* "Ari."
+    A silence with a lot in it.
+    NELL: No it isn't.
+* "The phone says Ari."
+    NELL: Yeah, it says Ari on mine as well. That's not what I asked.
+NELL: Is this Jad? Jad, if this is you doing a voice at one in the morning I will actually kill you.
+* "It's not Jad."
+* "Jad said you do voices."
+    NELL: I do do voices. I'm not doing one now. Are you?
+    ARI: No.
+NELL: Then who put you up to it? Who are you?
+* "Nobody put me up to anything."
+    ~ nell_told_nobody = true
+* "I don't know yet. I'm working it out."
+    ~ nell_told_unknown = true
+NELL: Okay. Okay. I'm going to deal with this in a minute, because I've got a situation.
+NELL: There's a moth in the bathroom lampshade and Tobi won't wee till it's gone, and I'm stood on the side of the bath with a pint glass.
+* [look] "Can I see?"
+    NELL: If you can do that, then sure, come and look at this bastard. Sorry. Not you. The moth.
+* "What kind of moth?"
+    NELL: A big one. A brown one. A moth-shaped one. Do you want to look or not?
+    * [look] "Yes."
+@view nell
+~ looked_nell = true
+A bathroom ceiling, close. A paper lampshade lit from inside, and on the inside of the paper a shadow the size of a hand, opening and shutting.
+Her own hand comes up with a pint glass. In the other, for a lid, a folded letter with the council's crest on it.
+SOUND: Wings on paper, like someone flicking through a book fast.
+A voice from the doorway, small and very awake.
+TOBI: Is it Ari?
+NELL: Go back to bed.
+TOBI: Is it the Ari from my drawing?
+NELL: Tobi. Bed.
+* "Hello, Tobi."
+    ~ spoke_tobi = true
+    A silence from the doorway, then feet going fast down a hall.
+    NELL: That's the quickest she's gone to bed in her life. Do that again at eight tonight.
+* Keep quiet. Watch the moth.
+The shadow stops. The glass goes over it. The letter slides across the rim, and the lampshade is empty and just a lampshade.
+Nell climbs down off the bath, glass held out in front of her like something that might spill, and gets the window open with her elbow.
+SOUND: A window catch. Air. Nothing.
+NELL: Did you see that? Tell me you saw that.
+* "I saw it."
+    NELL: Witness. Great. Somebody finally saw me do something.
+    ~ nell_witness = true
+* "You were very good with the glass."
+    NELL: Nine years in care work. Glass and a letter, that's the whole job.
+@state tobi_drawing on
+NELL: Right. While you're here. Tobi drew you. For school. A person who helps in our community. I said I'd send it you if you ever turned up.
+NELL: So. You turned up.
+@text_doc nell tobi_drawing "tobi says she left the face for later"
+~ k_tobi_drawing = true
+@show_doc tobi_drawing
+* "Why no face?"
+    NELL: She said she didn't know it yet. She said she'd do it when she met you.
+* "It's a good coat."
+    NELL: It's a massive coat. She's obsessed with the coat. I don't know where she got the coat from.
+* "Tell her thank you."
+    NELL: I will. She'll pretend she's not pleased.
+if looked_nell:
+    She's typing on her phone with one thumb, the pint glass still in the other hand. You're looking where she's looking, so you're looking at her screen.
+    * [look] Read the name at the top of her screen.
+        -> ch2_nell_screen
+    * Look at the ceiling instead.
+        ~ b_nell_phone = true
+        ~ nell_screen_polite = true
+        The lampshade. Empty. Still swinging a little.
+        NELL: Thank you for that, by the way. Not reading it.
+-> ch2_nell_end
+
+=== ch2_nell_screen
+~ k_fake_label = true
+At the top of the message thread, where the name goes: Fake Ari lol.
+NELL: Are you reading my phone?
+* "It says Fake Ari."
+    NELL: ...Yeah. It does.
+    A long breath out, the sort you do in a hospital corridor.
+    NELL: Ask Jad.
+    ~ k_ask_jad = true
+    * "Sorry. I shouldn't have read it."
+        ~ b_nell_phone = true
+        ~ nell_apology = true
+        NELL: No. You shouldn't have. It's fine. It's my fault for making you look at my ceiling.
+    * "Why fake?"
+        ~ b_nell_phone = false
+        NELL: I said ask Jad. And get out of my eyes, please. I've got a child to put back to bed.
+        @view none
+* "Sorry."
+    ~ b_nell_phone = true
+    ~ nell_apology = true
+    NELL: Don't read my phone. Just, generally. As a rule. For life.
+-> ch2_nell_end
+
+=== ch2_nell_end
+@state tobi_drawing off
+NELL: I've got to go and sit on her bed till she's out. Are you... will you be here? On this number?
+* "I think so."
+* "I don't know."
+    NELL: That's honest. Okay.
+* "Where else would I be?"
+    NELL: I don't know, mate. I don't know where you are now.
+NELL: Night, Ari. Whoever.
+@hangup
+~ gap_n = 6
+->> call_gap
+return
+
+# ------------------------------------------------------------ Sal
+
+=== ch2_sal
+~ ch2_sal_done = true
+@avail sal on
+@comp room
+@set building
+@view plan
+@ring sal
+SOUND: Ringing. Three notes up. The lobby desk.
+* [answer] Answer.
+    @set lobby
+    @cam sal_desk
+    @acoustic lobby
+    @call sal
+    @view none
+    @amb lobby_hum
+    ~ gap_n = 1
+    ->> tick_only
+    -> ch2_sal_talk
+* [decline] Let it ring.
+    SOUND: It rings out. Almost immediately, a voicemail notification, and then the desk rings again.
+    THINK: They're not going to stop.
+    * [answer] Answer.
+        @set lobby
+        @cam sal_desk
+        @acoustic lobby
+        @call sal
+        @view none
+        @amb lobby_hum
+        -> ch2_sal_talk
+
+=== ch2_sal_talk
+SAL: Good evening. I'm calling from the Overnight Support Service, Ferrier Court, on behalf of Community Services, regarding your nomination as Community Responder. Am I speaking to Ari?
+* "Yes."
+* "The phone says Ari."
+    SAL: That'll do.
+* "Who's asking?"
+    SAL: Sal Brannock, Community Services, Transition Team. I'm at the desk in the lobby. I've got a mug that says Transition Team on it, if that helps.
+SAL: I need to confirm your attendance at induction at oh-five-thirty. Can you confirm?
+-> ch2_sal_q
+
+=== ch2_sal_q
+* [ask] "What's induction?"
+    SAL: Twenty minutes. Health and safety. The keys. The escort protocol. The emergency line. I show you the kettle.
+    SAL: Then you sign, and at six you're on.
+    -> ch2_sal_q
+* [ask] "Nominated by who?"
+    SAL: By...
+    SOUND: Keys. An old keyboard with a heavy space bar.
+    SAL: Nine residents. It says nine. I thought it was eight. It's nine.
+    ~ k_nine = true
+    * "Nine people put me down?"
+        SAL: Nine people put your name down, yes. You're very popular. Or very convenient.
+        SAL: Sorry. That was a note to myself.
+    * "Which nine?"
+        SAL: I can't give you that over the phone. It's their data.
+        SAL: You'll meet them. You'll be sort of obliged to.
+    -> ch2_sal_q
+* [ask] "What's arrival registration?"
+    SAL: That's...
+    The script runs out. You can hear it happen: a breath, a chair turning.
+    SAL: Okay. Your record didn't match. When the system can't match someone to a record, it flags them as a possible arrival. Nine times out of ten it's a typo. Is it a typo?
+    ~ k_possible_arrival = true
+    * "What's an arrival?"
+        SAL: An arrival is. Hang on. There's a leaflet.
+        SAL: Someone who turns up without the usual. Without a birth certificate, without a record. Without a body, some of them, at the start. It's rare. I did one in March.
+        SAL: A lighthouse keeper, sort of. A radio station had been calling for him for forty years. He came through the old exchange at the station. Nice man. Very sandy.
+        ~ k_arrivals_sal = true
+    * "It's not a typo."
+        SAL: No. I didn't think it was. You don't sound like a typo.
+        ~ k_arrivals_sal = true
+    * "I don't know."
+        SAL: That's the most common answer. After typo.
+        ~ k_arrivals_sal = true
+    SAL: Your body record's blank as well. Which usually means you haven't been born yet, administratively.
+    ~ k_body_blank = true
+    @text_doc sal leaflet_arrivals "The leaflet. Sorry about the clip art. S."
+    -> ch2_sal_q
+* {k_nine and k_possible_arrival} "Okay. Half five."
+    -> ch2_sal_thursday
+* {k_nine and k_possible_arrival} [ask] "What happens if I don't come?"
+    SAL: Then at six the building's got nobody and a form that says it's got somebody.
+    It comes out of them plain, without the script round it. They clear their throat.
+    SAL: That's not the official phrasing.
+    ~ k_if_absent = true
+-> ch2_sal_thursday
+
+=== ch2_sal_thursday
+SAL: Also, while I've got you. Escort bookings. From six, escorts are the responsibility of the designated contact.
+SAL: You've already got one. Thursday. Mrs. Kaye, St Anne's, eight-forty. I've put a note on the system.
+~ k_thursday = true
+~ k_thursday_sal = true
+SAL: Half five. Bring the slip. Bring a witness. I'm on the six-twelve and I'm not missing it.
+* "I'll be there."
+    ~ sal_said = "yes"
+    SAL: Good. Thank you.
+    SAL: Genuinely.
+* "I don't know what I'll be at half five."
+    ~ sal_said = "unknown"
+    SAL: Nobody does. Come anyway.
+* "Why the six-twelve?"
+    ~ sal_said = "bus"
+    SAL: Because the next one's six-fifty, and I've been awake since yesterday, and my cat thinks I've died.
+@hangup
+@callable sal off "At the desk. Busy."
+~ gap_n = 8
+->> call_gap
+-> ch2_hub
+
+# ------------------------------------------------------------ Jad back
+
+=== ch2_jad_back
+~ ch2_jad_back_done = true
+~ gap_n = 4
+->> tick_only
+@ring jad
+SOUND: Ringing. Jad.
+~ p_jad_ringback = "kept"
+* [answer] Answer.
+@set lobby
+@cam jad_eye
+@acoustic lobby
+@call jad
+@view none
+@amb lobby_hum
+JAD: Sorry. That was longer than twenty minutes.
+JAD: How are you doing?
+if drifts > 1:
+    * "I keep losing time."
+        -> ch2_jad_drift
+    * "I rang people."
+        -> ch2_jad_people
+else:
+    * "I lost time. When you hung up."
+        -> ch2_jad_drift
+    * "I rang people."
+        -> ch2_jad_people
+
+=== ch2_jad_drift
+~ told_jad_drift = true
+JAD: Lost it how?
+ARI: You hang up, and it's seven minutes past. Then it's nineteen minutes past. Nothing in between.
+JAD: Like sleeping.
+ARI: Sleeping has an in between. I think. People talk about it like it does.
+Jad doesn't say anything for a while. You can hear the lobby around him: the vending machine compressor, a door somewhere, a bus.
+JAD: Okay. I'll try not to hang up on you, then.
+~ jad_wont_hangup = true
+-> ch2_jad_people
+
+=== ch2_jad_people
+if ch2_dima_done and b_dima:
+    ARI: Dima showed me a man who couldn't get a lamp through a door.
+    JAD: The lamp man. Oh, has he still not? I thought he'd have done it by now.
+    ARI: A woman took the shade off.
+    JAD: Of course she did. Of course. That's... good. Good for her.
+elif dima_cut_off:
+    ARI: I rang Dima. I did something wrong.
+    JAD: What did you do?
+    ARI: They asked me to look away and I didn't.
+    A pause.
+    JAD: Yeah. That'd do it.
+    JAD: They'll say what they want to say to you. Don't make them say it twice.
+if ch2_nell_done:
+    ARI: I rang Nell. There was a moth.
+    JAD: There's always a moth with Nell.
+ARI: And Sal rang me.
+JAD: What did Sal say?
+ARI: Nine people put my name down.
+Jad is quiet. He doesn't ask nine what.
+JAD: Nine.
+ARI: Is that a lot?
+JAD: It's nine.
+* [look] "Can I look? Where are you?"
+    JAD: Lobby. Hang on.
+    -> ch2_jad_lobby
+* "Why are you quiet?"
+    JAD: I'm tired. It's quarter past one.
+    It isn't the whole of it. It's true, though.
+    * [look] "Can I look? Where are you?"
+        JAD: Lobby. Hang on.
+        -> ch2_jad_lobby
+
+=== ch2_jad_lobby
+@view jad
+@state starter {pref_hum}
+The lobby, from the middle of it. The desk, with Sal's mug and no Sal: a coat over the chair, a half-eaten sandwich in its triangle box.
+if pref_hum == "hate":
+    The tube over the desk is dark.
+    There's an orange chair dragged out of line underneath it. One of the bolted ones; somebody's worked it off the rail.
+    ARI: The hum's gone.
+    JAD: Is it?
+    His hand goes into his jacket pocket and stays there, over something small and cylindrical.
+    ~ jad_kindness_seen = true
+    * "Thank you."
+        JAD: For what?
+        * "Nothing."
+            JAD: Okay.
+            He doesn't take his hand out of his pocket.
+        * "The starter's in your pocket."
+            JAD: It's a very small pocket, it's hard to tell what's in it.
+    * Don't mention it.
+        ~ jad_kindness_unmentioned = true
+elif pref_hum == "like":
+    The tube over the desk is still going: hum, tick, hum.
+    JAD: Your friend's still at it.
+    ~ jad_remembered = true
+    * "Good."
+    * "You remembered."
+        JAD: It's not hard. It's very loud.
+else:
+    The tube over the desk: hum, tick, hum.
+    JAD: Still ticking.
+JAD: Can I ask you something?
+JAD: Do you remember anything? From before tonight?
+* "Blue light under water. Someone counting to ten."
+    ~ memory_shared = "pool"
+    JAD: That's the pool. That's here, when it was open.
+    JAD: It's full of kids' birthday parties, that pool, if you ask anyone over fifty.
+* "A coat. I knew there'd be a coat."
+    ~ memory_shared = "coat"
+    JAD: Well. There was.
+* "Someone saying 'you'll ring when you're on your way'."
+    ~ memory_shared = "ring"
+    A pause.
+    JAD: That's Bernadette. She says that to everyone.
+    ~ k_kaye_phrase = true
+* "No. Nothing."
+    ~ memory_shared = "none"
+    JAD: Right. Okay.
+    It isn't relief in his voice. It isn't not relief.
+JAD: I'm going to go out for a bit. I need to go to the shop.
+* "At one in the morning?"
+    JAD: I've got a key. I need to look something up on the computer there.
+* "What do you need to look up?"
+    JAD: Something I did. I'll ring you from there.
+    ~ jad_hint_did = true
+* "Don't hang up."
+    JAD: I've got to. I haven't got a charger on me and I'm on four percent.
+    JAD: I'll ring from the shop.
+JAD: I'll ring you.
+@hangup
+@view none
+@avail jad off "Out. At the copy shop, probably."
+~ gap_n = 13
+->> call_gap
+-> ch2_inez
+
+# ------------------------------------------------------------ Inez and the pool lights
+
+=== ch2_inez
+@set building
+@comp room
+@view plan
+@cam main
+@ring inez
+@contact_add inez
+SOUND: A different ring. Not three notes: a flat old bell, tapped out by hand.
+THINK: That isn't a flat. That's closer.
+* [answer] Answer.
+@set exchange
+@cam inez_eye
+@acoustic tiles
+@call inez
+@view none
+@amb exchange_relays
+~ gap_n = 1
+->> tick_only
+INEZ: Who's on 247?
+* "Ari."
+    INEZ: Hm.
+* "Who's asking?"
+    INEZ: The person who maintains 247. Who's on it?
+    ARI: Ari.
+    INEZ: Hm.
+INEZ: Nothing on the frame's asked for 247 tonight. And 247's relays have been going on their own for a fortnight. Tonight they're going like a pulse.
+INEZ: I thought it was damp.
+INEZ: What are you, then?
+* "Ari."
+    INEZ: That's what's written on you. What do you do?
+* "I don't know."
+    INEZ: Then tell me what you do. That's usually quicker.
+* "Who are you?"
+    INEZ: Inez. I keep this running. Now you. What do you do?
+~ met_inez = true
+* "I hear. Whoever I'm on the line to."
+    INEZ: So does a phone.
+    ARI: I can look through people. If they let me.
+    INEZ: That, a phone doesn't.
+* "I can look through people, if they let me."
+    INEZ: Can you.
+* "I lose time when nobody's on the line."
+    INEZ: Do you. How much?
+    ARI: Ten minutes. Twelve.
+    INEZ: That'd be the hold. Or the lack of it.
+    ~ inez_heard_drift = true
+INEZ: Do it to me, then. The looking. I'd like to know if you can.
+INEZ: Hang on, I'll put you through to my mobile. I'm going next door.
+SOUND: A click, a transfer. The relays keep going under everything, on both lines at once, as if the building's pulse came with you.
+* [look] Look.
+@set pool
+@cam inez_eye
+@view inez
+@acoustic pool
+@amb pool_hall
+~ looked_inez = true
+Dark, and a head torch making a disc of it. The disc moves across tiles, dry, blue under the dust. Leaves in the corners. A crisp packet. A ladder going down into nothing.
+She walks the edge of the deep end without looking at her feet.
+INEZ: I test them once a month. The council thinks they're disconnected. They're not.
+A grey switch box on the wall. She opens it. Six brass levers with labels, some in her writing, some in older writing that has gone brown.
+INEZ: One.
+@sfx lamp_switch
+@state lights 1
+SOUND: A clunk, and then a hum starting low and climbing.
+Under the far wall of the deep end, a lamp comes on behind thick glass. Light goes across the dry blue tiles and up the slope toward the shallow end.
+INEZ: Two.
+@sfx lamp_switch
+@state lights 2
+INEZ: Three. Four.
+@sfx lamp_switch
+@state lights 4
+INEZ: Five. Six.
+@sfx lamp_switch
+@state lights 6
+@amb2 pool_lamps
+Now it's all lit from underneath: the whole empty hollow of it, glowing. The old ballasts flicker, so the light wobbles on the walls the way light does through water.
+There's a wooden chair in the middle of the deep end, sitting on the tiles, as if somebody lowered it there to wait.
+For a while nobody says anything. She's standing still, and so the view is still.
+It looks full. It isn't. You know it isn't. It looks full.
+~ saw_pool_lights = true
+* [ask] "Can you leave them on a bit longer?"
+    ~ asked_lights_longer = true
+    INEZ: Yes.
+    That's all. She sits down on the edge with her legs over the deep end, and the light moves on the tiles, and you both watch it.
+    SOUND: The lamps. A drip somewhere, landing on nothing.
+    INEZ: I learned to swim in this. Deep end. Nineteen sixty-seven.
+    She doesn't say anything else about it.
+* [listen] Say nothing.
+    ~ lights_silent = true
+    She stays where she is. The light moves on the tiles. A drip somewhere lands on nothing.
+    After a long time she reaches for the switch box, and then she doesn't, and then she does.
+* "Why is there a chair?"
+    INEZ: It's been there a while.
+    She doesn't say whose. She leaves the lights on while she doesn't say it.
+@wait 1.5
+if asked_lights_longer:
+    INEZ: Right.
+    INEZ: I'll leave four on. Four's enough to walk by.
+    @state lights 4
+else:
+    @sfx lamp_switch
+    @state lights 0
+    @amb2 off
+    The lamps go down one by one, from the shallow end to the deep, and the tiles go back to being tiles in the dark.
+INEZ: Come and see the frame. You might as well see what you're sitting on.
+@wait 0.5
+-> ch3_start

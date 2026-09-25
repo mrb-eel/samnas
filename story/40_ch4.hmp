@@ -1,0 +1,478 @@
+# CHAPTER FOUR: EVERYBODY PUT YOUR NAME DOWN
+# 03:10 to 04:30. Jad tells Ari first. The meeting around the dry pool.
+# The carbon copies. After.
+
+=== ch4_start
+@chapter 4 "Everybody Put Your Name Down"
+~ clk = 191
+->> tick
+@comp room
+@set office
+@cam main
+@view plan
+@amb office_room
+@state jad bed
+@clear
+SOUND: A receiver lifted in G/1. Nobody dialled.
+Someone is sitting on the camp bed. Not heavy and careful: lighter, and not sitting still. A folder on his knees. The coat on the hook over his head.
+if jad_early:
+    JAD: You know the headline. Here's the rest.
+elif jad_deferred:
+    JAD: Half an hour. I said.
+    JAD: I need to tell you something, and I'm going to do it badly.
+else:
+    JAD: Before the meeting. I need to tell you something, and I'm going to do it badly.
+* [look] "Let me look at you while you do it."
+    JAD: At me?
+    ARI: At what you're looking at.
+    JAD: Right. Okay. Go on.
+    ~ confess_look = true
+    @comp call
+    @cam jad_bed
+    @view jad
+    His knees, the folder, his hands on the folder. The split beside his thumbnail. Past his knees, the office floor, Teodor's paperback, the flask.
+    He isn't looking up.
+* "Go on."
+* [listen] Say nothing.
+    ~ confess_silent_start = true
+JAD: There was a sample form. In the council's leaflet. Filled in, as an example.
+JAD: Contact name: Ari. Sample. Relationship: friend. Telephone: all noughts.
+JAD: I did people's forms. Two Saturdays, a table in the lobby. Some of them hadn't got anybody. Some of them had people who'd come if they could, and couldn't promise, and the form says promise.
+JAD: So I put Ari. I didn't even choose it. It was already typed. I just didn't cross it out.
+JAD: I asked Inez for a number that would ring somewhere in the building, in case anyone ever checked. She gave me 247. I set up the voicemail.
+JAD: I thought I was buying time. Six weeks. For an appeal.
+JAD: Nobody appealed. I didn't organise one. I organised forms.
+~ k_origin = true
+~ confess_asks = 0
+~ jad_anger = 0
+-> ch4_confess
+
+=== ch4_confess
+if not jad_sorry and confess_asks + jad_anger >= 2:
+    ~ jad_sorry = true
+    JAD: I'm sorry.
+    JAD: I'm not saying it so you'll say it's fine. It's not fine. I just need it said out loud once.
+    * "Okay."
+        ~ sorry_reply = "okay"
+    * "That doesn't fix anything."
+        ~ sorry_reply = "no"
+        JAD: No. It doesn't.
+    * "I know you are."
+        ~ sorry_reply = "know"
+        He breathes out, and it catches halfway.
+    * [listen] Say nothing.
+        ~ sorry_reply = "silence"
+* [ask] "Who knew?"
+    ~ confess_asks += 1
+    JAD: Nell knew. I told her straight, and she said fine, as long as it goes in before five.
+    JAD: Teodor half knew. I said Ari's a name for now. He heard what he heard.
+    JAD: Bernadette didn't. I said someone will pick up. That's what I said to her. Someone will pick up.
+    JAD: Inez knew about the number. Nobody else knew anything.
+    -> ch4_confess
+* [ask] "Why?"
+    ~ confess_asks += 1
+    JAD: Because Bernadette was going to lose her escort. Nell's support plan was going to go incomplete, again. Mr. Adeyemi's son told him to put anyone. June hasn't spoken to her brother since the eighties.
+    JAD: The council wanted a name in a box and people were frightened, and I had a table and a pen.
+    JAD: That's the good reason. The other reason's I like being the one who fixes it. I liked sitting at that table.
+    ~ k_jad_reasons = true
+    -> ch4_confess
+* [ask] "Did you know I'd be... someone?"
+    ~ confess_asks += 1
+    JAD: No. I didn't think anything would be anything. I thought it'd ring in an empty room forever and nobody would check.
+    JAD: Tonight, when you picked up, I thought: temp. Council's actually hired someone and given them the name. I thought, that's brilliant, that's the most council thing that's ever happened.
+    JAD: Then you opened the door. Then you were in the phone on the desk. Then I didn't know what I thought.
+    -> ch4_confess
+* {heard_inez_vm or k_archive or k_kaye_phrase} [ask] "Whose memories have I got?"
+    ~ confess_asks += 1
+    JAD: The blue light's Inez. She left that testing the line.
+    JAD: The coat's Teodor's boy's. "It's what you're there for" is Teodor. He says it every time. "You'll ring when you're on your way" is Bernadette.
+    JAD: I know because I listened. I had the PIN. I set it up. I listened to all of them.
+    ~ jad_listened_admitted = true
+    ~ k_memories_sourced = true
+    -> ch4_confess
+* [ask] "Is your name on one?"
+    ~ confess_asks += 1
+    JAD: ...
+    JAD: Yeah. I put you on mine.
+    ARI: Why?
+    JAD: Because I haven't got anyone who'd come at three in the morning. My mum's in Montreal. My sister's in Montreal. I didn't want to write that on a form, so I wrote you.
+    ~ k_jad_form = true
+    -> ch4_confess
+* "You made me up to fill a box."
+    ~ jad_anger += 1
+    ~ anger_box = true
+    JAD: Yes.
+    He doesn't add anything. He looks like he'd like to.
+    -> ch4_confess
+* "You let me think the bag was mine."
+    ~ jad_anger += 1
+    ~ anger_bag = true
+    JAD: I didn't say it was...
+    ARI: You let me.
+    JAD: Yeah. I let you.
+    -> ch4_confess
+* {jad_listened_admitted or k_jad_box} "You listened to people's messages to me."
+    ~ jad_anger += 1
+    ~ anger_listened = true
+    JAD: I did. Every week. I told myself it was checking the box worked.
+    JAD: It wasn't. I wanted to know if anyone was all right.
+    -> ch4_confess
+* {jad_anger >= 1} "Get out of my office."
+    ~ jad_anger += 1
+    ~ jad_kicked_out = true
+    He stands up so fast the camp bed skids.
+    JAD: It's not... okay. Okay. It is. It's yours. It was always going to be yours.
+    SOUND: The receiver put down. The door, lift and shove, from the inside.
+    @hangup
+    @state jad off
+    ~ jad_confess_mode = "kicked"
+    -> ch4_after_confess
+* [ask] "What are you going to do?"
+    ~ confess_asks += 1
+    JAD: Tell them. At half three. Before Sal has to drag it out of Nell.
+    JAD: Then I'm going to go to the shop and print Sal something that takes your name off their forms, and a letter that says it was me. I'll pay for it. It's the one thing I can actually do.
+    ~ k_jad_plan = true
+    * "Do it."
+        ~ jad_letter_ok = true
+        JAD: Okay.
+    * "Don't do anything else for me."
+        ~ jad_told_stop = true
+        JAD: It's not for...
+        He stops.
+        JAD: Okay. You said don't. I'll ask you again before I do anything. That's all I'll do.
+        ~ jad_will_ask = true
+    * "Why would a letter help?"
+        JAD: Because Sal needs paper. Everything needs paper. And then it's in writing it was me and not them.
+    -> ch4_confess
+* [leave] End the call.
+    ~ jad_confess_mode = "left"
+    @hangup
+    @state jad off
+    SOUND: The line closes, from your end. You didn't know you could do that.
+    -> ch4_after_confess
+* [defer] "Not now. After the meeting."
+    ~ jad_confess_mode = "postponed"
+    JAD: Okay. After.
+    JAD: I'm still going to tell them. At half three. That's not me not listening to you. That's just true.
+    @hangup
+    @state jad off
+    -> ch4_after_confess
+* {confess_asks + jad_anger >= 3} "That's enough for now."
+    ~ jad_confess_mode = "heard"
+    JAD: Okay.
+    JAD: I'll see you there. Or. I'll be there. You'll be on a chair.
+    @hangup
+    @state jad off
+    -> ch4_after_confess
+
+=== ch4_after_confess
+if jad_confess_mode == "left" or jad_confess_mode == "kicked":
+    @text jad "I'm still going to tell them at half three. Not for you. Because it's true."
+~ gap_n = 12
+->> call_gap
+-> ch4_meeting
+
+=== ch4_meeting
+~ clk = 210
+->> tick
+@set pool meeting
+@comp room
+@view plan
+@cam meeting
+@acoustic pool
+@amb pool_hall
+@state lights 4
+@state chairs on
+@portrait off
+@clear
+SOUND: A click, and a new line: a speakerphone, the old kind with three grey microphones in a triangle.
+Inez has put you on a chair.
+Her conference phone, on the wooden chair in the middle of the deep end, where Teodor sits to count. She's climbed down the ladder with it on a rope and come back up.
+You know the room by it: the whole dry hollow of the pool, and round its edge, on the tiles, a ring of chairs. Orange ones from the lobby. Kitchen chairs. A deckchair. They all face in and down. They all face you.
+Four lamps are on under the walls. The light moves the way it did.
+~ at_meeting = true
+They come in ones and twos.
+Mrs. Kaye, in a quilted dressing gown, with the crocheted cushion from the lobby chair under her arm. Nell in a coat over pyjamas with a baby monitor clipped to the pocket. Teodor, who doesn't sit, because of his knees. Mr. Adeyemi from 1D in a suit jacket over a vest. June Pike from 1B, with a flask of her own.
+Sal comes last, in a council fleece with a folder under one arm and their coat already on, a bus timetable sticking out of the pocket.
+Jad sits nearest the ladder. He puts the folder on the tiles under his chair.
+SAL: Is there a reason we're doing this in a swimming pool?
+INEZ: It's where the chairs fit.
+JUNE: And it's warmer than the lobby.
+SAL: It is not warmer than the lobby.
+JUNE: It's warmer than the lobby in spirit.
+if p_kaye_reply == "pending":
+    @reply_clear kaye "You're talking to her in person now."
+    ~ p_kaye_reply = "unanswered"
+-> ch4_roll
+
+=== ch4_roll
+SAL: Right. I'm going to read the names off the forms. If it's yours, put your hand up. If you put Ari down as your contact, keep it up.
+SAL: Adeyemi. Pike. Rostami, not here. Rusu, not here. Hollis, not here, never here. Kaye. Vass. Amadi.
+SAL: Mansour.
+Seven hands on the plan, and then an eighth, slower. Jad's.
+SAL: Thank you. You can put them down.
+SAL: Now. Who is Ari?
+@collage on
+@collage_add chair_phone 0.50 0.48 0.9 0
+They answer before they can think about whether to.
+KAYE: The young lady from the council. With the glasses.
+@collage_add kaye_glasses 0.26 0.30 0.85 -7
+TEODOR: A young man. Tall.
+@collage_add teodor_coat 0.73 0.28 0.9 5
+ADEYEMI: A number. My son told me to put a number.
+@collage_add number_scrap 0.22 0.66 0.8 10
+JUNE: A friend of Jad's, I thought. I thought, how nice, Jad's got a friend.
+@collage_add june_friend 0.78 0.66 0.7 -4
+@collage_add tobi_face 0.50 0.16 0.7 2
+@collage_add responder_badge 0.36 0.80 0.75 -12
+@collage_add attendant_cap 0.64 0.82 0.7 8
+They're all looking at the chair in the deep end, and every one of them sees somebody different sitting on it.
+NELL: It's the...
+JAD: It was me.
+@collage off
+He's standing. Nobody saw him stand.
+JAD: Ari's the name off the council's sample form. I did your forms. Where you hadn't got anyone, I put Ari. I asked Inez for a number. I thought I was buying time.
+JAD: Nobody's on the other end. Wasn't. There wasn't anybody on the other end.
+JAD: Then there was.
+~ jad_told_residents = true
+-> ch4_reactions
+
+=== ch4_reactions
+A pause long enough to hear the lamps.
+KAYE: You told me someone would pick up.
+JAD: I did.
+KAYE: Well.
+KAYE: Someone did.
+TEODOR: I knew.
+NELL: I thought we all knew.
+KAYE: I didn't.
+SAL: I didn't.
+ADEYEMI: My son told me to put anyone.
+JUNE: I still think it's nice Jad's got a friend.
+JAD: June.
+JUNE: Well, I do.
+-> ch4_ari_speaks
+
+=== ch4_ari_speaks
+~ ari_spoke_meeting += 1
+if ari_spoke_meeting > 2:
+    -> ch4_packet
+* "I'm not who any of you meant. I'm still here."
+    ~ said_still_here = true
+    Nobody says anything for a moment. Mrs. Kaye puts the cushion down on her chair and sits on it, carefully, as if she's decided to stay.
+    NELL: Yeah. You are.
+    -> ch4_ari_speaks
+* {k_desc_kaye} "Mrs. Kaye. Who told you I have red glasses?"
+    KAYE: Nobody, dear. I saw you like that.
+    KAYE: I'm always doing it. People on the radio. I've had the man who reads the shipping forecast in a cardigan for thirty years.
+    ~ kaye_glasses_answered = true
+    -> ch4_ari_speaks
+* {k_mikael and not told_teodor_not_him} "Teodor. I'm not Mikael."
+    ~ told_teodor_not_him = true
+    ~ told_teodor_public = true
+    TEODOR: I know.
+    He says it to the chair, then to the floor.
+    TEODOR: I know that.
+    -> ch4_ari_speaks
+* {heard_inez_vm} "Inez. The counting to ten. That's yours."
+    INEZ: It is.
+    INEZ: You can have it. I said.
+    ~ inez_memory_public = true
+    -> ch4_ari_speaks
+* {rang_kaye_late} "Mrs. Kaye. I rang you at one. I'm sorry."
+    KAYE: Oh, that was you? The machine took it. I'm always asleep at one, dear. I'm always asleep at most things.
+    -> ch4_ari_speaks
+* [listen] Say nothing. Let them talk.
+    ~ meeting_listened = true
+    NELL: Is it still there? Ari?
+    INEZ: It's there. The line's warm.
+    NELL: God. Okay.
+    -> ch4_packet
+
+=== ch4_packet
+if p_kaye_reply == "unanswered":
+    KAYE: You didn't answer my message. I thought you were busy.
+    KAYE: I suppose you were.
+    ~ kaye_mentioned_unanswered = true
+SAL: Right. I've got a packet here with Ari's name on it, and I'd like to read it before anybody signs anything. I've been wanting to do that all week.
+if jad_argue == "agreed" or jad_argue == "suspicious":
+    JAD: Read the back.
+    SAL: I'm going to read the back.
+SAL: This is the ARP-2. Arrival and Responder Packet. Top sheet.
+@show_doc arp2_top
+@gallery_add arp2_top
+SAL: One signature box. "Please sign to complete your registration."
+* [ask] "What's underneath it?"
+* [ask] "Can I see the back?"
+SAL: It's a carbon set. Hang on.
+SOUND: Paper, lifted by a corner. The squeak of carbon.
+@show_doc arp2_under
+@gallery_add arp2_under
+~ k_carbon = true
+SAL: Under the top sheet, two pages. The one box on top comes through on both.
+SAL: Page one's the R-1 part. Registration of Arrival. Your name, a witness, the date. There's a box for body record. It's empty. It's never been filled in.
+SAL: Page two's the RA-3. Appointment of Community Responder, Sole.
+SAL: Sole designated responder for all forty-two households of Ferrier Court. Availability: continuous. Nine pounds sixty per hour of active response. Accommodation: Office G/1, charge applies.
+SAL: On commencement, the Overnight Support Service will cease.
+~ k_terms = true
+NELL: Continuous? Like, all the time?
+SAL: That's what continuous means.
+TEODOR: Nine pounds sixty.
+He says it like a man who was in the tramworkers' union for thirty-one years.
+TEODOR: Per hour of active. What's active?
+SAL: When you're responding. Not when you're waiting to.
+TEODOR: That's not a wage. That's a tip.
+KAYE: Well...
+KAYE: If you're going to be here anyway, dear, Thursday...
+She stops. Her hand goes to her mouth, not dramatically, just to hold it still.
+KAYE: No. Listen to me.
+~ kaye_caught_herself = true
+* "Sign the top, you've signed all three?"
+    SAL: Sign the top, you've signed all three. That's how they built it. It saves a column.
+* "Can I sign just the first one?"
+    SAL: Legally? Yes. Arrival registration's a right. The appointment's a job. Different Acts. Different decades.
+    SAL: In practice, there's one box.
+    ~ asked_sign_one = true
+SAL: There's an old form. R-1. Registration of Arrival, on its own. I've got forty of them in a box in the cabinet in the lobby. Nobody uses them, because the system hasn't got a screen for them.
+SAL: I'd have to key it by hand on Monday. I would, though.
+@text_doc sal r1_standalone "The old one. And the bit on the box that matters. S."
+~ k_r1 = true
+SAL: I need an answer by half five. From Ari. Not from any of you.
+SAL: And a witness, whatever it is. Somebody who'll put their name to having been there.
+-> ch4_breakup
+
+=== ch4_breakup
+They go the way they came, in ones and twos. Chairs scrape. Mrs. Kaye takes her cushion. June leaves her flask on the tiles for whoever.
+Nell stops at the ladder and looks down at the chair in the deep end for a while.
+NELL: Night, Ari.
+NELL: Morning. Whatever it is.
+Inez climbs down. The phone lifts off the chair, swinging, and the room tilts in your sense of it, and she's got you under her arm like a parcel.
+INEZ: Frame. Come on.
+@state chairs off
+~ gap_n = 4
+->> tick_only
+-> ch4_aftermath
+
+=== ch4_aftermath
+@comp exchange
+@set exchange
+@cam inez_eye
+@xwin 1 off
+@xwin 2 lamp on "HOLD"
+@xwin 3 wave 200 "DOOR 200"
+@xwin 4 text x "4B OUT"
+if inez_no_look:
+    @view none
+else:
+    @view none
+@amb exchange_relays
+@music hold_{pref_hold}
+Back on the frame. Inez has plugged you into the hold while she makes tea on a camping stove in the corner that she clearly isn't supposed to have.
+@music off
+~ clk = 244
+->> tick
+if b_nell_phone:
+    @text nell "i've got u saved as fake ari. i'm changing it. what do u want to be saved as"
+else:
+    @text nell "i'm changing ur name in my phone. u can read it this time if u want. what do u want it to say"
+@reply nell ch4_nell_label "Tell Nell what to save you as"
+if p_dima_call == "renegotiated":
+    THINK: Ten past four. You said you'd ring Dima at ten past four.
+    * [call] Ring Dima.
+        ->> ch4_dima_call
+    * Not now.
+        ~ p_dima_call = "broken"
+        @callable dima off "At work."
+        @text dima "no worries. busy night i guess"
+        ~ dima_no_worries = true
+elif p_dima_call == "kept":
+    @text dima "how did the something go"
+    @reply dima ch4_dima_text "Answer Dima"
+-> ch5_start
+
+=== ch4_nell_label
+@phone thread nell
+* [text] "Ari."
+    @sent nell "Ari."
+    ~ pref_label = "Ari"
+    NELL> ari. done
+* [text] "Just the number."
+    @sent nell "Just the number."
+    ~ pref_label = "01632 960 247"
+    NELL> ok thats bleak but ok
+* [text] Something else.
+    @input_name pref_label "What should Nell save you as?"
+    @sent nell "{pref_label}"
+    NELL> {pref_label}. done. suits u
+@saved_as nell "{pref_label}"
+~ nell_label_set = true
+@phone close
+return
+
+=== ch4_dima_text
+@phone thread dima
+* [text] "It turns out I was made up. By the forms."
+    @sent dima "It turns out I was made up. By the forms."
+    DIMA> jesus
+    DIMA> ok. well. ur here now so. that's the bit that counts
+    ~ told_dima_what = true
+* [text] "Complicated. I'll tell you in the morning."
+    @sent dima "Complicated. I'll tell you in the morning."
+    DIMA> morning's in an hour for me lol. ok
+    ~ p_dima_morning = "made"
+@phone close
+return
+
+=== ch4_dima_call
+~ clk = 250
+->> tick
+@set bakery
+@cam dima_eye
+@acoustic bakery
+@call dima
+@view none
+@amb bakery
+~ p_dima_call = "renegotiated_kept"
+SOUND: A roller door. Wind. Dance music on a radio that's been dropped at least once.
+DIMA: Ten past four. You rang.
+DIMA: So what was the something?
+* "There was a meeting in the swimming pool."
+    DIMA: Course there was.
+* "It turns out I was made up. By the forms."
+    DIMA: What?
+    ARI: Jad put my name on nine forms because people hadn't got anyone. And then people rang it. And then I was here.
+    A long pause. A tray going onto a rack.
+    DIMA: That's the most Ferrier Court thing I've ever heard.
+    ~ told_dima_what = true
+* "I have to decide something by half five."
+    DIMA: What?
+    ARI: Whether to have a body. Whether to take a job.
+    DIMA: Fucking hell. I'm deciding which chillies go in a van.
+    ~ told_dima_what = true
+if not told_dima_what:
+    ARI: Jad put my name on the forms. People rang it. And then I was here.
+    DIMA: That's... okay. That's the most Ferrier Court thing I've ever heard.
+    ~ told_dima_what = true
+DIMA: What do you want, though?
+* "I don't know."
+    DIMA: Then that's your job for the next hour. Not theirs. Yours.
+* "Everyone's asking me that."
+    DIMA: Good. They should. It's the only question.
+* "I want to be asked something that isn't about me."
+    DIMA: Fine. The Cheyenne or the Joe's Long. For the van.
+    ARI: The Cheyenne.
+    DIMA: Wrong, but thank you.
+DIMA: I'm still moving on Wednesday. Whatever you do.
+* "I know. You're allowed."
+    ~ dima_allowed = true
+    DIMA: I am. Thanks.
+* "Can I visit?"
+    DIMA: If you've got legs by Wednesday, you can help me carry the Fatalii.
+    ~ dima_visit = true
+* "Good."
+    DIMA: Good. Right. Break's over. Ring me when you know. Or don't. Text.
+@hangup
+@avail dima off "At work till seven."
+~ gap_n = 2
+->> call_gap
+return

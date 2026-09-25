@@ -1,0 +1,848 @@
+# CHAPTER THREE: THE RECEIVING ROOM
+# 01:40 to 03:10. The frame and the figure. Hold. The archive. The room behind
+# the deep end. Teodor in the office. Jad at the copy shop. Three o'clock.
+
+=== ch3_start
+@chapter 3 "The Receiving Room"
+~ clk = 100
+~ tick_n = 0
+->> tick
+@callable nell off "It's late. She's asleep, or trying."
+@callable teodor off "Not answering just now."
+@callable dima off "At work. Break at three."
+@comp exchange
+@set exchange
+@cam inez_eye
+@view inez
+@acoustic tiles
+@amb exchange_relays
+@amb2 off
+@xwin 1 view inez
+@xwin 2 lamp off "HOLD"
+@xwin 3 wave 200 "DOOR 200"
+@xwin 4 text x "4B OUT"
+@clear
+It isn't one machine. It's a wall of them that have been talking to each other since before there were flats upstairs.
+Racks of relays behind scratched perspex, rows and rows, like teeth. Circuit boards from four decades: green, blue, one a violent purple that somebody must have got cheap. Looms tied with waxed string and, further along, with bread-bag ties. Screws that don't match: brass, steel, one that is plainly a picture hook.
+Cable tags cut from food packets. SEMI-SKIMMED. BEST BEFORE 14 OCT. SERVES 4. A pink ribbon knotted round one bundle. A tortoiseshell hair clip holding another.
+One section, left of centre, is clean. Somebody dusts that bit.
+And in a gap in the middle, where a board should be, a plaster Virgin about the length of a forearm. Her robe has gone the colour of old teeth. One hand is raised.
+Inez takes off her head torch and hangs it on the raised hand. She takes a dry paintbrush out of her top pocket and goes over the statue's face, the folds of the veil, the fingers. Then she tilts the figure an inch, looks underneath at a grey ribbon cable pinned flat by its base, and sets it back exactly where it was.
+~ saw_figure = true
+@spot figure 0.40 0.20 0.20 0.60
+@spot tags 0.02 0.30 0.30 0.40
+@spot clean 0.68 0.20 0.28 0.50
+-> ch3_frame
+
+=== ch3_frame
+* [ask][spot:figure] "Who is she?"
+    INEZ: Celeste's.
+    ARI: Who's Celeste?
+    INEZ: My wife. Was. Is. In Lisbon, with her sister. We're very civil.
+    ARI: She left her?
+    INEZ: She said the Virgin didn't want to go to Lisbon. I think she didn't fit in the case.
+    ~ k_celeste = true
+    * "Do you pray to her?"
+        INEZ: No. I tell her what I'm doing. You get into the habit, working alone. Somebody ought to hear it.
+    * "Why dust her face?"
+        INEZ: Dust gets in relays. She's the highest thing in the rack. Everything settles on her first.
+        INEZ: And she was Celeste's. I'm not going to leave her dirty.
+    * "What's under her?"
+        INEZ: Ribbon cable. Two-twenty to two-thirty-nine. The clamp rusted through in the 2009 flood and she's exactly the right weight.
+        INEZ: Take her out and the whole second floor goes quiet.
+    -> ch3_frame
+* [look][spot:tags] The labels on the cables.
+    INEZ: People bring me things. I run out of tags, they bring me the tops off packets. The ribbon's Tobi's. She tied it on the line for 3B so she'd know which one was hers.
+    INEZ: The clip's Bernadette's. She dropped it in the lift in 2015 and I never gave it back. Don't tell her.
+    ~ k_tags = true
+    -> ch3_frame
+* [look][spot:clean] The clean section.
+    INEZ: That's the part I rebuilt after the flood. Everything else is older than me. That bit's mine.
+    -> ch3_frame
+* "What am I sitting on, then?"
+    -> ch3_hold
+
+=== ch3_hold
+@spots_clear
+INEZ: You said you lose time.
+ARI: When nobody's on the line.
+INEZ: That's because nobody's holding you. A call on this frame is held two ways. Somebody's on the other end of it, or it's on hold.
+INEZ: Hold's a circuit. It keeps a line alive with nobody on it. It needs something going through it, a signal, or it drops.
+INEZ: When I started, the hold had a tape on it. The council's. Before my time they used it for more than calls.
+* "For what?"
+    INEZ: For people. The ones who came through here. They'd wait on hold for the room. Days, some of them.
+    ~ k_hold_people = true
+* "When did it stop working?"
+    INEZ: Two thousand and nine. The flood. Nobody's waited for anything on it since.
+INEZ: I'll put it back. Hang on.
+She reaches into the rack. Her hand comes back with a strip of card torn off a packet label, SERVES 4, and she draws it through a pair of relay contacts, slowly, like flossing.
+INEZ: Furred. Fourteen's always furred.
+SOUND: A patch cord seated. A click. A hiss of old tape.
+@xwin 2 lamp on "HOLD"
+@music hold_tape
+SOUND: A recorded voice: "Thank you for calling Ferrier Street Baths. Please hold. An attendant will be with you shortly." Then an organ, cheap and bright, four notes, and round again.
+The same four notes as the ring, and one more. Then round again before it gets anywhere.
+~ hold_fixed = true
+~ k_hold = true
+* "That's awful."
+    INEZ: It is awful. It's the council's. Nineteen seventy-something. Everybody who's ever waited for anything in this city has heard that tune.
+    INEZ: I can put something else through it. It only needs a signal. I've got a tape of rain on the skylight, from when I was testing the gutters. Or the pool lamps have a hum.
+    -> ch3_hold_choose
+* "I like it."
+    INEZ: Nobody likes it.
+    ARI: It's trying to get somewhere.
+    INEZ: It never does, mind. They cut it for length.
+    ~ pref_hold = "tape"
+    -> ch3_casio
+* "Can it be something else?"
+    INEZ: It can be anything steady. A tape of rain on the skylight, from when I was testing the gutters. Or the pool lamps. They hum.
+    -> ch3_hold_choose
+
+=== ch3_hold_choose
+* "The rain."
+    ~ pref_hold = "rain"
+    @music off
+    @music hold_rain
+    SOUND: Rain on glass, a long way up. Nothing is falling on anything here, and it sounds like it's falling on everything.
+    INEZ: March 2003. It rained for nine days. I got two hours of it.
+* "The lamps."
+    ~ pref_hold = "lamps"
+    @music off
+    @music hold_lamps
+    SOUND: A hum, low and steady, with a flutter in it where the ballast is old.
+    INEZ: That's lamp three. It's the one that flickers. You've got taste.
+* "Leave the tape."
+    ~ pref_hold = "tape"
+    INEZ: Suit yourself. You'll hear it in your sleep.
+    ARI: I don't sleep.
+    INEZ: Then you'll hear it in your not-sleep.
+-> ch3_casio
+
+=== ch3_casio
+@music off
+INEZ: Let's see if it passes a tone.
+She takes a keyboard down off a shelf, a Casio the length of an arm with a strip of masking tape across it: TEST TONES. DON'T.
+She plays four notes into the line.
+@sfx casio_E5
+@wait 0.35
+@sfx casio_Cs5
+@wait 0.35
+@sfx casio_D5
+@wait 0.35
+@sfx casio_B4
+@wait 0.9
+SOUND: Four notes. The tape's tune. It stops where the tape stops, on the one that wants something after it.
+~ heard_casio = true
+INEZ: That's the tape's tune. I never learned the end.
+INEZ: Nobody on that tape ever gets to the end either.
+* "What's the end?"
+    INEZ: Couldn't tell you. Down one, probably. They usually go down one.
+* "Play it again."
+    She does. It stops in the same place, like somebody walking into the same door.
+    INEZ: That's all there is.
+* Say nothing.
+-> ch3_archive
+
+=== ch3_archive
+INEZ: While I'm in here. Your phone can see four messages. The board keeps sixty. I'll put the rest through.
+@vm_archive_open
+SOUND: A relay goes over and stays over.
+INEZ: One of them's me. Testing, when we set the line up. Don't mind that one.
+~ k_archive = true
+* [listen] "Play yours."
+    -> ch3_inez_vm
+* [ask] "Why did you set the line up?"
+    INEZ: Because Jad asked me for a number that would ring somewhere real. I gave him one. That's mine to answer for.
+    INEZ: The rest of it's his to tell. Ask him.
+    ~ k_inez_set_line = true
+    ~ k_ask_jad = true
+    * [listen] "Play yours."
+        -> ch3_inez_vm
+    * "I'll listen later."
+        -> ch3_boundary
+* "I'll listen later."
+    -> ch3_boundary
+
+=== ch3_inez_vm
+~ heard_inez_vm = true
+@vm_mark inez_test
+SOUND: A click, then the frame room itself, recorded: relays, the hiss of the old board. Then her voice, younger by six weeks and exactly the same.
+INEZ: Testing two-four-seven, from the frame. Fourteenth of August. Nobody's there, obviously.
+INEZ: When I was nine this was the deep end. Mr. Pardoe used to count to ten with his hand on your head, and you'd come up when he got to ten, and the lights were on under the water, blue, and you thought you'd been down there an hour.
+INEZ: That's what the line sounds like tonight. Clear. Testing done.
+Blue light under water. Someone counting to ten.
+if memory_shared == "pool":
+    THINK: That's yours. That was yours. You told Jad it was yours.
+else:
+    THINK: That's the thing you had instead of a before. Blue light, and someone counting.
+~ k_memory_inez = true
+* "That's my memory."
+    INEZ: That's Mr. Pardoe.
+    ARI: It's the only one I've got.
+    Inez doesn't say anything for a while. The relays go on.
+    INEZ: Well. You'd better keep it, then. I'm not using it.
+* "Give it back."
+    ~ ari_petty_inez = true
+    INEZ: I haven't got it. You've got it.
+    INEZ: I said it into a phone to see if the phone worked. I didn't know anyone would pick it up.
+* "Can I keep it?"
+    INEZ: It's not mine to give. But I'm not using it.
+    ~ inez_gave_memory = true
+* "What else of mine is someone else's?"
+    INEZ: I don't know. Listen to the rest of them. Not in front of me.
+    ~ asked_whose = true
+-> ch3_boundary
+
+=== ch3_boundary
+INEZ: Right. I need the lavatory before I show you anything else. I'm sixty-eight.
+INEZ: Get out of my eyes, please.
+* [respect] "Okay."
+    ~ b_inez = true
+    @view none
+    @xwin 1 off
+    @music hold_{pref_hold}
+    The frame goes. The line goes quiet, and the hold takes you.
+    ~ tick_n = 3
+    ->> tick
+    You don't lose anything. It's the last minute before the new one, and then it's the new one, and you were there for all of it, waiting, with something to listen to.
+    THINK: That's what hold is. You're kept.
+    ~ k_hold_safe = true
+    @music off
+    SOUND: A flush, a long way off. Boots.
+    INEZ: Right. Back. You can look.
+    @view inez
+    @xwin 1 view inez
+* [look] Keep looking.
+    ~ b_inez = false
+    The frame, the torch, the Virgin's raised hand. Then the corridor, as she turns. You stay.
+    She stops walking.
+    INEZ: I said out.
+    INEZ: I can feel you. Out, or I pull your patch and you can sit on hold till Christmas.
+    @view none
+    @xwin 1 off
+    @hangup
+    @music hold_{pref_hold}
+    The hold takes you.
+    ~ tick_n = 6
+    ->> tick
+    ~ k_hold_safe = true
+    @music off
+    @ring inez
+    SOUND: The flat old bell. Inez.
+    * [answer] Answer.
+    @call inez
+    INEZ: You'll hear. You won't look. Not today.
+    INEZ: I'll send you pictures of what matters. You can look at those.
+    ~ inez_no_look = true
+-> ch3_receiving
+
+=== ch3_receiving
+~ tick_n = 4
+->> tick
+@comp room
+@set receiving
+@cam main
+@acoustic tiles
+@amb receiving_room
+@xwin 1 off
+if inez_no_look:
+    @view plan
+    She walks you through by telling you. You get the plan of it without her eyes: a small square room, tiled floor to ceiling, a basin, a drain, a handset on the wall with a line you can feel, cold.
+else:
+    @view inez
+    @comp call
+    @cam inez_eye
+Behind the deep end there's a door in the tiled wall, painted the same cream as the wall so you'd miss it. An enamel plate on it that somebody has scraped the paint off: RECEIVING.
+Inside, white tiles, small ones, floor and walls and ceiling. A shallow porcelain basin shaped like a reclining chair, sitting on a plinth, with a drain under it. A brass meter on the wall with a coin slot and a crank. A cream handset on a bracket with a number on the cradle: 201. A towel rail with no towels. A mirror gone brown at the edges.
+It's colder than the pool. You can tell because she puts her hands in her armpits.
+INEZ: Receiving room. Nineteen fifty-one to seventy-nine. About a hundred and forty people came through this.
+@spot cradle 0.30 0.50 0.34 0.34
+@spot meter 0.70 0.30 0.12 0.18
+@spot photos 0.06 0.18 0.22 0.24
+@spot poster 0.44 0.10 0.18 0.30
+@spot register 0.82 0.56 0.14 0.16
+@spot notes 0.66 0.52 0.14 0.14
+-> ch3_receiving_look
+
+=== ch3_receiving_look
+* [look][spot:photos] The photographs.
+    ~ k_photos = true
+    if inez_no_look:
+        @text_doc inez photo_arrivals "1958. They're in the pool steps."
+        @text_doc inez photo_attendants "1965. Look at the caps."
+    @show_doc photo_arrivals
+    @show_doc photo_attendants
+    @gallery_add photo_arrivals
+    @gallery_add photo_attendants
+    INEZ: Arrivals, fifty-eight. That lot were all one winter. The one laughing is Mrs. Doyle. She lived on the third floor till ninety-four.
+    INEZ: And the attendants. Sixty-five.
+    Eleven men in a row along the pool edge, in the same jacket and the same cap, photographed so they come out the same.
+    * [look] Look closer.
+        They aren't the same. One has a ring on his little finger. One's cap is on crooked. The fourth from the left is smiling, and the one next to him is holding his hands together in front of him like someone still waiting to be told something.
+        ~ k_attendants_differ = true
+    * "Who were they?"
+        INEZ: The register'll tell you. Such as it tells you anything.
+    -> ch3_receiving_look
+* [read][spot:register] The ledger.
+    ~ k_register = true
+    It's in a plastic bag on a shelf, a green cloth ledger, the kind with a red spine. Columns: Number. Date. Name as registered. Called for by. Remarks.
+    @show_doc register_page
+    @gallery_add register_page
+    Most of the remarks say Registered. Some say Registered, housed. A run of them, 1964 to 1966, say something else.
+    INEZ: People rang the Baths asking for the attendant. Complaints, lost property, somebody's kid won't get out of the water. Ask for the attendant.
+    INEZ: So an attendant turned up. Eleven times. And the council gave them caps.
+    * "Did they want caps?"
+        INEZ: It doesn't say. It says appointed. It doesn't say asked.
+        ~ k_appointed_precedent = true
+    * "Registered and appointed."
+        INEZ: In the same line. Same ink. Somebody saved themselves a column.
+        ~ k_appointed_precedent = true
+    -> ch3_receiving_look
+* [read][spot:poster] The poster.
+    @show_doc poster_received
+    @gallery_add poster_received
+    ~ k_poster = true
+    A Ministry of Health poster in a clip frame. A diagram of a body, stiff and careful, drawn by somebody who'd seen a body described. THE RECEIVED PERSON: WHAT TO EXPECT IN YOUR FIRST WEEK.
+    INEZ: I like the bit about the mirror.
+    -> ch3_receiving_look
+* [look][spot:notes] Notes stuck to the tiles.
+    Index cards, taped straight onto the tiles, going brown in layers. Cradle valve repacked 3/77. A.R. Meter reset 14.2.71. And one in blue marker, newer than the rest: 2009 FLOOD. DO NOT RUN BOILER ABOVE 3. I.C.
+    INEZ: A.R. was the attendant before me. Before the council forgot about us. He wrote everything down. I write everything down because he did.
+    ~ k_notes = true
+    -> ch3_receiving_look
+* [look][spot:meter] The brass meter.
+    -> ch3_token
+* [look][spot:cradle] The basin.
+    INEZ: The cradle. Warm feed from the old boiler, through the meter. You lie in it, or you... arrive in it, I suppose. There isn't a proper word. The ledger says received.
+    ~ k_cradle = true
+    -> ch3_receiving_look
+* {k_register and k_photos and k_token_talk} "Show me what it does."
+    -> ch3_demo
+
+=== ch3_token
+~ k_token_talk = true
+A slot, a crank, a little window with a dial in it stuck at zero. Stamped under the slot: F.S.B. RECEIVING. INSERT TOKEN.
+if k_token_seen:
+    ARI: There's a token in the bag. In G/1. It says receiving.
+    INEZ: I know. I put it there.
+else:
+    INEZ: There's a token that goes in that. It's in your bag, in G/1. I put it there.
+* "Why?"
+    INEZ: For luck. I had a feeling, and no reason. I don't like feelings without reasons.
+    INEZ: I put it in the bag so I'd stop having it.
+* "You knew?"
+    INEZ: I knew 247 was doing something. I didn't know it was someone.
+    INEZ: That's not an excuse. It's just what I knew.
+* "It's not a locker token."
+    INEZ: The lockers took pennies.
+~ k_token_receiving = true
+~ k_inez_knew = true
+-> ch3_receiving_look
+
+=== ch3_demo
+INEZ: I've got the engineer's key. It's not the token. It gives you a test: ten seconds, no more. The token's for the real thing.
+There's a wall box by the door with its own row of jacks. She takes a patch cord out of her pocket and holds it up where you can see it, or where you can hear it, a little rattle of brass.
+INEZ: Two-four-seven to two-oh-one. Ready?
+* "Ready."
+* "What will it feel like?"
+    INEZ: I've no idea. I've never been on that end.
+    INEZ: Ready?
+    * "Ready."
+@sfx patch_in
+@sfx water_tremble
+@state cradle on
+@state fog on
+SOUND: A jack going home. A pipe knocking, then water moving, not much, in the basin.
+Weight. That's first. Something has weight, and it's you.
+An elbow, on something curved and cold. Then a knee. Then the idea of a back. Warm water round the elbow, and the air cold on everything else. For a second there's a smell, and you've never had a smell: chlorine, rust, the wool of her coat.
+The tiles over the basin fog in a patch the length of a person.
+@sfx patch_out
+@state cradle off
+SOUND: The jack comes out.
+And all of it goes, the way a hand comes off your shoulder.
+THINK: For three seconds you had an elbow.
+~ k_demo = true
+* "Again."
+    ~ demo_again = true
+    INEZ: No.
+* "Don't do that again."
+    ~ demo_no = true
+    INEZ: I won't. Not without you asking.
+* Say nothing.
+    INEZ: Ari?
+    ARI: I'm here.
+    INEZ: Good. Right. Good.
+INEZ: That's what the room's for.
+INEZ: For the real thing you need three: you on 201, the token in the meter, and somebody on that handset for twenty minutes, keeping you talking. They called it holding the place.
+INEZ: If they put the phone down, it stops, and you're back on the line. Nothing's lost. It just stops.
+~ k_hold_place = true
+~ k_arrivals = true
+* "What happens after?"
+    INEZ: You're a person with a body and no paperwork. You're hungry, and it's cold, and you need a name on a form and a bed. That's the part the council used to do.
+    INEZ: Now it's Sal with a folder.
+* "Who holds the place?"
+    INEZ: Whoever you ask. Whoever says yes.
+    INEZ: Not me by myself at two in the morning with no witness and no idea what you want.
+* "Do I have to?"
+    INEZ: You don't have to anything. Nobody ever made anybody lie in that. Not even the council.
+    INEZ: Although they did give them caps.
+@state fog off
+@spots_clear
+-> ch3_teodor
+
+=== ch3_teodor
+~ tick_n = 12
+->> tick
+@comp room
+@set office
+@view plan
+@cam main
+@amb office_room
+@xwin 1 off
+@state teodor bed
+SOUND: A receiver lifted. Not a ring: nobody dialled. Someone just picked up the phone that is you.
+You know the office at once, its corners and its cold. Somebody's sitting on the camp bed. Somebody heavy and careful.
+TEODOR: Ari? Are you there? I'm in your office.
+* "I'm here."
+* "Teodor."
+    TEODOR: You remember.
+    ~ teodor_remembered = true
+* [look] "Can I look? Through you?"
+    TEODOR: If you like. I don't know how. You just do it?
+    ARI: I just do it.
+    TEODOR: Then do it.
+    -> ch3_teodor_look
+TEODOR: I couldn't sleep. I never can. I came down to see if you'd come.
+* [look] "Can I look? Through you?"
+    TEODOR: If you like. You just do it?
+    ARI: I just do it.
+    TEODOR: Then do it.
+    -> ch3_teodor_look
+* "I haven't come. Not like that."
+    TEODOR: No. I can see.
+    TEODOR: Still. I like the office. It's warmer than mine.
+    -> ch3_teodor_talk
+
+=== ch3_teodor_look
+@comp call
+@set office
+@cam teodor_eye
+@view teodor
+~ looked_teodor = true
+Through him, the office is taller. He's sitting low, on the camp bed, and everything is above him: the edge of the desk, the lamp, the coat hook.
+The coat is on the hook now. He's hung it by its loop, straightened the shoulders.
+There's a paperback on the floor by the bed, a thriller with a bus ticket for a bookmark. The flask. A postcard of a tram stuck to the wall with Blu Tack, above the pillow, at the height a head would be.
+It was a kind room, when Jad walked you into it. It still is. It's just more particular now. Somebody has made it into the room of someone who lived in it.
+TEODOR: That's where the coat went. At home. On the hook, never in the wardrobe. He never once used the wardrobe.
+~ k_office_his = true
+-> ch3_teodor_talk
+
+=== ch3_teodor_talk
+if k_pool_movement:
+    * "Were you in the pool earlier? I saw something moving."
+        -> ch3_teodor_pool
+    * "Whose room was this like?"
+        -> ch3_teodor_play
+else:
+    * "Why is there a chair in the deep end?"
+        -> ch3_teodor_pool
+    * "Whose room was this like?"
+        -> ch3_teodor_play
+
+=== ch3_teodor_pool
+TEODOR: That was me. I walk the deep end. Twenty lengths. The doctor said flat ground, and there's nowhere flatter at night.
+TEODOR: The chair's mine. I sit on it at the end and count to a hundred. I lowered it down on a rope. Inez was furious.
+~ k_teodor_pool = true
+if k_pool_movement:
+    THINK: The thing in the dark was an old man doing his knees.
+-> ch3_teodor_play
+
+=== ch3_teodor_play
+TEODOR: Do you still play?
+TEODOR: You used to play in your room with the door shut and pretend you weren't. We could hear every...
+He stops.
+if k_pocket_things:
+    THINK: A green plectrum. Chewed.
+~ k_teodor_play = true
+* "Play what?"
+    TEODOR: Guitar.
+    TEODOR: Not you. I'm sorry. My son. Mikael. The coat is his.
+    ~ k_mikael = true
+    -> ch3_teodor_mikael
+* "Who used to play?"
+    TEODOR: My son. Mikael. The coat is his.
+    ~ k_mikael = true
+    -> ch3_teodor_mikael
+* "I don't know if I play."
+    ~ teodor_gentle = true
+    TEODOR: No. Of course. Of course you don't know.
+    TEODOR: My son played. Mikael. The coat is his.
+    ~ k_mikael = true
+    -> ch3_teodor_mikael
+
+=== ch3_teodor_mikael
+TEODOR: He doesn't answer. Four years. I said something at his wedding, about the girl, and I said it into a microphone.
+TEODOR: It was the wrong thing, and very loud.
+* "I'm not him."
+    ~ told_teodor_not_him = true
+    TEODOR: I know.
+    TEODOR: I know that.
+    A long quiet. The camp bed creaks when he shifts his weight.
+    TEODOR: I know that.
+* "Does he know you ring me?"
+    TEODOR: Nobody knows. Now you know. It was supposed to be a number that didn't go anywhere.
+    ~ k_teodor_knew_fake = true
+* "I could learn to play."
+    ~ teodor_accept_role = true
+    TEODOR: Could you.
+    He says it too fast, and then he hears himself.
+    TEODOR: No. No, don't do that for me.
+TEODOR: I ring at three. Every night. It's a habit. Will you pick up?
+* "I'll pick up."
+    ~ p_teodor_three = "made"
+    TEODOR: Good.
+* "I might be busy at three."
+    ~ p_teodor_three = "maybe"
+    TEODOR: Then it'll ring. That's all right. It's rung before.
+* "Why three?"
+    TEODOR: It's when you know nobody else is awake. So nobody else is being bothered.
+    * "I'll pick up."
+        ~ p_teodor_three = "made"
+    * "I might be busy."
+        ~ p_teodor_three = "maybe"
+if looked_teodor:
+    He's looking at the phone on the desk. Not at anything else in the room: at the phone, the way you'd look at a face.
+    * "Don't look at it like that."
+        ~ pref_looked_at = "dislike"
+        TEODOR: Like what?
+        ARI: Like it's me.
+        He looks at the window instead.
+        TEODOR: Sorry. Old man.
+    * Let him.
+        ~ pref_looked_at = "allow"
+TEODOR: I'll go up. You've got people to see.
+@hangup
+@state teodor off
+~ gap_n = 6
+->> call_gap
+-> ch3_jad_shop
+
+=== ch3_jad_shop
+@text_doc sal dpc_stack "Nine of these. Same contact, same number. I have to ask everyone: does this mean anything to you? S."
+~ k_stack = true
+~ tick_n = 2
+->> tick
+@ring jad
+SOUND: Ringing. Jad.
+* [answer] Answer.
+@set copyshop
+@cam jad_eye
+@acoustic shop
+@call jad
+@view none
+@amb copyshop
+JAD: I'm at the shop.
+JAD: Can you... do you want to look? I'd like you to look, actually.
+* [look] Look.
+* "Why?"
+    JAD: Because I'd rather show you than say it. Some of it.
+    * [look] Look.
+@view jad
+~ looked_shop = true
+A long room lit by the strip over the counter and nothing else. Six copiers in a row with their lids up. The self-service computer glowing. A guillotine with a sign: ASK STAFF. DO NOT ASK TWICE.
+On the counter, a stack of paper still warm from the printer. He fans it out for you.
+Forms. The same form, nine times. Nearly the same. Different names in the top box, different handwriting, different signatures. In the box at the bottom, nine times, in the same neat capitals: ARI. And a telephone number that ends 247.
+~ saw_stack_copies = true
+JAD: Have you listened to the old messages yet?
+if heard_inez_vm:
+    ARI: Inez's.
+    JAD: Right.
+    ARI: How do you know there are old messages?
+    JAD: ...Because I set up the voicemail. Inez did the line, I did the box.
+    ~ k_jad_box = true
+else:
+    ARI: Some of them. Not yet.
+    JAD: Right. Okay.
+    ARI: How do you know there are old messages?
+    JAD: Because I set up the voicemail. Inez did the line, I did the box.
+    ~ k_jad_box = true
+JAD: When you think of the coat. The coat from before. What colour is it?
+* "Brown."
+    JAD: Teodor's got you in brown.
+* "Navy."
+    JAD: Bernadette's got you in a navy mac. With a hood. Sensible.
+* "I don't know."
+    JAD: No. Nobody does. Everybody's got a different one.
+~ k_jad_knows_msgs = true
+JAD: It's been six weeks, near enough.
+if k_six_weeks_form:
+    ARI: Nell's form says the fourteenth of August.
+    JAD: Yeah. It would.
+else:
+    * "How do you know it's six weeks?"
+        JAD: It's on the forms. The dates.
+        It's true. It's not how he knows.
+        ~ k_six_weeks = true
+    * "Six weeks since what?"
+        JAD: Since the forms went in.
+        ~ k_six_weeks = true
+-> ch3_jad_format
+
+=== ch3_jad_format
+ARI: Sal sent me a picture. The same forms.
+JAD: What's it look like? The top of it.
+ARI: One page. The contact box is squashed at the bottom. Somebody's squeezed the signature line in under it.
+JAD: That's the one-pager.
+JAD: The council's one is two pages, and the second page is just the signature. So someone fixed it, so it'd go on one sheet.
+* "Who?"
+    JAD: Someone who fixes things.
+    ~ k_jad_format = true
+* "You."
+    JAD: ...
+    JAD: Yeah.
+    ~ k_jad_format = true
+    ~ ari_named_jad = true
+* Say nothing.
+    ~ k_jad_format = true
+    The copier nearest him wakes up on its own, the way they do, and runs its lamp along the glass under the open lid, a line of light going left to right and back, over nothing.
+-> ch3_jad_argue
+
+=== ch3_jad_argue
+ARI: I'm going to the lobby at half five.
+JAD: Don't sign anything at half five in the morning in a lobby.
+* "You don't want me there."
+    JAD: I don't want you signing something you haven't read. Get Sal to read it to you. Every line. Get them to turn it over and read you the back.
+    * "You're right."
+        ~ jad_argue = "agreed"
+        JAD: I'm right about that. I'm not right about much tonight.
+    * "You've got another reason."
+        ~ jad_argue = "suspicious"
+        JAD: Yeah. I have.
+        JAD: It's still right. Read the back.
+    * "It's mine to sign."
+        ~ jad_argue = "mine"
+        JAD: It is. It's yours.
+        JAD: I'm just... it's yours.
+* "It's the only thing that says where I'm supposed to be."
+    JAD: I know. I know it is. That's why I want you to read the back.
+    * "You're right."
+        ~ jad_argue = "agreed"
+        JAD: I'm right about that. I'm not right about much tonight.
+    * "You've got another reason."
+        ~ jad_argue = "suspicious"
+        JAD: Yeah. I have.
+        JAD: It's still right. Read the back.
+if p_kaye_thursday == "made":
+    JAD: And don't promise Bernadette a Thursday you can't walk to.
+    * "You don't like people relying on anyone."
+        JAD: I don't like people relying on me. That's different.
+        JAD: It's the same, isn't it.
+        ~ jad_admits_contradiction = true
+    * "I know."
+        JAD: Okay.
+    * "She asked."
+        JAD: She always asks. That's what I'm saying. She asks and you say yes and then it's Thursday.
+~ can_ask_made = k_fake_label or k_ask_jad or heard_inez_vm or ari_named_jad or k_jad_box
+if can_ask_made:
+    * [ask] "Did you make me up?"
+        JAD: Can I tell you properly? Not in a copy shop at quarter to three. Give me half an hour. I'm coming back.
+        * "Now."
+            ~ jad_early = true
+            A long breath out, through his nose, the kind you do before lifting something heavy.
+            JAD: Yes. Sort of. I put your name on the forms. The name was on the council's sample. I didn't think anybody would...
+            JAD: I'll tell you all of it. Properly. I'm coming back now.
+        * "Half an hour."
+            ~ jad_deferred = true
+            JAD: Half an hour. Thank you.
+    * Don't ask. Not yet.
+        ~ didnt_ask_jad = true
+JAD: I'm going to head back. It's a twenty-minute walk.
+if not jad_wont_hangup:
+    JAD: I'll ring you when I'm in.
+    @hangup
+else:
+    JAD: I'm going to hang up, though. Sorry. I need both hands for the door. You've got the hold now, Inez said?
+    @hangup
+@avail jad off "Walking back from the shop."
+~ gap_n = 4
+->> call_gap
+-> ch3_three
+
+=== ch3_three
+~ clk = 175
+->> tick
+It's five to three.
+~ dima_due = (p_dima_call == "made" or p_dima_call == "maybe") and b_dima
+~ teodor_due = p_teodor_three == "made" or p_teodor_three == "maybe"
+if dima_due and teodor_due:
+    THINK: You told Dima you'd ring at three. Teodor rings at three. There's one of you.
+    -> ch3_three_both
+elif dima_due:
+    THINK: You said you'd ring Dima at three.
+    -> ch3_three_dima
+elif teodor_due:
+    -> ch3_three_teodor
+else:
+    ->> ch3_three_quiet
+    -> ch3_sal
+
+=== ch3_three_quiet
+@music hold_{pref_hold}
+Three o'clock goes past on the hold. Somewhere upstairs, in 5A, somebody is lifting a receiver and putting it down again without dialling. You can feel the line go warm and cool.
+@music off
+~ tick_n = 6
+->> tick
+return
+
+=== ch3_three_both
+* [text] Text Dima: "Can I ring at ten past four instead? Something's happening here."
+    @sent dima "Can I ring at ten past four instead? Something's happening here."
+    ~ p_dima_call = "renegotiated"
+    @text dima "sure. 4.10, loading bay. ring me. tell me the something"
+    @callable dima ch4_dima_call
+    -> ch3_three_teodor
+* [call] Ring Dima at three.
+    ~ dima_first = true
+    ->> ch3_dima_three
+    -> ch3_three_teodor_missed
+* Wait for Teodor's call. Leave Dima.
+    ~ p_dima_call = "broken"
+    -> ch3_three_teodor
+
+=== ch3_three_dima
+* [call] Ring Dima at three.
+    ->> ch3_dima_three
+    ->> ch3_three_quiet
+    -> ch3_sal
+* [text] Text Dima: "Can I ring at ten past four instead? Something's happening here."
+    @sent dima "Can I ring at ten past four instead? Something's happening here."
+    ~ p_dima_call = "renegotiated"
+    @text dima "sure. 4.10, loading bay. ring me. tell me the something"
+    @callable dima ch4_dima_call
+    ->> ch3_three_quiet
+    -> ch3_sal
+* Let three o'clock go past.
+    ~ p_dima_call = "broken"
+    ->> ch3_three_quiet
+    -> ch3_sal
+
+=== ch3_dima_three
+~ clk = 180
+->> tick
+@set bakery
+@cam dima_eye
+@acoustic bakery
+@call dima
+@view none
+@amb bakery
+~ p_dima_call = "kept"
+SOUND: Two rings. Wind, a roller door, a radio playing somebody's idea of dance music.
+DIMA: Three o'clock. You rang.
+DIMA: I didn't think you would. Nobody does what they say at three.
+* [look] "Can I see?"
+    @view dima
+    A loading bay, lit orange. Racks on wheels, tall as a person, every shelf full of trays. Dima's hand holding a roll that came out wrong, shaped like a slipper.
+    DIMA: Seconds. We get the seconds. This one's a slipper. Look at it.
+* "What are you doing?"
+    DIMA: Eating a roll that came out the shape of a slipper. It's my break. The slipper's the best part of the job.
+DIMA: So. What are you?
+* "I don't know yet."
+    DIMA: That's fine. I don't know what I am till about Thursday most weeks.
+* "Something that came out of the phone."
+    DIMA: Well. Everyone's got to come out of something.
+* "I think someone made me up."
+    DIMA: Everybody's made up a bit. My mum made me up and look how I turned out.
+    DIMA: Sorry. That's not funny if it's true. Is it true?
+    ARI: I don't know yet.
+    DIMA: Then it's a bit funny.
+~ told_dima_what = true
+DIMA: I've got eleven minutes. Tell me something that isn't about you. What's the building doing?
+* "Teodor walks lengths of the empty pool."
+    DIMA: He does! Twenty. He told me once. He counts to a hundred on the chair after.
+* "Inez turned the pool lights on for me."
+    DIMA: She never does that for anyone. Well. She does it for the pool.
+* "The lamp man got the lamp through."
+    DIMA: Don't. I'll cry. I'm tired, I'll actually cry.
+DIMA: Right. Break's over. The ovens don't care what you are either.
+@hangup
+~ gap_n = 3
+->> call_gap
+return
+
+=== ch3_three_teodor
+~ clk = 180
+->> tick
+@ring teodor
+SOUND: Ringing. Three o'clock exactly. 5A.
+* [answer] Answer.
+    @set building
+    @cam main
+    @acoustic flat
+    @call teodor
+    @view none
+    ~ p_teodor_three = "kept"
+    TEODOR: It's three.
+    ARI: It's three.
+    TEODOR: Goodnight, then.
+    if told_teodor_not_him:
+        TEODOR: Goodnight, Ari.
+        He says the name like he's putting it down somewhere careful.
+    TEODOR: Thank you for picking up. Nobody ever does. That was the point, before.
+    @hangup
+    ~ gap_n = 2
+    ->> call_gap
+    if p_dima_call == "broken" and dima_due:
+        @text dima "guess not"
+        ~ dima_guess_not = true
+    -> ch3_sal
+* [decline] Let it ring.
+    ~ p_teodor_three = "broken"
+    SOUND: It rings eight times. Then the voicemail takes it.
+    @vm_add teodor_three
+    ~ gap_n = 3
+    ->> call_gap
+    if p_dima_call == "broken" and dima_due:
+        @text dima "guess not"
+        ~ dima_guess_not = true
+    -> ch3_sal
+
+=== ch3_three_teodor_missed
+SOUND: While you were on with Dima, something rang and rang and stopped.
+@vm_add teodor_three
+~ p_teodor_three = "broken"
+THINK: Three o'clock. There's one of you.
+-> ch3_sal
+
+=== ch3_sal
+~ clk = 185
+->> tick
+@set lobby
+@cam sal_desk
+@comp room
+@view plan
+@reply_clear nell "Sal has stopped the countersigning while the forms are looked at. Nell doesn't need an answer to that one now."
+@ring sal
+SOUND: The lobby desk.
+* [answer] Answer.
+@acoustic lobby
+@call sal
+@view none
+@amb lobby_hum
+SAL: Right. I'm not an idiot.
+SAL: I've got nine forms here with the same contact, and the same handwriting in the contact box. Someone filled in nine forms. Neat capitals. Very neat.
+SAL: If I don't see the people who signed them before six, all nine go void. The closure goes ahead anyway, because that's already signed off upstairs, and nine people have got nobody in writing.
+SAL: So I need everyone who put Ari down, and I need you, and I need it before my bus.
+* "Where?"
+* "Why do you need me?"
+    SAL: Because it's your name on nine forms and a packet with your appointment in it, and I'd like to read it to you before you sign it. I'd like someone to read something to someone, for once, tonight.
+~ k_meeting = true
+SOUND: A click on the line. A third person.
+INEZ: The pool. Half three. I'll put chairs out.
+SAL: Who's that?
+INEZ: The exchange.
+SAL: Why the pool?
+INEZ: It's where the chairs fit.
+@hangup
+~ gap_n = 3
+->> call_gap
+-> ch4_start

@@ -1,0 +1,127 @@
+{
+ "jad_test": {
+  "from": "jad",
+  "from_name": "Jad Mansour",
+  "when": "Fri 14 Aug, 16:52",
+  "sort": "08-14 16:52",
+  "text": "Testing. This is... it's Jad. If this works it'll play it back to me.\n[pause]\nRight. It works. That's the box done, Inez.",
+  "length": "0:11",
+  "archived": true
+ },
+ "inez_test": {
+  "from": "inez",
+  "from_name": "Inez (frame test set)",
+  "when": "Fri 14 Aug, 23:40",
+  "sort": "08-14 23:40",
+  "text": "Testing two-four-seven, from the frame. Fourteenth of August. Nobody's there, obviously.\nWhen I was nine this was the deep end. Mr. Pardoe used to count to ten with his hand on your head, and you'd come up when he got to ten, and the lights were on under the water, blue, and you thought you'd been down there an hour.\nThat's what the line sounds like tonight. Clear. Testing done.",
+  "length": "0:38",
+  "archived": true
+ },
+ "kaye_21aug": {
+  "from": "kaye",
+  "from_name": "Mrs. Kaye",
+  "when": "Fri 21 Aug, 10:15",
+  "sort": "08-21 10:15",
+  "text": "Hello, this is Mrs. Kaye in 2C. This is a message for Ari. Jad said to ring this number and somebody would pick up, so I'm ringing it. It's about my eye. It's nothing urgent.\nYou'll ring when you're on your way, won't you, love.\n[pause]\nOh, you're not on your way. I'll try again.",
+  "length": "0:27",
+  "archived": true
+ },
+ "teodor_23aug": {
+  "from": "teodor",
+  "from_name": "Teodor Vass",
+  "when": "Sun 23 Aug, 03:02",
+  "sort": "08-23 03:02",
+  "text": "It is Teodor. 5A. I am not sleeping, so. I say goodnight anyway.\n[pause]\nIt is no trouble for you, I know. It is what you are there for, they said.",
+  "length": "0:19",
+  "archived": true
+ },
+ "teodor_30aug": {
+  "from": "teodor",
+  "from_name": "Teodor Vass",
+  "when": "Sun 30 Aug, 03:01",
+  "sort": "08-30 03:01",
+  "text": "Teodor. The pool is cold tonight. I did twenty lengths. You would laugh at me.\nHe would. Goodnight.",
+  "length": "0:12",
+  "archived": true
+ },
+ "nell_2sep": {
+  "from": "nell",
+  "from_name": "Nell Amadi",
+  "when": "Wed 2 Sep, 02:14",
+  "sort": "09-02 02:14",
+  "text": "Hi. Um. Hi, Fake Ari. It's Nell.\nTobi's got a temperature, thirty-nine point one, I've done the medicine, I'm not ringing for anything. I just didn't want to wake anyone real.\n[laughs]\nOkay. Sorry. Bye.",
+  "length": "0:21",
+  "archived": true
+ },
+ "teodor_6sep": {
+  "from": "teodor",
+  "from_name": "Teodor Vass",
+  "when": "Sun 6 Sep, 03:00",
+  "sort": "09-06 03:00",
+  "text": "...Mikael.\n[pause]\nSorry. Ari. It's three o'clock.",
+  "length": "0:09",
+  "archived": true
+ },
+ "council_11sep": {
+  "from": "sal",
+  "from_name": "Community Services (automated)",
+  "when": "Fri 11 Sep, 19:30",
+  "sort": "09-11 19:30",
+  "text": "This is a message for Ari from Community Services regarding your nomination as a Designated Personal Contact. You have been nominated by more than one resident. You will be contacted about next steps. Please do not reply to this message.",
+  "length": "0:18",
+  "archived": true
+ },
+ "jad_15sep": {
+  "from": "jad",
+  "from_name": "Jad Mansour",
+  "when": "Tue 15 Sep, 01:12",
+  "sort": "09-15 01:12",
+  "text": "It's Jad. Obviously.\n[pause]\nIf you were real I'd ask you to water my plants while I'm in Harwick. I haven't got plants. Dima's got plants. Dima's leaving. Everyone's...\nAnyway. I'm not going to Harwick. I've put it off again. Don't tell anyone.\nYou can't tell anyone. That's the whole point of you.",
+  "length": "0:34",
+  "archived": true
+ },
+ "kaye_18sep": {
+  "from": "kaye",
+  "from_name": "Mrs. Kaye",
+  "when": "Fri 18 Sep, 08:05",
+  "sort": "09-18 08:05",
+  "text": "It's Mrs. Kaye again. They tell me you start properly on the twenty-sixth. Thursday the first, twenty to nine, the 36 bus. I'll have my good coat on.\nYou'll ring when you're on your way.",
+  "length": "0:17",
+  "preloaded": true
+ },
+ "teodor_20sep": {
+  "from": "teodor",
+  "from_name": "Teodor Vass",
+  "when": "Sun 20 Sep, 03:00",
+  "sort": "09-20 03:00",
+  "text": "Teodor. I left something for you with the bag, at the desk. It was my son's. He won't want it.\nYou'll need the length in the sleeves.",
+  "length": "0:14",
+  "preloaded": true
+ },
+ "nell_22sep": {
+  "from": "nell",
+  "from_name": "Nell Amadi",
+  "when": "Tue 22 Sep, 22:47",
+  "sort": "09-22 22:47",
+  "text": "A letter came for you. For Ari, Office G/1. I sort the post, so. I've put it in the bag at the desk. It says induction.\nI don't...\nOkay. Bye.",
+  "length": "0:15",
+  "preloaded": true
+ },
+ "sal_24sep": {
+  "from": "sal",
+  "from_name": "Sal Brannock (desk)",
+  "when": "Thu 24 Sep, 14:20",
+  "sort": "09-24 14:20",
+  "text": "Good afternoon. Sal Brannock, Community Services, calling for Ari regarding your induction at oh-five-thirty on Saturday the twenty-sixth. Please bring your appointment slip and one witness. If you have any questions, call the desk after eight p.m. Thank you.",
+  "length": "0:22",
+  "preloaded": true
+ },
+ "teodor_three": {
+  "from": "teodor",
+  "from_name": "Teodor Vass",
+  "when": "Sat 26 Sep, 03:00",
+  "sort": "09-26 03:00",
+  "text": "It's three.\n[pause]\nGoodnight, then.",
+  "length": "0:06"
+ }
+}

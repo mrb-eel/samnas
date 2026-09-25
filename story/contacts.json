@@ -1,0 +1,50 @@
+{
+ "_order": [
+  "jad",
+  "inez",
+  "dima",
+  "nell",
+  "kaye",
+  "teodor",
+  "sal"
+ ],
+ "jad": {
+  "name": "Jad Mansour",
+  "place": "Flat 4B",
+  "ext": "242"
+ },
+ "inez": {
+  "name": "Inez Carvalho",
+  "place": "Flat 1A · the frame",
+  "ext": "211 / 299"
+ },
+ "dima": {
+  "name": "Dima",
+  "place": "Flat 3D",
+  "ext": "234"
+ },
+ "nell": {
+  "name": "Nell Amadi",
+  "place": "Flat 3B",
+  "ext": "232",
+  "known": true
+ },
+ "kaye": {
+  "name": "Mrs. Kaye",
+  "place": "Flat 2C",
+  "ext": "223",
+  "known": true
+ },
+ "teodor": {
+  "name": "Teodor Vass",
+  "place": "Flat 5A",
+  "ext": "251",
+  "known": true
+ },
+ "sal": {
+  "name": "Support desk (Sal)",
+  "place": "Lobby",
+  "ext": "209",
+  "known": true
+ }
+}
