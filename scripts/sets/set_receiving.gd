@@ -68,10 +68,10 @@ func build(_v: String) -> void:
 	K.box(mirror_shape, Vector3(0.01, 0.3, 0.3), Vector3(-W / 2 + 0.11, 1.35, 0.9), K.glass(Color("8a6a4a"), 0.3))
 	mirror_shape.visible = false
 	# photographs and the poster, index cards, the ledger
-	K.box(self, Vector3(0.56, 0.42, 0.03), Vector3(-0.9, 1.75, -D / 2 + 0.08), K.mat(Color("3a2a1a")))
-	K.picture(self, "res://assets/docs/photo_arrivals.jpg", 0.5, 0.36, Vector3(-0.9, 1.75, -D / 2 + 0.1))
-	K.box(self, Vector3(0.66, 0.36, 0.03), Vector3(0.05, 1.8, -D / 2 + 0.08), K.mat(Color("3a2a1a")))
-	K.picture(self, "res://assets/docs/photo_attendants.jpg", 0.6, 0.3, Vector3(0.05, 1.8, -D / 2 + 0.1))
+	K.box(self, Vector3(0.56, 0.45, 0.03), Vector3(-0.9, 1.75, -D / 2 + 0.08), K.mat(Color("3a2a1a")))
+	K.picture(self, "res://assets/docs/photo_arrivals.jpg", 0.5, 0.389, Vector3(-0.9, 1.75, -D / 2 + 0.1))
+	K.box(self, Vector3(0.66, 0.39, 0.03), Vector3(0.05, 1.8, -D / 2 + 0.08), K.mat(Color("3a2a1a")))
+	K.picture(self, "res://assets/docs/photo_attendants.jpg", 0.6, 0.334, Vector3(0.05, 1.8, -D / 2 + 0.1))
 	K.picture(self, "res://assets/docs/poster_received.jpg", 0.45, 0.637, Vector3(W / 2 - 0.07, 1.5, 0.4), Vector3(0, -PI / 2, 0))
 	for i in 3:
 		K.quad(self, 0.12, 0.08, Vector3(W / 2 - 0.07, 1.0 + i * 0.1, -0.55 + i * 0.03), K.mat(Color("e8dcc0")), Vector3(0, -PI / 2, 0.05 * i))

@@ -1,7 +1,8 @@
 extends Node
 ## Scripted screenshot harness.
 ## godot --path . -- --shots out_dir "new" "adv 3" "shot a" "choose 1" ...
-## Commands: new | load N | adv N | choose I | shot NAME | wait S | phone | key NAME | untilchoice | play N (auto-advance N steps picking first choice)
+## Commands: new | load N | adv N | choose I | shot NAME | wait S | board | doc ID | closedoc |
+## cmd NAME ARGS... | jump KNOT | key NAME | untilchoice | play N (auto-advance N steps picking first choice)
 
 var main
 var out_dir := ""
@@ -80,6 +81,27 @@ func _go() -> void:
 				await get_tree().create_timer(float(parts[1])).timeout
 			"board":
 				main._toggle_board()
+			"doc":
+				main._open_doc(parts[1], false)
+			"closedoc":
+				for ch in main.overlay_root.get_children():
+					ch.queue_free()
+				main.overlay_open = false
+			"cmd":
+				# a raw script command, as if the story had issued it: cmd comp exchange
+				Game._on_command(parts[1], Array(parts.slice(2)))
+			"jump":
+				# start the story at a knot, with whatever state the game has
+				Game.runner.start(parts[1])
+			"key":
+				var ev := InputEventKey.new()
+				ev.keycode = OS.find_keycode_from_string(parts[1])
+				ev.pressed = true
+				Input.parse_input_event(ev)
+				await get_tree().process_frame
+				var ev2 := ev.duplicate()
+				ev2.pressed = false
+				Input.parse_input_event(ev2)
 			"save":
 				Game.save_to(int(parts[1]))
 			"var":

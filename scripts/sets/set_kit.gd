@@ -6,6 +6,9 @@ extends RefCounted
 
 static var _tex_cache: Dictionary = {}
 static var _mat_cache: Dictionary = {}
+## Set by the photograph renderer: smooth texture filtering instead of the
+## sets' nearest-neighbour crunch.
+static var smooth := false
 
 static func tex(name: String) -> Texture2D:
 	if _tex_cache.has(name):
@@ -17,12 +20,12 @@ static func tex(name: String) -> Texture2D:
 
 ## Material from a texture name or a colour. uv = texture repeats per metre.
 static func mat(what, uv: float = 1.0, unshaded: bool = false, emission: Color = Color.BLACK, alpha: float = 1.0) -> StandardMaterial3D:
-	var key := "%s|%s|%s|%s|%s" % [str(what), uv, unshaded, emission, alpha]
+	var key := "%s|%s|%s|%s|%s|%s" % [str(what), uv, unshaded, emission, alpha, smooth]
 	if _mat_cache.has(key):
 		return _mat_cache[key]
 	var m := StandardMaterial3D.new()
 	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED if unshaded else BaseMaterial3D.SHADING_MODE_PER_PIXEL
-	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS if smooth else BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	m.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
 	m.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT
 	if what is Color:
@@ -160,83 +163,9 @@ static func chair(parent: Node3D, pos: Vector3, rot_y: float, seat_m: Material, 
 			box(c, Vector3(0.03, 0.45, 0.03), Vector3(x, 0.225, z), leg_m)
 	return c
 
-## A low-poly person. Deliberately stiff. `look` is a dictionary:
-## coat, trousers, skin, hair, hair_style ("short","long","bald","bun","cap","curly"),
-## height (metres), build (0.8..1.2).
+## A person: see Figure for the look keys and poses.
 static func person(parent: Node3D, pos: Vector3, rot_y: float, look: Dictionary, pose: String = "stand") -> Node3D:
-	var p := Node3D.new()
-	p.position = pos
-	p.rotation.y = rot_y
-	parent.add_child(p)
-	var h: float = look.get("height", 1.72)
-	var b: float = look.get("build", 1.0)
-	var k := h / 1.72
-	var skin := mat(look.get("skin", Color("c8a58a")))
-	var coat := mat(look.get("coat", Color("4a4a52")))
-	var trou := mat(look.get("trousers", Color("2b2b33")))
-	var hair := mat(look.get("hair", Color("2a2220")))
-	var sit := pose == "sit"
-	var leg_h := 0.82 * k
-	if sit:
-		# thighs forward, shins down
-		box(p, Vector3(0.15 * b, 0.14, 0.46 * k), Vector3(-0.1 * b, 0.47, 0.2 * k), trou)
-		box(p, Vector3(0.15 * b, 0.14, 0.46 * k), Vector3(0.1 * b, 0.47, 0.2 * k), trou)
-		box(p, Vector3(0.13 * b, 0.45, 0.13), Vector3(-0.1 * b, 0.23, 0.42 * k), trou)
-		box(p, Vector3(0.13 * b, 0.45, 0.13), Vector3(0.1 * b, 0.23, 0.42 * k), trou)
-		leg_h = 0.47
-	else:
-		box(p, Vector3(0.15 * b, leg_h, 0.16), Vector3(-0.1 * b, leg_h / 2, 0), trou)
-		box(p, Vector3(0.15 * b, leg_h, 0.16), Vector3(0.1 * b, leg_h / 2, 0), trou)
-	var torso_h := 0.62 * k
-	var torso := box(p, Vector3(0.42 * b, torso_h, 0.24 * b), Vector3(0, leg_h + torso_h / 2, 0), coat)
-	torso.name = "torso"
-	if look.get("long_coat", false) and not sit:
-		box(p, Vector3(0.44 * b, 0.45 * k, 0.26 * b), Vector3(0, leg_h - 0.18 * k, 0), coat)
-	# arms
-	var arm_pose: String = look.get("arms", "down")
-	for side in [-1, 1]:
-		var arm := Node3D.new()
-		arm.position = Vector3(side * 0.26 * b, leg_h + torso_h - 0.05, 0)
-		p.add_child(arm)
-		box(arm, Vector3(0.1 * b, 0.6 * k, 0.11), Vector3(0, -0.3 * k, 0), coat)
-		sphere(arm, 0.05, Vector3(0, -0.62 * k, 0), skin, 5)
-		if arm_pose == "phone" and side == 1:
-			arm.rotation = Vector3(-0.3, 0, 2.6)
-		elif arm_pose == "forward" or (arm_pose == "phone_low" and side == 1):
-			arm.rotation.x = -1.1
-		elif sit:
-			arm.rotation.x = -0.5
-		arm.name = "arm_%s" % ("r" if side == 1 else "l")
-	# neck + head
-	var neck_y := leg_h + torso_h
-	box(p, Vector3(0.1, 0.08, 0.1), Vector3(0, neck_y + 0.04, 0), skin)
-	var head := Node3D.new()
-	head.name = "head"
-	head.position = Vector3(0, neck_y + 0.18, 0)
-	p.add_child(head)
-	sphere(head, 0.12, Vector3.ZERO, skin, 7, Vector3(0.9, 1.1, 0.95))
-	var hs: String = look.get("hair_style", "short")
-	match hs:
-		"short":
-			sphere(head, 0.125, Vector3(0, 0.04, -0.015), hair, 7, Vector3(0.95, 0.85, 0.98))
-		"curly":
-			sphere(head, 0.14, Vector3(0, 0.06, -0.02), hair, 6, Vector3(1.0, 0.8, 1.0))
-		"long":
-			sphere(head, 0.13, Vector3(0, 0.04, -0.02), hair, 7, Vector3(1.0, 0.9, 1.0))
-			box(head, Vector3(0.26, 0.34, 0.1), Vector3(0, -0.14, -0.07), hair)
-		"bun":
-			sphere(head, 0.125, Vector3(0, 0.04, -0.015), hair, 7, Vector3(0.95, 0.85, 0.98))
-			sphere(head, 0.06, Vector3(0, 0.12, -0.09), hair, 6)
-		"cap":
-			cyl(head, 0.13, 0.13, 0.06, Vector3(0, 0.1, 0), hair, 10)
-			box(head, Vector3(0.2, 0.015, 0.1), Vector3(0, 0.08, 0.12), hair)
-		"bald":
-			box(head, Vector3(0.23, 0.07, 0.12), Vector3(0, -0.01, -0.06), hair)
-		"set":
-			sphere(head, 0.14, Vector3(0, 0.05, -0.01), hair, 6, Vector3(1.05, 0.85, 1.0))
-	if look.get("glasses", false):
-		box(head, Vector3(0.2, 0.035, 0.02), Vector3(0, 0.02, 0.115), mat(look.get("glasses_color", Color("1a1a1a"))))
-	return p
+	return Figure.build(parent, pos, rot_y, look, pose)
 
 # ------------------------------------------------------------------ materials
 

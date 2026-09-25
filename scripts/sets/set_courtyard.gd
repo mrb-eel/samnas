@@ -84,7 +84,7 @@ func build(v: String) -> void:
 	K.quad(opp, 0.8, 2.0, Vector3(2.93, 1.0, 0), K.emis(Color("4a3a30")), Vector3(0, -PI / 2, 0))
 	K.omni(opp, Vector3(1.0, 2.3, 0.0), Color("ffe0b0"), 2.4, 6.0)
 	man = K.person(opp, Vector3(2.0, 0, 0.2), PI / 2, {"coat": Color("e0dcd0"), "trousers": Color("3a3a4a"), "skin": Color("d0a888"), "hair": Color("3a2a1a"), "hair_style": "short", "height": 1.76, "arms": "forward"})
-	woman = K.person(opp, Vector3(1.2, 0, -0.8), PI / 2, {"coat": Color("b0708a"), "trousers": Color("b0708a"), "skin": Color("d8b8a0"), "hair": Color("6a4a2a"), "hair_style": "long", "height": 1.64, "arms": "forward"})
+	woman = K.person(opp, Vector3(1.2, 0, -0.8), PI / 2, {"coat": Color("b0708a"), "trousers": Color("b0708a"), "skin": Color("d8b8a0"), "hair": Color("6a4a2a"), "hair_style": "long", "height": 1.64, "shape": "f", "arms": "forward"})
 	woman.visible = false
 	lamp = K.standard_lamp(opp, Vector3(2.35, 0, 0.2), true, true)
 	lamp_shade = lamp.get_node("shade")

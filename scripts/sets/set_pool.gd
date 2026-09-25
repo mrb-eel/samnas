@@ -192,6 +192,7 @@ func build(v: String) -> void:
 	add_cam("deep", Vector3(6.2, -2.3, 3.0), Vector3(10.0, -2.8, -0.4), 60)
 	add_cam("meeting", Vector3(9.5, 10.5, 12.5), Vector3(9.3, -2.2, 0.0), 44)
 	add_cam("skylight", Vector3(9.0, 0.5, 0.0), Vector3(9.2, 8.0, 0.2), 70)
+	add_cam("title", Vector3(6.4, -2.35, 2.6), Vector3(9.6, -2.6, -0.2), 46)
 	if v == "meeting":
 		apply_state("lights", "4")
 		env.environment.ambient_light_energy = 0.9

@@ -100,11 +100,24 @@ func build(_v: String) -> void:
 	hold_lamp = K.sphere(board, 0.025, Vector3(0.45, 1.0, -0.13), K.emis(Color("f0b24a")), 6)
 	hold_light = K.omni(board, Vector3(0.45, 1.05, 0.0), Color("f0b24a"), 0.5, 1.5)
 	K.box(board, Vector3(0.36, 0.45, 0.36), Vector3(0, 0.225, 0.8), K.mat(Color("3a3230")))
-	# the cord, draped over the Virgin's hand (an ending)
+	# the cord, hung over the Virgin's raised hand (an ending): it drapes, and
+	# the brass plug swings at the end of it
 	cord_on_virgin = Node3D.new()
 	add_child(cord_on_virgin)
-	for j in 5:
-		K.cyl(cord_on_virgin, 0.012, 0.012, 0.12, Vector3(0.1, 1.43 - j * 0.1, -D / 2 + 0.42), K.mat(Color("8e2a22")), 5)
+	var hand := Vector3(0.093, 1.495, -D / 2 + 0.366)
+	var pts: Array = []
+	for j in 12:
+		var t := j / 11.0
+		pts.append(hand + Vector3(0.012 * sin(t * 3.0) + 0.05 * t, -0.42 * t + 0.03 * sin(t * PI), 0.03 * sin(t * PI) + 0.02 * t))
+	for j in 11:
+		var a: Vector3 = pts[j]
+		var b: Vector3 = pts[j + 1]
+		var seg := K.cyl(cord_on_virgin, 0.0065, 0.0065, a.distance_to(b) + 0.004, (a + b) / 2.0, K.mat(Color("9a2a22")), 5)
+		seg.look_at_from_position((a + b) / 2.0, b, Vector3.FORWARD if absf((b - a).normalized().dot(Vector3.UP)) > 0.99 else Vector3.UP)
+		seg.rotate_object_local(Vector3.RIGHT, PI / 2)
+	var plug_pos: Vector3 = pts[11]
+	K.cyl(cord_on_virgin, 0.011, 0.011, 0.05, plug_pos + Vector3(0, -0.025, 0), K.mat(Color("d9b86a")), 6)
+	K.cyl(cord_on_virgin, 0.005, 0.005, 0.03, plug_pos + Vector3(0, -0.065, 0), K.mat(Color("e8d08a")), 5)
 	cord_on_virgin.visible = false
 	# light: a clamp lamp over the frame
 	K.cyl(self, 0.06, 0.12, 0.14, Vector3(-1.2, 2.6, -D / 2 + 0.9), K.mat(Color("3a3a36")), 8)
@@ -118,26 +131,66 @@ func build(_v: String) -> void:
 	add_cam("board_outside", Vector3(-2.4, 1.62, 0.9), Vector3(-4.25, 0.95, -0.35), 58)
 	add_cam("casio", Vector3(2.4, 1.55, -1.7), Vector3(2.55, 0.95, -2.9), 58)
 
+## A painted plaster Madonna, about two feet high: white robe, a mantle whose
+## blue has faded to the colour of the frame's oldest boards, one hand raised.
+## Somebody wired her a halo of grain-of-wheat bulbs from the frame.
 func _virgin(p: Vector3) -> void:
 	var K := SetKit
 	var n := Node3D.new()
 	n.position = p
 	add_child(n)
-	var plaster := K.mat(Color("ddd4bc"))
-	var pale := K.mat(Color("e8dccc"))
-	K.box(n, Vector3(0.16, 0.05, 0.12), Vector3(0, 0.025, 0), K.mat(Color("8a8070")))
-	K.cyl(n, 0.045, 0.085, 0.4, Vector3(0, 0.25, 0), plaster, 10)
-	K.sphere(n, 0.06, Vector3(0, 0.48, -0.005), plaster, 8, Vector3(1.0, 1.25, 1.0))
-	K.sphere(n, 0.036, Vector3(0, 0.475, 0.02), pale, 7, Vector3(0.9, 1.15, 0.9))
-	K.box(n, Vector3(0.024, 0.07, 0.024), Vector3(-0.03, 0.34, 0.05), plaster).rotation.z = 0.6
-	var arm := K.cyl(n, 0.012, 0.014, 0.16, Vector3(0.07, 0.43, 0.02), plaster, 6)
-	arm.rotation.z = -0.35
-	K.sphere(n, 0.016, Vector3(0.1, 0.52, 0.02), pale, 6)
+	var plaster := K.mat(Color("e4dccb"))
+	var blue := StandardMaterial3D.new()
+	blue.albedo_color = Color("4a6a8e")
+	blue.cull_mode = BaseMaterial3D.CULL_DISABLED
+	blue.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+	var gold := K.mat(Color("b8964a"))
+	# the plinth, and the robe falling in folds to it
+	K.cyl(n, 0.075, 0.085, 0.045, Vector3(0, 0.022, 0), K.mat(Color("7a7064")), 8)
+	var robe := [[0.045, .07, .06, 0, 0, 0.09, 9.0], [0.16, .058, .05, 0, 0, 0.07, 9.0], [0.3, .048, .04, 0, 0.004, 0.03, 7.0],
+		[0.38, .05, .038, 0, 0.004], [0.46, .054, .04, 0, 0.004], [0.52, .046, .034], [0.54, .022, .022]]
+	Figure._mi(n, Figure.loft(robe, 16), plaster)
+	# the mantle: over the head, down the back to the hem, open in front
+	var mantle := [[0.06, .082, .07, 0, -0.004, 0.08, 9.0], [0.2, .068, .058, 0, -0.004, 0.06, 9.0], [0.36, .064, .05, 0, -0.004, 0.03, 7.0],
+		[0.5, .066, .05, 0, -0.006], [0.56, .044, .042, 0, -0.004], [0.62, .036, .038, 0, 0.0], [0.645, .02, .024, 0, 0.0]]
+	Figure._mi(n, Figure.arc_loft(mantle, PI * 0.62, PI * 2.38, 18), blue)
+	# gold along the mantle's edge
+	for side in [-1, 1]:
+		var trim := K.box(n, Vector3(0.006, 0.5, 0.006), Vector3(side * 0.03, 0.3, 0.052), gold)
+		trim.rotation.z = side * 0.06
+	# the face, small and pale, eyes lowered
+	var head := Node3D.new()
+	head.position = Vector3(0, 0.585, 0.012)
+	head.scale = Vector3.ONE * 0.36
+	head.rotation.x = 0.22
+	n.add_child(head)
+	var fm := Figure.face_mat({"face": "virgin", "expr": "closed", "skin": Color("e8dccc")})
+	Figure._mi(head, Figure.head_mesh(0.8, 0.9), fm)
+	# hands: the left open at her side, the right raised, palm out
+	var lh := K.sphere(n, 0.014, Vector3(-0.052, 0.33, 0.046), plaster, 6, Vector3(0.8, 1.3, 0.6))
+	lh.rotation.z = 0.3
+	var arm := K.cyl(n, 0.011, 0.014, 0.13, Vector3(0.06, 0.45, 0.03), plaster, 6)
+	arm.rotation.z = -0.5
+	K.sphere(n, 0.015, Vector3(0.093, 0.515, 0.036), plaster, 6, Vector3(0.8, 1.3, 0.6))
+	# the halo: twelve little bulbs on a wire ring, and the wire back into the frame
+	var halo := Node3D.new()
+	halo.position = Vector3(0, 0.6, -0.03)
+	n.add_child(halo)
+	for i in 12:
+		var a := TAU * i / 12.0
+		K.sphere(halo, 0.006, Vector3(cos(a) * 0.058, sin(a) * 0.058, 0), K.emis(Color("ffcc70"), 0.9), 5)
+	for i in 24:
+		var a2 := TAU * i / 24.0
+		var seg := K.box(halo, Vector3(0.016, 0.0025, 0.0025), Vector3(cos(a2) * 0.058, sin(a2) * 0.058, 0), K.mat(Color("6a6048")))
+		seg.rotation.z = a2 + PI / 2
+	var lead := K.cyl(n, 0.003, 0.003, 0.3, Vector3(0.1, 0.72, -0.08), K.mat(Color("2a2a2a")), 4)
+	lead.rotation.z = -0.9
+	K.omni(n, Vector3(0, 0.62, -0.06), Color("ffcc70"), 0.12, 0.6)
 	# Inez's head torch, hung on the raised hand
-	K.box(n, Vector3(0.05, 0.004, 0.05), Vector3(0.1, 0.49, 0.02), K.mat(Color("2a2a2a")))
-	torch_lens = K.cyl(n, 0.018, 0.018, 0.03, Vector3(0.11, 0.455, 0.05), K.emis(Color("fff4d8"), 1.0), 8)
+	K.box(n, Vector3(0.05, 0.004, 0.05), Vector3(0.096, 0.53, 0.036), K.mat(Color("2a2a2a")))
+	torch_lens = K.cyl(n, 0.018, 0.018, 0.03, Vector3(0.1, 0.495, 0.06), K.emis(Color("fff4d8"), 1.0), 8)
 	torch_lens.rotation.x = PI / 2
-	torch = K.spot(n, Vector3(0.11, 0.455, 0.08), Vector3(0.0, -0.3, 1.8), Color("fff4d8"), 1.2, 5.0, 35.0)
+	torch = K.spot(n, Vector3(0.1, 0.495, 0.09), Vector3(0.0, -0.3, 1.8), Color("fff4d8"), 1.2, 5.0, 35.0)
 
 func apply_state(key: String, value: String) -> void:
 	super.apply_state(key, value)

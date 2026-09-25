@@ -270,7 +270,7 @@ INEZ: Receiving room. Nineteen fifty-one to seventy-nine. About a hundred and fo
 * [look][spot:photos] The photographs.
     ~ k_photos = true
     if inez_no_look:
-        @text_doc inez photo_arrivals "1958. They're in the pool steps."
+        @text_doc inez photo_arrivals "1958. On the steps of the shallow end."
         @text_doc inez photo_attendants "1965. Look at the caps."
     @show_doc photo_arrivals
     @show_doc photo_attendants
