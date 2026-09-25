@@ -56,7 +56,7 @@ INEZ: And nobody sits with you. You're not a vigil. You're a tenant.
 ->> tick
 @ring jad
 SOUND: Jad.
-* [answer] Answer.
+* [answer] Plug in.
     -> ch5_jad_call
 * [decline] Let it ring.
     ~ jad_declined_ch5 = true
@@ -165,19 +165,19 @@ return
 if clk >= 310 and not sal_nudged:
     ~ sal_nudged = true
     @text sal "Twenty minutes to half five. No pressure. Some pressure. S."
-* [call] {not ch5_kaye_done} Ring Mrs. Kaye. She's up; her phone's warm.
+* [call][jack:kaye] {not ch5_kaye_done} Ring Mrs. Kaye. Her lamp's lit; she's up.
     ->> ch5_kaye
     -> ch5_hub
-* [call] {not ch5_teodor_done} Ring Teodor.
+* [call][jack:teodor] {not ch5_teodor_done} Ring Teodor.
     ->> ch5_teodor
     -> ch5_hub
-* [call] {not ch5_nell_done} Ring Nell.
+* [call][jack:nell] {not ch5_nell_done} Ring Nell.
     ->> ch5_nell
     -> ch5_hub
 + [ask] {not inez_ask_done} Ask Inez something.
     ->> ch5_inez_ask
     -> ch5_hub
-* [call] {jad_declined_ch5 and not jad_rang_back} Ring Jad after all.
+* [call][jack:jad] {jad_declined_ch5 and not jad_rang_back} Ring Jad after all.
     ->> ch5_jad_call_back
     -> ch5_hub
 + [go] I know what I want.
@@ -800,7 +800,7 @@ else:
     On the wall by the door, a roster in Sal's handwriting. ARI. And across every day, every hour, one word: CONTINUOUS.
 SOUND: A council phone on the desk. Ringing.
 It's six minutes past six.
-* [answer] Answer it.
+* [answer] Plug in and answer.
 KAYE: No, dear, it's only me. I just wanted to hear it answered.
 if end_limits and jad_right_to_stop:
     KAYE: Nell says you're not on till ten tonight. I'll let you go. Go and have your toast.
@@ -919,7 +919,7 @@ if jad_state == "estranged":
     -> ch5_view_call
 @ring jad
 SOUND: Jad.
-* [answer] Answer.
+* [answer] Plug in.
 if end_body:
     @view ari
     You answer it with a hand. It's heavier than it looked.
@@ -970,7 +970,7 @@ else:
     ~ view_caller = "nell"
 @ring {view_caller}
 SOUND: Ringing. Three notes up. The third one stops short, like it always has.
-* [answer] Answer.
+* [answer] Plug in.
 if view_caller == "jad":
     -> view_jad
 elif view_caller == "inez":
@@ -1145,10 +1145,23 @@ if b_dima and view_caller != "dima":
 ->> tick
 if end_body:
     @comp room
-    @set office
+    @set exchange
     @view ari
-    @cam main
-    Somebody has left Inez's Casio on the desk in G/1. The masking tape on it has been crossed out and rewritten underneath: TEST TONES. OR NOT.
+    @cam board_outside
+    @amb exchange_relays
+    On the way up you pass the frame room, and the door's open, so you go in.
+    The board is there. Dark wood and brass, forty-two lamps, the tags cut off food packets. Smaller than it was. It was everything, and now it's a thing against a wall that you could get your arms round.
+    Your cord is lying in 247, where it lives. You pick it up. The plug is warm from the room and heavier than it ever felt from inside.
+    * Put it back in 247.
+        ~ cord_home = true
+        It goes home with a sound you've heard all night from the other side.
+    * Hang it over the Virgin's raised hand, next to Inez's head torch.
+        ~ cord_virgin = true
+        It hangs there, swinging a little, and stops. Inez will have something to say about that.
+    * Hold it a while longer.
+        ~ cord_held = true
+        You hold it. Nobody's ringing. It's just a plug on a cord in a hand.
+    Inez's Casio is on the shelf above the board, where it's always been. The masking tape on it has been crossed out and rewritten underneath: TEST TONES. OR NOT.
     Nobody's here. Nobody needs anything played.
 else:
     @comp exchange

@@ -168,7 +168,7 @@ class SettingsMenu extends Control:
 		_row(g, "Effects", _slider(Settings.sfx_vol, func(v): Settings.set_and_save("sfx_vol", v)))
 		_row(g, "Rooms and lines", _slider(Settings.amb_vol, func(v): Settings.set_and_save("amb_vol", v)))
 		_row(g, "Fullscreen", _check(Settings.fullscreen, func(v): Settings.set_and_save("fullscreen", v)))
-		var keys := Kit.label("Keys: Space/Enter continue · 1–9 choose · P or Tab phone · L history · F5 quicksave · F9 quickload · Esc menu", 14, Kit.IVORY_DIM, "italic")
+		var keys := Kit.label("Keys: Space/Enter continue \u00b7 1\u20139 choose \u00b7 Tab or B the board \u00b7 L history \u00b7 F5 quicksave \u00b7 F9 quickload \u00b7 Esc menu", 14, Kit.IVORY_DIM, "italic")
 		keys.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vb.add_child(keys)
 		var back := Kit.button("Done", 18)

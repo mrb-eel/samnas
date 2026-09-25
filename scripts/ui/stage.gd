@@ -85,6 +85,7 @@ func load_set(name: String, variant: String) -> void:
 	vp.add_child(s)
 	s.build(variant)
 	current = s
+	frame.plan_name = s.title
 	set_cam("main")
 
 func set_cam(name: String) -> void:
@@ -107,10 +108,12 @@ func set_view(who: String, calling: bool) -> void:
 	if Settings.reduced_motion:
 		mat.set_shader_parameter("heard", heard)
 	else:
+		var from: float = mat.get_shader_parameter("heard") if mat.get_shader_parameter("heard") != null else 0.0
 		_heard_tw = create_tween()
-		_heard_tw.tween_property(mat, "shader_parameter/heard", heard, 0.6)
+		_heard_tw.tween_method(func(v: float): mat.set_shader_parameter("heard", v), from, heard, 0.6)
 	frame.view = who
 	frame.calling = calling
+	frame.top_pad = 50.0 if position.y < 40.0 else 0.0
 	frame.queue_redraw()
 
 func set_fade(v: float) -> void:
@@ -145,14 +148,26 @@ func _gui_input(event: InputEvent) -> void:
 		accept_event()
 
 class StageFrame extends Control:
+	var plan_name := ""
 	var view := "none"
 	var calling := false
+	var top_pad := 0.0
 	func _draw() -> void:
 		var r := Rect2(Vector2.ZERO, size)
-		if view != "none" and view != "":
+		draw_set_transform(Vector2(0, top_pad))
+		if view == "plan":
+			var fp := Kit.font("display")
+			var lp := "THE PLAN" + ((" · " + plan_name) if plan_name != "" else "")
+			var wp := fp.get_string_size(lp, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+			draw_rect(Rect2(14, 12, wp + 20, 26), Color(0, 0, 0, 0.72))
+			draw_rect(Rect2(14, 12, wp + 20, 26), Color(Kit.IVORY, 0.6), false, 1.0)
+			draw_string(fp, Vector2(24, 31), lp, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Kit.IVORY)
+		elif view != "none" and view != "":
 			var col: Color = Stage.VIEW_COLORS.get(view, Kit.IVORY)
+			draw_set_transform(Vector2.ZERO)
 			draw_rect(r.grow(-3), col, false, 6.0)
 			draw_rect(r.grow(-9), Color(col, 0.35), false, 1.0)
+			draw_set_transform(Vector2(0, top_pad))
 			var f := Kit.font("display")
 			var label := "VIA " + str(Stage.VIEW_NAMES.get(view, view.to_upper()))
 			if view == "ari":
@@ -161,7 +176,9 @@ class StageFrame extends Control:
 			draw_rect(Rect2(14, 12, w + 22, 28), col)
 			draw_string(f, Vector2(25, 32), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Kit.INK)
 		elif calling:
+			draw_set_transform(Vector2.ZERO)
 			draw_rect(r.grow(-3), Color(Kit.IVORY_DIM, 0.25), false, 2.0)
+			draw_set_transform(Vector2(0, top_pad))
 			var f2 := Kit.font("display")
 			var label2 := "HEARD, NOT SEEN"
 			var w2 := f2.get_string_size(label2, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x

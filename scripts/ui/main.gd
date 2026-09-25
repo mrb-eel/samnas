@@ -16,12 +16,13 @@ var stage: Stage
 var collage: Layers.CollageLayer
 var portraits: Layers.PortraitLayer
 var feed: Feed
-var phone: Phone
+var board: Board
+var cord_chip: Label
 var hud: Control
 var clock_label: Label
 var chapter_label: Label
-var phone_btn: Button
-var phone_badge: Label
+var board_btn: Button
+var board_badge: Label
 var toast_box: VBoxContainer
 var caption_label: Label
 var fade_rect: ColorRect
@@ -65,9 +66,17 @@ func _ready() -> void:
 	root.add_child(portraits)
 	feed = Feed.new()
 	root.add_child(feed)
-	phone = Phone.new()
-	root.add_child(phone)
-	phone.visible = false
+	cord_chip = Kit.label("", 14, Kit.IVORY, "bold")
+	cord_chip.add_theme_stylebox_override("normal", Kit.flat(Color(0.35, 0.08, 0.06, 0.9), Color("b08d4a"), 1, 3, 4))
+	cord_chip.position = Vector2(ROOM_STAGE.end.x - 330, ROOM_STAGE.position.y + 12)
+	cord_chip.size = Vector2(318, 26)
+	cord_chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	cord_chip.visible = false
+	cord_chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(cord_chip)
+	board = Board.new()
+	root.add_child(board)
+	board.visible = false
 	_build_hud()
 	toast_box = VBoxContainer.new()
 	toast_box.position = Vector2(430, 58)
@@ -97,12 +106,13 @@ func _ready() -> void:
 	stage.clicked.connect(_advance)
 	stage.spot_clicked.connect(_on_spot)
 	feed.choices.chosen.connect(_on_chosen)
-	phone.choices.chosen.connect(_on_chosen)
-	phone.advance_requested.connect(_advance)
-	phone.close_requested.connect(func(): _set_browsing(false))
-	phone.call_requested.connect(_phone_call)
-	phone.reply_requested.connect(_phone_reply)
-	phone.doc_requested.connect(func(id): _open_doc(id, false))
+	board.choices.chosen.connect(_on_chosen)
+	board.advance_requested.connect(_advance)
+	board.close_requested.connect(func(): _set_browsing(false))
+	board.call_requested.connect(_board_call)
+	board.reply_requested.connect(_board_reply)
+	board.doc_requested.connect(func(id): _open_doc(id, false))
+	board.control_picked.connect(_on_control)
 
 	Game.story_line.connect(_on_line)
 	Game.story_choices.connect(_on_choices)
@@ -151,15 +161,15 @@ func _build_hud() -> void:
 	hb.alignment = BoxContainer.ALIGNMENT_END
 	hb.add_theme_constant_override("separation", 6)
 	hud.add_child(hb)
-	phone_btn = _hud_btn(hb, "Phone  P", func(): _toggle_phone())
-	phone_badge = Kit.label("", 13, Kit.IVORY, "bold")
-	phone_badge.position = Vector2(-6, -6)
+	board_btn = _hud_btn(hb, "The Board  Tab", func(): _toggle_board())
+	board_badge = Kit.label("", 13, Kit.IVORY, "bold")
+	board_badge.position = Vector2(-6, -6)
 	var bp := PanelContainer.new()
 	bp.add_theme_stylebox_override("panel", Kit.flat(Kit.RED, Color(0, 0, 0, 0), 0, 8, 2))
-	bp.add_child(phone_badge)
+	bp.add_child(board_badge)
 	bp.position = Vector2(-8, -4)
 	bp.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	phone_btn.add_child(bp)
+	board_btn.add_child(bp)
 	_hud_btn(hb, "History  L", func(): _open_backlog())
 	_hud_btn(hb, "Save", func(): _open_saveload(true))
 	_hud_btn(hb, "Load", func(): _open_saveload(false))
@@ -175,13 +185,13 @@ func _hud_btn(parent: Control, text: String, cb: Callable) -> Button:
 
 func _update_badge() -> void:
 	var n := Game.unread_total()
-	phone_badge.text = " %d " % n if n > 0 else ""
-	phone_badge.get_parent().visible = n > 0
+	board_badge.text = " %d " % n if n > 0 else ""
+	board_badge.get_parent().visible = n > 0
 	var locked: bool = Game.pres.get("phone_locked", false)
-	phone_btn.disabled = locked and not browsing
-	phone_btn.tooltip_text = "Not now." if locked else "Open the phone (P or Tab)"
-	if phone.visible:
-		phone.refresh()
+	board_btn.disabled = locked and not browsing
+	board_btn.tooltip_text = "Not now." if locked else "The attendant's board: calls, the printer, the tape, the pinboard (Tab)"
+	if board.visible:
+		board.refresh()
 
 # ------------------------------------------------------------------ compositions
 
@@ -212,7 +222,7 @@ func _layout() -> void:
 		_:
 			_place(feed, BLACK_FEED)
 			feed.set_mode("center")
-	_update_phone()
+	_update_board()
 	portraits.show_all(Game.pres.get("portraits", {}), stage.get_rect() if stage.visible else Rect2(Vector2.ZERO, BASE))
 	stage.set_view(Game.pres.get("view", "none"), call_active)
 
@@ -220,42 +230,50 @@ func _place(c: Control, r: Rect2) -> void:
 	c.position = r.position
 	c.size = r.size
 
-func _update_phone() -> void:
+func _update_board() -> void:
 	var call_active: bool = Game.phone.get("call", {}).get("active", false)
 	var ring: String = Game.pres.get("ring", "")
 	var scripted: bool = Game.pres.get("phone_open", false)
-	var m := "browse"
-	if ring != "":
-		m = "ring"
-		phone.ring_who = ring
-	elif call_active:
-		m = "call"
-		phone.call_who = Game.phone["call"]["who"]
+	var call_who: String = str(Game.phone["call"]["who"]) if call_active else ""
+	board.sync(ring, call_who, Game.pres.get("view", "none"), Game.pres.get("phone_thread", "") if scripted else "")
+	var m := ""
+	if browsing:
+		m = "full"
 	elif scripted:
-		m = "thread"
-		phone.script_thread = Game.pres.get("phone_thread", "")
-	phone.view_who = Game.pres.get("view", "none")
-	phone.mode = m
-	var docked := comp in ["call", "exchange"]
-	phone.visible = docked or m != "browse" or browsing
-	if comp in ["room", "building"]:
-		phone.position = Vector2(470, 44)
+		m = "printer"
+	elif ring != "":
+		m = "strip"
+	elif call_active and comp in ["call", "exchange"]:
+		m = "strip"
+	if m == "":
+		board.visible = false
 	else:
-		phone.position = Vector2(918, 50)
-	phone.refresh()
+		if board.mode != m:
+			board.set_mode(m)
+		board.visible = true
+		if m == "strip":
+			board.position = Vector2(480, 56) if comp in ["room", "building"] else Vector2(918, 50)
+		elif m == "printer":
+			board.position = Vector2(880, 52) if comp in ["call", "exchange", "black"] else Vector2(452, 52)
+	cord_chip.visible = call_active and not browsing and not (board.visible and board.mode == "strip") and comp in ["room", "building"]
+	if cord_chip.visible:
+		cord_chip.text = "cord in %s · Tab for the board  " % str(Game.contacts_def.get(call_who, {}).get("place", call_who))
 	_update_badge()
 
 func _set_browsing(v: bool) -> void:
 	browsing = v
 	if v:
-		phone.go("home")
-	_update_phone()
+		Audio.sfx("board_open", -6.0)
+	_update_board()
+	if Game.runner.waiting == "choice":
+		# keep jacks that stand for current choices live while browsing
+		pass
 
-func _toggle_phone() -> void:
+func _toggle_board() -> void:
 	if menu_open or overlay_open or title_screen:
 		return
 	if Game.pres.get("phone_locked", false) and not browsing:
-		_toast("Phone", "Not now.")
+		_toast("The board", "Not now.")
 		return
 	_set_browsing(not browsing)
 
@@ -263,9 +281,8 @@ func _toggle_phone() -> void:
 
 func _on_line(entry: Dictionary) -> void:
 	if entry["kind"] == "sms" and Game.pres.get("phone_open", false):
-		phone.refresh()
-		if entry["speaker"] != "ARI":
-			Audio.sfx("sms_in", -6.0)
+		board.refresh()
+		Audio.sfx("printer", -6.0)
 		feed.show_more(false)
 	else:
 		feed.add_line(entry)
@@ -273,17 +290,18 @@ func _on_line(entry: Dictionary) -> void:
 		pass
 
 func _on_choices(options: Array) -> void:
-	var m := phone.mode
-	var surface := "phone" if (phone.visible and m in ["thread", "call", "ring"]) else "feed"
+	var surface := "board" if (board.visible and board.mode in ["strip", "printer"]) else "feed"
 	choice_surface = surface
 	feed.finish_typing()
 	feed.show_more(false)
-	if surface == "phone":
-		phone.choices.show_options(options)
+	if surface == "board":
+		board.choices.show_options(options)
+		board.choices.visible = board.mode != "full"
 		feed.choices.clear()
 	else:
 		feed.choices.show_options(options)
-		phone.choices.clear()
+		board.choices.clear()
+	board.set_active_tags(options)
 	var active_spots: Array = []
 	var labels := {}
 	for o in options:
@@ -297,15 +315,26 @@ func _on_choices(options: Array) -> void:
 func _on_chosen(i: int) -> void:
 	stage.set_spots({}, [])
 	feed.choices.clear()
-	phone.choices.clear()
+	board.choices.clear()
+	board.clear_active()
 	Audio.sfx("click", -8.0)
 	Game.runner.choose(i)
 
 func _on_spot(spot: String) -> void:
-	var list: ChoiceList = phone.choices if choice_surface == "phone" else feed.choices
+	var list: ChoiceList = board.choices if choice_surface == "board" else feed.choices
 	var idx := list.spot_index(spot)
 	if idx >= 0:
 		list.pick(idx)
+
+func _on_control(tag: String) -> void:
+	if Game.runner.waiting != "choice" or not board.active_tags.has(tag):
+		return
+	var idx: int = board.active_tags[tag]
+	if browsing:
+		browsing = false
+		_update_board()
+	var list: ChoiceList = board.choices if choice_surface == "board" else feed.choices
+	list.pick(idx)
 
 func _advance() -> void:
 	if overlay_open or menu_open or title_screen:
@@ -316,6 +345,14 @@ func _advance() -> void:
 	if Game.runner.waiting == "line":
 		Game.runner.advance()
 
+func _input(event: InputEvent) -> void:
+	# Tab would otherwise move keyboard focus between choices; the board comes first.
+	if title_screen or menu_open:
+		return
+	if event.is_action_pressed("board"):
+		_toggle_board()
+		get_viewport().set_input_as_handled()
+
 func _unhandled_input(event: InputEvent) -> void:
 	if title_screen:
 		return
@@ -324,9 +361,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			_set_browsing(false)
 		else:
 			_open_pause()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("phone") and not menu_open:
-		_toggle_phone()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("log") and not menu_open and not overlay_open:
 		_open_backlog()
@@ -340,7 +374,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			_load_slot(6)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("advance"):
-		var list_visible := feed.choices.visible or phone.choices.visible
+		var list_visible := feed.choices.visible or board.choices.visible
 		if not list_visible:
 			_advance()
 			get_viewport().set_input_as_handled()
@@ -369,7 +403,7 @@ func _on_pres(name: String, args: Array) -> void:
 			_layout()
 		"time":
 			clock_label.text = args[0]
-			phone.refresh()
+			board.refresh()
 		"clear":
 			feed.clear()
 		"call":
@@ -378,7 +412,7 @@ func _on_pres(name: String, args: Array) -> void:
 			if comp != "exchange":
 				_apply_comp("call")
 			Audio.set_far(true, Game.pres.get("view", "none") != "none", Game.pres.get("acoustic", ""))
-			_update_phone()
+			_update_board()
 		"hangup":
 			Audio.sfx("hangup", -4.0)
 			Audio.set_far(false, false, "")
@@ -388,11 +422,11 @@ func _on_pres(name: String, args: Array) -> void:
 				Audio.stop_sfx("ring")
 			else:
 				Audio.sfx("ring")
-			_update_phone()
+			_update_board()
 		"phone", "phone_lock":
 			if name == "phone" and args[0] != "close":
 				browsing = false
-			_update_phone()
+			_update_board()
 		"sfx":
 			Audio.sfx(args[0], float(args[1]) if args.size() > 1 else 0.0)
 		"amb":
@@ -405,6 +439,9 @@ func _on_pres(name: String, args: Array) -> void:
 			Audio.set_far(Game.phone["call"]["active"], Game.pres.get("view", "none") != "none", args[0])
 		"spot", "spots_clear":
 			pass
+		"hold":
+			Audio.sfx("plug_in", -8.0)
+			_update_board()
 		"collage":
 			collage.visible = args[0] == "on"
 			collage.set_items(Game.pres.get("collage_items", []))
@@ -521,7 +558,8 @@ func _restore_all() -> void:
 	browsing = false
 	feed.clear()
 	feed.choices.clear()
-	phone.choices.clear()
+	board.choices.clear()
+	board.clear_active()
 	stage.load_set(p.get("set", ""), p.get("variant", ""))
 	stage.set_cam(p.get("cam", "main"))
 	var st: Dictionary = p.get("states", {})
@@ -550,19 +588,19 @@ func _on_notify(kind: String, who: String, text: String) -> void:
 	var name: String = Game.contacts_def.get(who, {}).get("name", who.capitalize())
 	match kind:
 		"text":
-			if phone.visible and phone.mode == "thread" and phone.script_thread == who:
+			if board.visible and board.mode == "printer" and board.script_thread == who:
 				return
-			if browsing and phone.screen == "thread" and phone.arg == who:
-				phone.refresh()
+			if browsing and board.sub == "strip" and board.sel_contact == who:
+				board.refresh()
 				Game.mark_thread_read(who)
 				return
-			Audio.sfx("sms_in", -4.0)
-			_toast("Text from " + name, text if text != "" else "[a picture]")
+			Audio.sfx("printer", -4.0)
+			_toast("On the printer · " + name, text if text != "" else "[a picture, printed in dots]")
 		"reply":
-			_toast(name + " is waiting", text + "  (open the phone)")
+			_toast("On the spike · " + name, text + "  (Tab: the board)")
 		"voicemail":
-			Audio.sfx("sms_in", -6.0)
-			_toast("Voicemail", "New message from " + name)
+			Audio.sfx("tape_click", -6.0)
+			_toast("On the tape", "A new message from " + name)
 
 func _toast(title: String, body: String) -> void:
 	var t := Overlays.Toast.new()
@@ -578,15 +616,15 @@ func _on_caption(text: String) -> void:
 	tw.tween_interval(6.0)
 	tw.tween_property(caption_label, "modulate:a", 0.0, 1.5)
 
-func _phone_call(who: String) -> void:
+func _board_call(who: String) -> void:
 	_set_browsing(false)
 	if not Game.phone_call(who):
-		_toast("Phone", "You can't call right now.")
+		_toast("The board", "You can't ring out just now.")
 
-func _phone_reply(who: String) -> void:
+func _board_reply(who: String) -> void:
 	_set_browsing(false)
 	if not Game.phone_reply(who):
-		_toast("Phone", "Not right now.")
+		_toast("The board", "Not right now.")
 
 func _on_finished(reason: String) -> void:
 	Game.playing = false
@@ -637,7 +675,8 @@ func _to_title() -> void:
 	browsing = false
 	feed.clear()
 	feed.choices.clear()
-	phone.choices.clear()
+	board.choices.clear()
+	board.clear_active()
 	stage.load_set("", "")
 	collage.visible = false
 	_apply_comp("black")
@@ -650,38 +689,29 @@ func _open_pause() -> void:
 	var p := Menus.Pause.new()
 	p.size = BASE
 	menu_root.add_child(p)
-	p.action.connect(func(what):
-		match what:
-			"resume":
-				p.queue_free()
-				menu_open = false
-			"save":
-				p.queue_free()
-				menu_open = false
-				_open_saveload(true)
-			"load":
-				p.queue_free()
-				menu_open = false
-				_open_saveload(false)
-			"log":
-				p.queue_free()
-				menu_open = false
-				_open_backlog()
-			"settings":
-				p.queue_free()
-				menu_open = false
-				_open_settings()
-			"title":
-				p.queue_free()
-				menu_open = false
-				if Game.playing:
-					Game.save_to(0)
-				Game.playing = false
-				_to_title()
-			"quit":
-				if Game.playing:
-					Game.save_to(0)
-				get_tree().quit())
+	p.action.connect(_on_pause_action.bind(p))
+
+func _on_pause_action(what: String, p: Control) -> void:
+	p.queue_free()
+	menu_open = false
+	match what:
+		"save":
+			_open_saveload(true)
+		"load":
+			_open_saveload(false)
+		"log":
+			_open_backlog()
+		"settings":
+			_open_settings()
+		"title":
+			if Game.playing:
+				Game.save_to(0)
+			Game.playing = false
+			_to_title()
+		"quit":
+			if Game.playing:
+				Game.save_to(0)
+			get_tree().quit()
 
 func _open_saveload(saving: bool) -> void:
 	if menu_open:

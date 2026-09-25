@@ -144,9 +144,9 @@ INEZ: Nobody on that tape ever gets to the end either.
 -> ch3_archive
 
 === ch3_archive
-INEZ: While I'm in here. Your phone can see four messages. The board keeps sixty. I'll put the rest through.
+INEZ: While I'm in here. That answering machine's only showing you the last four. The first reel's got the rest. I'll thread it.
 @vm_archive_open
-SOUND: A relay goes over and stays over.
+SOUND: A reel going onto a spindle. Leader tape. The counter wound back to nought.
 INEZ: One of them's me. Testing, when we set the line up. Don't mind that one.
 ~ k_archive = true
 * [listen] "Play yours."
@@ -201,7 +201,8 @@ INEZ: Get out of my eyes, please.
     @view none
     @xwin 1 off
     @music hold_{pref_hold}
-    The frame goes. The line goes quiet, and the hold takes you.
+    The frame goes. She puts her phone face down on a relay rack, and on the board your cord slides across into HOLD, the way it would if an attendant moved it.
+    @hold on
     ~ tick_n = 3
     ->> tick
     You don't lose anything. It's the last minute before the new one, and then it's the new one, and you were there for all of it, waiting, with something to listen to.
@@ -209,6 +210,7 @@ INEZ: Get out of my eyes, please.
     ~ k_hold_safe = true
     @music off
     SOUND: A flush, a long way off. Boots.
+    @hold off
     INEZ: Right. Back. You can look.
     @view inez
     @xwin 1 view inez
@@ -229,7 +231,7 @@ INEZ: Get out of my eyes, please.
     @music off
     @ring inez
     SOUND: The flat old bell. Inez.
-    * [answer] Answer.
+    * [answer] Plug in.
     @call inez
     INEZ: You'll hear. You won't look. Not today.
     INEZ: I'll send you pictures of what matters. You can look at those.
@@ -534,7 +536,7 @@ TEODOR: I'll go up. You've got people to see.
 ->> tick
 @ring jad
 SOUND: Ringing. Jad.
-* [answer] Answer.
+* [answer] Plug in.
 @set copyshop
 @cam jad_eye
 @acoustic shop
@@ -701,7 +703,7 @@ return
     @text dima "sure. 4.10, loading bay. ring me. tell me the something"
     @callable dima ch4_dima_call
     -> ch3_three_teodor
-* [call] Ring Dima at three.
+* [call][jack:dima] Ring Dima at three.
     ~ dima_first = true
     ->> ch3_dima_three
     -> ch3_three_teodor_missed
@@ -710,7 +712,7 @@ return
     -> ch3_three_teodor
 
 === ch3_three_dima
-* [call] Ring Dima at three.
+* [call][jack:dima] Ring Dima at three.
     ->> ch3_dima_three
     ->> ch3_three_quiet
     -> ch3_sal
@@ -774,7 +776,7 @@ return
 ->> tick
 @ring teodor
 SOUND: Ringing. Three o'clock exactly. 5A.
-* [answer] Answer.
+* [answer] Plug in.
     @set building
     @cam main
     @acoustic flat
@@ -823,7 +825,7 @@ THINK: Three o'clock. There's one of you.
 @reply_clear nell "Sal has stopped the countersigning while the forms are looked at. Nell doesn't need an answer to that one now."
 @ring sal
 SOUND: The lobby desk.
-* [answer] Answer.
+* [answer] Plug in.
 @acoustic lobby
 @call sal
 @view none

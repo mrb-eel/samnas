@@ -4,6 +4,7 @@ extends Node3D
 ## `apply_state` so the script can change a room without new art.
 
 var cams: Dictionary = {}
+var title := ""
 var variant := ""
 var states: Dictionary = {}
 var env: WorldEnvironment

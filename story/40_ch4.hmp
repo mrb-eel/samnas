@@ -367,8 +367,10 @@ else:
     @view none
 @amb exchange_relays
 @music hold_{pref_hold}
-Back on the frame. Inez has plugged you into the hold while she makes tea on a camping stove in the corner that she clearly isn't supposed to have.
+Back on the board. Inez has parked your cord in HOLD while she makes tea on a camping stove in the corner that she clearly isn't supposed to have.
+@hold on
 @music off
+@hold off
 ~ clk = 244
 ->> tick
 if b_nell_phone:
@@ -378,7 +380,7 @@ else:
 @reply nell ch4_nell_label "Tell Nell what to save you as"
 if p_dima_call == "renegotiated":
     THINK: Ten past four. You said you'd ring Dima at ten past four.
-    * [call] Ring Dima.
+    * [call][jack:dima] Ring Dima.
         ->> ch4_dima_call
     * Not now.
         ~ p_dima_call = "broken"
@@ -391,7 +393,7 @@ elif p_dima_call == "kept":
 -> ch5_start
 
 === ch4_nell_label
-@phone thread nell
+@board strip nell
 * [text] "Ari."
     @sent nell "Ari."
     ~ pref_label = "Ari"
@@ -406,11 +408,11 @@ elif p_dima_call == "kept":
     NELL> {pref_label}. done. suits u
 @saved_as nell "{pref_label}"
 ~ nell_label_set = true
-@phone close
+@board close
 return
 
 === ch4_dima_text
-@phone thread dima
+@board strip dima
 * [text] "It turns out I was made up. By the forms."
     @sent dima "It turns out I was made up. By the forms."
     DIMA> jesus
@@ -420,7 +422,7 @@ return
     @sent dima "Complicated. I'll tell you in the morning."
     DIMA> morning's in an hour for me lol. ok
     ~ p_dima_morning = "made"
-@phone close
+@board close
 return
 
 === ch4_dima_call

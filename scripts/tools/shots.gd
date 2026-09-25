@@ -78,8 +78,8 @@ func _go() -> void:
 				print("SHOT ", parts[1], " waiting=", Game.runner.waiting, " at ", Game.parser.locate(Game.runner.pc))
 			"wait":
 				await get_tree().create_timer(float(parts[1])).timeout
-			"phone":
-				main._toggle_phone()
+			"board":
+				main._toggle_board()
 			"save":
 				Game.save_to(int(parts[1]))
 			"var":

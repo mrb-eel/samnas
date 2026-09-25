@@ -94,7 +94,8 @@ func add_line(entry: Dictionary, instant: bool = false) -> void:
 	r.add_theme_color_override("default_color", Kit.IVORY)
 	r.text = format(entry)
 	list.add_child(r)
-	while list.get_child_count() > MAX_ENTRIES:
+	var cap := MAX_ENTRIES if style_mode == "column" else 6
+	while list.get_child_count() > cap:
 		var old := list.get_child(0)
 		list.remove_child(old)
 		old.queue_free()

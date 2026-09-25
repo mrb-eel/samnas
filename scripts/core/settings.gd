@@ -76,7 +76,7 @@ func apply_window() -> void:
 
 func _setup_input() -> void:
 	_bind("advance", [KEY_SPACE, KEY_ENTER, KEY_KP_ENTER])
-	_bind("phone", [KEY_P, KEY_TAB])
+	_bind("board", [KEY_TAB, KEY_B])
 	_bind("log", [KEY_L])
 	_bind("menu", [KEY_ESCAPE])
 	_bind("quicksave", [KEY_F5])

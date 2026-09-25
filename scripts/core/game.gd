@@ -37,6 +37,7 @@ var headless_bot := false
 
 func _ready() -> void:
 	load_story()
+	reset_state()
 
 # ------------------------------------------------------------------ loading
 
@@ -147,6 +148,11 @@ func _append_msg(who: String, from: String, text: String, src: String, dedupe: b
 	phone_changed.emit()
 
 func _on_command(name: String, args: Array) -> void:
+	# Ari's interface is the attendant's board; "board" commands drive the same state.
+	if name == "board":
+		name = "phone"
+	elif name == "board_lock":
+		name = "phone_lock"
 	match name:
 		# ---------------- phone / state (handled here, never blocking)
 		"contact_add":
@@ -315,6 +321,8 @@ func _record_pres(name: String, args: Array) -> void:
 			pres["collage_items"].append(args)
 		"ring":
 			pres["ring"] = args[0] if args[0] != "off" else ""
+		"hold":
+			pres["cord_hold"] = args[0] == "on"
 		"xwin":
 			if not pres.has("xwins"):
 				pres["xwins"] = {}

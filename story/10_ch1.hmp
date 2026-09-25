@@ -3,7 +3,6 @@
 
 === start
 ->> init_vars
-@phone_lock on
 @comp black
 @time 23:14
 @amb line_dark
@@ -11,21 +10,25 @@
 @clear
 SOUND: Relays. A run of small clicks, a stop, another run.
 There's no direction to it yet. There's no floor for it to come up through. There are the clicks, and under them a hum that could be a room if it tried.
+Then a shape. The first thing that has one.
+A slope of dark wood and brass. Rows of holes, each with a lamp beside it and a paper tag above it. A cord with a brass plug, resting in a hole marked 247.
+THINK: That's where you are. You don't know how you know. You know it the way people know where their hands are.
 @ring jad
 @wait 1.0
 SOUND: Ringing. Three notes going up, and the third one stops short, as if it forgot the rest.
+One lamp, fourth row up, blinking amber. A little plastic box screwed to the board with a picture hook lights green and says a name.
 THINK: That's for me.
-* [answer] Answer it.
+* [answer] Plug in and answer.
     -> ch1_call
-* [decline] Let it ring.
+* [decline] Leave the cord where it is. Let it ring.
     ~ let_ring = true
     SOUND: It rings itself out. The relays settle.
     @ring off
     @wait 1.4
     @ring jad
-    SOUND: It starts again straight away. Whoever it is has pressed redial.
+    SOUND: It starts again straight away. Whoever it is has pressed redial. The lamp won't stop blinking.
     THINK: Still for me.
-    * [answer] Answer it.
+    * [answer] Plug in and answer.
         -> ch1_call
 
 === ch1_call
@@ -169,7 +172,7 @@ JAD: That's weird. It's like someone's reading over my shoulder.
 * [look][spot:key] The key.
     A Yale key on a split ring with a brown card tag. Somebody has written on the tag in thick marker: 247.
     ~ k_keytag = true
-    THINK: The top of your phone says the same number. ext 247.
+    THINK: The hole your own cord lives in has the same number on it. 247.
     JAD: That's the lifeguard office. Ground floor, by the pool door. G/1.
     ARI: There's a pool?
     JAD: There was. There's a pool-shaped hole. We're all living on top of it.
@@ -218,35 +221,37 @@ JAD: Your number's 247. 247 rings in the lifeguard office, inside. So you're ins
 JAD: From any phone in the building you dial 200, and that gets you the door panel. Then you press nine and the door lets go.
 ARI: I haven't got a phone. I'm on the phone.
 JAD: Then do whatever it is you do.
-THINK: There's a keypad. You know where it is the way people know where their hands are. You don't know how you know that about people.
-* [dial] Dial 200.
+THINK: The board. Bottom row: a jack marked 200, DOOR. Below it, a lever key with a brass plate: RELEASE 9.
+* [dial][jack:door] Plug into 200, the door.
     -> ch1_panel
 
 === ch1_panel
-@sfx dial_200
-SOUND: Three tones. A hiss. The street arrives a second time.
+@sfx plug_in
+SOUND: The plug going home. A hiss. The street arrives a second time.
 Now there are two streets. One through Jad's phone, one through the grille in the steel panel a metre from his ear. A bus goes past in both of them, and the second one is a fraction late.
 JAD: Is that you? The panel's hissing at me.
-* [dial] Press 9.
+* [dial][key:release] Throw the key marked RELEASE 9.
     -> ch1_release
 * "Hello."
     ~ spoke_through_panel = true
     Your voice comes out of the grille beside him, tinny and far too loud, and he flinches away from the wall.
     JAD: Jesus.
     JAD: Okay. That's you in the door now. That's fine. Nine. Press nine.
-    * [dial] Press 9.
+    * [dial][key:release] Throw the key marked RELEASE 9.
         -> ch1_release
 
 === ch1_release
-@sfx dial_9
+@sfx key_throw
 @sfx door_buzz
 SOUND: A buzz from the door, then the clunk of the lock letting go.
 He shoves the door with his shoulder before it can change its mind.
 SOUND: The second street drops away. There's one of everything again.
 JAD: ...Did you do that?
 * "Yes."
-* "The phone did."
-    JAD: The phone did. Sure.
+* "The board did."
+    JAD: The what?
+    ARI: Something with holes in it.
+    JAD: ...Sure.
 * "I think so."
 JAD: Okay.
 He doesn't move for a second. The door rests against his shoulder.
@@ -535,15 +540,13 @@ JAD: He doesn't sleep much.
 
 === ch1_kaye_text
 @time 23:52
-@phone_lock off
 @contact_add kaye
 @text kaye "Dear Ari, Welcome to Ferrier Court. I hope the office is not too cold. I am so glad you are starting. I will know you on Thursday by your red glasses and your short fair hair, I am quite sure. The appointment is 8.40 so the 36 bus at 7.55 from outside. With best wishes, Bernadette Kaye (Mrs), Flat 2C"
-SOUND: Your phone buzzes. Not in the room: in you, the way a phone buzzes in a pocket.
-JAD: Is that you? Something just buzzed in the desk.
-THINK: A message. (The phone: P, Tab, or the button at the top.)
+SOUND: Somewhere behind you, if you had a behind, a machine starts to clatter: a printer, typing a line at a time onto a paper strip.
+THINK: A message. It's come out of the printer on the board. (The board: Tab, or the button at the top.)
 ~ k_desc_kaye = true
 * [read] Read it now.
-    @phone thread kaye
+    @board strip kaye
     -> ch1_kaye_reply
 * [defer] Leave it for a minute.
     @reply kaye ch1_kaye_reply_later "Answer Mrs. Kaye"
@@ -551,14 +554,14 @@ THINK: A message. (The phone: P, Tab, or the button at the top.)
     -> ch1_end
 
 === ch1_kaye_reply_later
-@phone thread kaye
+@board strip kaye
 ->> ch1_kaye_reply_body
-@phone close
+@board close
 return
 
 === ch1_kaye_reply
 ->> ch1_kaye_reply_body
-@phone close
+@board close
 -> ch1_end
 
 === ch1_kaye_reply_body

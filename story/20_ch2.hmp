@@ -59,7 +59,7 @@ THINK: Where did that go?
 @amb building_night
 The building arrives the way the office did. Not seen. Known, the way the wiring knows it.
 Six floors of flats stacked over a hollow. Forty-two phones. A lift shaft, a stair. Under all of it the pool, and off the pool a room of relays, and somewhere in the relays, you.
-Some of the phones are warm, the way a phone is warm when there's someone near it. 3D. 3B. 5A. The lobby desk.
+Some of the phones are warm, the way a phone is warm when there's someone near it. On the board their lamps are lit. 3D. 3B. 5A. The lobby desk.
 @state lit 3D,3B,5A,lobby
 -> ch2_hub
 
@@ -73,16 +73,16 @@ if ch2_dima_done and not ch2_nell_texted:
     ->> ch2_nell_text
 if ch2_dima_done and not ch2_sal_done:
     -> ch2_sal
-* [call] {not ch2_dima_done} Ring 3D. Dima.
+* [call][jack:dima] {not ch2_dima_done} Ring 3D. Dima.
     ->> ch2_dima_call
     -> ch2_hub
-* [call] {not ch2_nell_done} Ring 3B. Nell.
+* [call][jack:nell] {not ch2_nell_done} Ring 3B. Nell.
     ->> ch2_nell_call
     -> ch2_hub
-* [call] {not ch2_teodor_tried} Ring 5A. Teodor.
+* [call][jack:teodor] {not ch2_teodor_tried} Ring 5A. Teodor.
     ->> ch2_teodor_try
     -> ch2_hub
-* [call] {not ch2_kaye_tried} Ring 2C. Mrs. Kaye.
+* [call][jack:kaye] {not ch2_kaye_tried} Ring 2C. Mrs. Kaye.
     ->> ch2_kaye_try
     -> ch2_hub
 + {ch2_dima_done and not ch2_sal_done} Wait.
@@ -130,7 +130,7 @@ return
 
 === ch2_kaye_try
 ~ ch2_kaye_tried = true
-It's gone half twelve. Jad said she's asleep by half ten. Her phone, on the plan, is cold.
+It's gone half twelve. Jad said she's asleep by half ten. Her lamp on the board is dark.
 * [call] Ring anyway.
     ~ rang_kaye_late = true
     @sfx ring_out
@@ -166,8 +166,8 @@ DIMA: This says 247. That's the pool office.
 * "It's Ari."
     DIMA: Oh! Mrs. Kaye's Ari.
     ~ dima_intro = "ari"
-* "I don't know yet. The phone says Ari."
-    DIMA: Well, if the phone says.
+* "I don't know yet. People keep calling me Ari."
+    DIMA: Well, if people keep calling you it.
     DIMA: Mrs. Kaye's Ari, then.
     ~ dima_intro = "unsure"
 DIMA: Hang on, I'm folding. You're on speaker. I've propped you on the windowsill against the Apricot.
@@ -390,8 +390,8 @@ else:
 return
 
 === ch2_nell_reply
-@phone thread nell
-The form is a photo of a photocopy. Nell's handwriting in the boxes. In Contact name, in different handwriting, neat capitals: ARI. Telephone: 01632 960 247. Date: 14 August.
+@board strip nell
+It comes out of the printer in dots: a photo of a photocopy, gone coarse. Nell's handwriting in the boxes. In Contact name, in different handwriting, neat capitals: ARI. Telephone: 01632 960 247. Date: 14 August.
 THINK: Fourteenth of August. That's six weeks ago. You have been here since quarter past eleven.
 ~ k_six_weeks_form = true
 * [text] "I don't think I've got hands to sign with."
@@ -409,7 +409,7 @@ THINK: Fourteenth of August. That's six weeks ago. You have been here since quar
     NELL> ...
     NELL> ask jad
     ~ k_ask_jad = true
-@phone close
+@board close
 return
 
 === ch2_nell_call
@@ -430,7 +430,7 @@ NELL: Who is this?
 * "Ari."
     A silence with a lot in it.
     NELL: No it isn't.
-* "The phone says Ari."
+* "People keep calling me Ari."
     NELL: Yeah, it says Ari on mine as well. That's not what I asked.
 NELL: Is this Jad? Jad, if this is you doing a voice at one in the morning I will actually kill you.
 * "It's not Jad."
@@ -543,7 +543,7 @@ return
 @view plan
 @ring sal
 SOUND: Ringing. Three notes up. The lobby desk.
-* [answer] Answer.
+* [answer] Plug in.
     @set lobby
     @cam sal_desk
     @acoustic lobby
@@ -556,7 +556,7 @@ SOUND: Ringing. Three notes up. The lobby desk.
 * [decline] Let it ring.
     SOUND: It rings out. Almost immediately, a voicemail notification, and then the desk rings again.
     THINK: They're not going to stop.
-    * [answer] Answer.
+    * [answer] Plug in.
         @set lobby
         @cam sal_desk
         @acoustic lobby
@@ -568,7 +568,7 @@ SOUND: Ringing. Three notes up. The lobby desk.
 === ch2_sal_talk
 SAL: Good evening. I'm calling from the Overnight Support Service, Ferrier Court, on behalf of Community Services, regarding your nomination as Community Responder. Am I speaking to Ari?
 * "Yes."
-* "The phone says Ari."
+* "That's what everyone calls me."
     SAL: That'll do.
 * "Who's asking?"
     SAL: Sal Brannock, Community Services, Transition Team. I'm at the desk in the lobby. I've got a mug that says Transition Team on it, if that helps.
@@ -652,7 +652,7 @@ SAL: Half five. Bring the slip. Bring a witness. I'm on the six-twelve and I'm n
 @ring jad
 SOUND: Ringing. Jad.
 ~ p_jad_ringback = "kept"
-* [answer] Answer.
+* [answer] Plug in.
 @set lobby
 @cam jad_eye
 @acoustic lobby
@@ -792,7 +792,7 @@ JAD: I'll ring you.
 @contact_add inez
 SOUND: A different ring. Not three notes: a flat old bell, tapped out by hand.
 THINK: That isn't a flat. That's closer.
-* [answer] Answer.
+* [answer] Plug in.
 @set exchange
 @cam inez_eye
 @acoustic tiles

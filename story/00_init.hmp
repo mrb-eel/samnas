@@ -320,4 +320,7 @@ return
 ~ saw_fog = false
 ~ said_tomorrow = false
 ~ phrase_resolved = false
+~ cord_home = false
+~ cord_virgin = false
+~ cord_held = false
 return
