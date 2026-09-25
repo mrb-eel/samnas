@@ -291,17 +291,27 @@ def skin(name, base=(176, 128, 98), size=32):
     save(to_img(tint(base, size, size, 4, 2)), name)
 
 
-def text_texture(name, w, h, bg, fg, lines, font="SpecialElite.ttf", size=10, border=None):
-    img = Image.new("RGB", (w, h), bg)
+def text_texture(name, w, h, bg, fg, lines, font="SpecialElite.ttf", size=10, border=None, scale=4):
+    """Text signs are drawn large and then reduced, so letters survive the low-res render."""
+    W, H = w * scale, h * scale
+    img = Image.new("RGB", (W, H), bg)
     d = ImageDraw.Draw(img)
-    f = ImageFont.truetype(os.path.join(FONTS, font), size)
-    y = 4
+    fs = size * scale
+    while True:
+        f = ImageFont.truetype(os.path.join(FONTS, font), fs)
+        widest = max(d.textlength(ln, font=f) for ln in lines)
+        total = len(lines) * (fs + 2 * scale)
+        if (widest <= W - 4 * scale and total <= H) or fs <= 6:
+            break
+        fs -= 1
+    y = (H - total) / 2
     for ln in lines:
         tw = d.textlength(ln, font=f)
-        d.text(((w - tw) / 2, y), ln, fill=fg, font=f)
-        y += size + 2
+        d.text(((W - tw) / 2, y), ln, fill=fg, font=f)
+        y += fs + 2 * scale
     if border:
-        d.rectangle([0, 0, w - 1, h - 1], outline=border)
+        d.rectangle([0, 0, W - 1, H - 1], outline=border, width=scale)
+    img = img.resize((w, h), Image.LANCZOS)
     save(img, name)
 
 
@@ -432,6 +442,97 @@ def leaves(name, size=64):
     img.save(os.path.join(OUT, name + ".png"))
 
 
+def board_face(name):
+    w, h = 256, 160
+    a = tint((42, 33, 29), w, h, 5)
+    img = to_img(grime(a, 0.3))
+    d = ImageDraw.Draw(img)
+    packet = [(58, 111, 176), (196, 58, 46), (61, 138, 79), (212, 154, 42), (122, 74, 154)]
+    for r in range(6):
+        for c in range(7):
+            x, y = 10 + c * 34, 8 + r * 22
+            if R.random() < 0.3:
+                d.rectangle([x, y, x + 28, y + 6], fill=(236, 230, 214))
+                d.rectangle([x, y, x + 28, y + 1], fill=R.choice(packet))
+            lit = R.random() < 0.2
+            d.ellipse([x + 2, y + 10, x + 7, y + 15], fill=(240, 200, 120) if lit else (40, 34, 30))
+            d.ellipse([x + 15, y + 9, x + 23, y + 17], fill=(176, 141, 74))
+            d.ellipse([x + 17, y + 11, x + 21, y + 15], fill=(10, 8, 8))
+    d.rectangle([6, 142, 250, 156], fill=(176, 141, 74))
+    save(img, name)
+
+
+def casio_keys(name):
+    img = Image.new("RGB", (128, 32), (40, 40, 44))
+    d = ImageDraw.Draw(img)
+    for i in range(16):
+        d.rectangle([2 + i * 7.8, 8, 8 + i * 7.8, 30], fill=(236, 230, 214), outline=(20, 20, 20))
+    for i in range(16):
+        if i % 7 not in (2, 6):
+            d.rectangle([7 + i * 7.8, 8, 10 + i * 7.8, 20], fill=(20, 20, 20))
+    d.rectangle([4, 1, 40, 6], fill=(127, 154, 120))
+    save(img, name)
+
+
+def tape_machine(name):
+    img = to_img(tint((70, 70, 76), 64, 40, 3))
+    d = ImageDraw.Draw(img)
+    for cx in (18, 46):
+        d.ellipse([cx - 11, 6, cx + 11, 28], fill=(24, 24, 28))
+        d.ellipse([cx - 3, 14, cx + 3, 20], fill=(150, 150, 150))
+    d.rectangle([26, 30, 38, 37], fill=(30, 8, 6))
+    d.text((29, 29), "4", fill=(255, 70, 50))
+    save(img, name)
+
+
+def printer_face(name):
+    img = to_img(tint((138, 132, 120), 64, 32, 3))
+    d = ImageDraw.Draw(img)
+    d.rectangle([6, 2, 58, 6], fill=(30, 28, 26))
+    d.rectangle([8, 12, 40, 26], outline=(70, 66, 60))
+    d.ellipse([48, 14, 54, 20], fill=(127, 208, 127))
+    save(img, name)
+
+
+def handprints(name):
+    img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for (hx, hy) in ((14, 30), (40, 22), (28, 46)):
+        d.ellipse([hx - 6, hy - 5, hx + 6, hy + 7], fill=(230, 235, 240, 90))
+        for k in range(5):
+            ang = -2.4 + k * 0.45
+            fx, fy = hx + math.cos(ang) * 9, hy + math.sin(ang) * 9
+            d.ellipse([fx - 2, fy - 3, fx + 2, fy + 3], fill=(230, 235, 240, 90))
+    img.save(os.path.join(OUT, name + ".png"))
+
+
+def light_pool(name, size=64):
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    px = img.load()
+    c = size / 2
+    for y in range(size):
+        for x in range(size):
+            r = math.hypot(x - c + 0.5, y - c + 0.5) / c
+            a = max(0.0, 1.0 - r) ** 1.8
+            wob = 0.85 + 0.15 * math.sin(x * 0.7) * math.sin(y * 0.55)
+            px[x, y] = (200, 235, 255, int(a * 200 * wob))
+    img.save(os.path.join(OUT, name + ".png"))
+
+
+def moth(name, size=64):
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    c = size // 2
+    d.polygon([(c, c - 4), (c - 26, c - 16), (c - 30, c + 2), (c - 8, c + 8)], fill=(40, 30, 24, 210))
+    d.polygon([(c, c - 4), (c + 26, c - 16), (c + 30, c + 2), (c + 8, c + 8)], fill=(40, 30, 24, 210))
+    d.polygon([(c - 3, c + 4), (c - 18, c + 20), (c - 6, c + 18)], fill=(40, 30, 24, 190))
+    d.polygon([(c + 3, c + 4), (c + 18, c + 20), (c + 6, c + 18)], fill=(40, 30, 24, 190))
+    d.ellipse([c - 3, c - 8, c + 3, c + 14], fill=(30, 22, 18, 230))
+    d.line([(c - 1, c - 8), (c - 8, c - 18)], fill=(30, 22, 18, 200))
+    d.line([(c + 1, c - 8), (c + 8, c - 18)], fill=(30, 22, 18, 200))
+    img.save(os.path.join(OUT, name + ".png"))
+
+
 def main():
     tiles("pool_tile", TILE, (150, 172, 184), 8, var=10, dirt=0.45)
     tiles("pool_tile_deep", (46, 96, 150), (120, 150, 170), 8, var=10, dirt=0.55)
@@ -483,14 +584,25 @@ def main():
     bread("bread")
     pleat("shade_pleat")
     leaves("leaves")
-    text_texture("sign_desk", 48, 16, (240, 236, 220), (30, 30, 30), ["BACK IN 10 MINS. S."], size=7)
-    text_texture("sign_receiving", 64, 16, (220, 220, 210), (40, 60, 120), ["RECEIVING"], font="Atkinson-Bold.ttf", size=11)
-    text_texture("sign_exact", 32, 16, (240, 236, 220), (30, 30, 30), ["EXACT MONEY", "AND EVEN THEN"], size=5)
-    text_texture("sign_bakery", 64, 16, (40, 40, 40), (240, 200, 90), ["FENWICK RD BAKERY"], font="Atkinson-Bold.ttf", size=8)
-    text_texture("sign_copy", 64, 16, (200, 40, 40), (250, 250, 240), ["ALDINE COPY & PRINT"], font="Atkinson-Bold.ttf", size=7)
-    text_texture("sign_247", 20, 10, (230, 230, 220), (20, 20, 20), ["247"], font="Atkinson-Bold.ttf", size=8)
-    text_texture("sign_hold", 32, 12, (30, 30, 30), (240, 180, 70), ["HOLD"], font="Atkinson-Bold.ttf", size=9)
-    print("textures:", len(os.listdir(OUT)))
+    text_texture("sign_desk", 96, 40, (240, 236, 220), (30, 30, 30), ["BACK IN", "10 MINS. S."], size=14)
+    text_texture("sign_receiving", 128, 24, (220, 220, 210), (40, 60, 120), ["RECEIVING"], font="Atkinson-Bold.ttf", size=18, border=(40, 60, 120))
+    text_texture("sign_exact", 96, 48, (240, 236, 220), (30, 30, 30), ["EXACT MONEY ONLY", "AND EVEN THEN"], size=10)
+    text_texture("sign_bakery", 192, 24, (40, 40, 40), (240, 200, 90), ["FENWICK ROAD BAKERY"], font="Atkinson-Bold.ttf", size=16)
+    text_texture("sign_copy", 192, 28, (200, 40, 40), (250, 250, 240), ["ALDINE COPY & PRINT"], font="Atkinson-Bold.ttf", size=18)
+    text_texture("sign_247", 40, 20, (230, 230, 220), (20, 20, 20), ["247"], font="Atkinson-Bold.ttf", size=16)
+    text_texture("sign_hold", 64, 24, (30, 30, 30), (240, 180, 70), ["HOLD"], font="Atkinson-Bold.ttf", size=18)
+    text_texture("sign_ferrier", 256, 32, (26, 24, 22), (206, 170, 96), ["FERRIER  COURT"], font="Fell-Italic.ttf", size=26)
+    text_texture("sign_staff", 128, 40, (240, 236, 220), (30, 30, 30), ["ASK STAFF.", "DO NOT ASK TWICE."], font="Atkinson-Bold.ttf", size=14)
+    text_texture("sign_closed", 96, 40, (240, 236, 220), (160, 30, 30), ["SERVICE", "CLOSED"], font="Atkinson-Bold.ttf", size=16)
+    text_texture("sign_fsb", 192, 28, (20, 40, 60), (220, 200, 150), ["FERRIER ST. BATHS"], font="Fell-Italic.ttf", size=20)
+    board_face("board_face")
+    casio_keys("casio_keys")
+    tape_machine("tape_machine")
+    printer_face("printer_face")
+    handprints("handprints")
+    light_pool("light_pool")
+    moth("moth")
+    print("textures:", len([f for f in os.listdir(OUT) if f.endswith(".png")]))
 
 
 if __name__ == "__main__":

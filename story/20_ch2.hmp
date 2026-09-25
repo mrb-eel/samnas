@@ -181,6 +181,7 @@ SOUND: Cloth snapped straight. A radio, low: someone reading the late news to no
     DIMA: You're very quiet for someone who rang.
     ARI: Can I see? From where you're standing?
     DIMA: If you want to watch me fold pants. Go on.
+@cam dima_hands
 @view dima
 ~ looked_dima = true
 Dima is standing at the window with a basket on the radiator shelf. Their hands come into view and go out of it with towels. A row of yoghurt pots on the sill, each with a chilli plant in it, each with a lolly-stick label.
@@ -188,6 +189,7 @@ Beyond the glass: the courtyard, four storeys down, bins and a bike and a dead C
 DIMA: Oh, he's at it again.
 ARI: Who?
 DIMA: Across. Third floor, the other wing. Look.
+@cam dima_sill
 @state lampman 1
 In the lit window a man in a vest is carrying a standard lamp. A tall one, with a pleated shade. He walks it at a doorway. The shade meets the frame and stops. So does he.
 DIMA: He's been trying to get that lamp through that door since I got in from the shop. That was half nine.

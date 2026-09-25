@@ -94,6 +94,7 @@ func set_cam(name: String) -> void:
 	var c := current.cam(name)
 	if c:
 		c.current = true
+		current.on_cam(name if current.cams.has(name) else "main")
 
 func apply_state(key: String, value: String) -> void:
 	if current:
