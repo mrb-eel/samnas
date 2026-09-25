@@ -30,7 +30,7 @@ func build(_v: String) -> void:
 	# the counter and the forms on it
 	K.box(self, Vector3(4.0, 1.0, 0.7), Vector3(1.0, 0.5, 1.2), K.mat("wood_light", 2.0))
 	for i in 9:
-		K.picture(self, "res://assets/docs/dpc_form.png", 0.21, 0.297, Vector3(0.2 + i * 0.11, 1.005 + i * 0.001, 1.25 + (i % 2) * 0.02), Vector3(-PI / 2, 0, 0.12 - i * 0.03))
+		K.picture(self, "res://assets/docs/dpc_form.jpg", 0.21, 0.297, Vector3(0.2 + i * 0.11, 1.005 + i * 0.001, 1.25 + (i % 2) * 0.02), Vector3(-PI / 2, 0, 0.12 - i * 0.03))
 	K.box(self, Vector3(0.5, 0.35, 0.05), Vector3(2.6, 1.2, 1.05), K.mat(Color("2a2a2e")))
 	K.quad(self, 0.44, 0.28, Vector3(2.6, 1.2, 1.08), K.emis(Color("7aa0c8"), 0.8))
 	K.box(self, Vector3(0.6, 0.12, 0.4), Vector3(-0.6, 1.06, 1.2), K.mat(Color("8a8a84")))

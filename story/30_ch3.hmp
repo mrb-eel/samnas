@@ -553,7 +553,7 @@ JAD: Can you... do you want to look? I'd like you to look, actually.
 ~ looked_shop = true
 A long room lit by the strip over the counter and nothing else. Six copiers in a row with their lids up. The self-service computer glowing. A guillotine with a sign: ASK STAFF. DO NOT ASK TWICE.
 On the counter, a stack of paper still warm from the printer. He fans it out for you.
-Forms. The same form, nine times. Nearly the same. Different names in the top box, different handwriting, different signatures. In the box at the bottom, nine times, in the same neat capitals: ARI. And a telephone number that ends 247.
+Forms. The same form, nine times. Nearly the same. Different names in the top boxes, different handwriting, different signatures. In the contact box, nine times, in the same neat capitals: ARI. FRIEND. And a telephone number that ends 247. On the last one the capitals start at the top of the page.
 ~ saw_stack_copies = true
 JAD: Have you listened to the old messages yet?
 if heard_inez_vm:

@@ -788,6 +788,11 @@ else:
 @view ari
 @amb office_room
 @state morning on
+@state lanyard on
+if end_limits:
+    @state roster limited
+else:
+    @state roster on
 @clear
 G/1. Your office. That's what it says on the lanyard Sal left on the desk: COMMUNITY RESPONDER. ARI. G/1.
 if end_limits:
@@ -795,9 +800,9 @@ if end_limits:
 else:
     @show_doc roster_continuous
 if end_limits:
-    On the wall by the door, a roster in Sal's handwriting with lines through it and initials. ARI: NIGHTS, 22:00 TO 06:00, MON TO THU. Under it, in four other hands: N. AMADI, TUES. T. VASS, NIGHTS (MOST). I. CARVALHO, FRAME. And a note in Nell's writing: DAYS ARE NOBODY'S. THAT'S THE POINT.
+    On the wall by the door, a roster in Sal's handwriting with lines through it and initials. ARI: NIGHTS, 22:00 TO 06:00, MON TO THU. Under it, in three other hands: N. AMADI, TUESDAYS. T. VASS, NIGHTS (MOST). I. CARVALHO, THE FRAME. And across the bottom in red felt tip, Nell again: DAYS ARE NOBODY'S. THAT'S THE POINT.
 else:
-    On the wall by the door, a roster in Sal's handwriting. ARI. And across every day, every hour, one word: CONTINUOUS.
+    On the wall by the door, a roster in Sal's handwriting. ARI. And down every day, through every hour, one word and an arrow: CONTINUOUS.
 SOUND: A council phone on the desk. Ringing.
 It's six minutes past six.
 * [answer] Plug in and answer.

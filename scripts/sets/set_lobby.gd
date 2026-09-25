@@ -41,12 +41,12 @@ func build(_v: String) -> void:
 	closed_sign = K.tex_quad(self, "sign_closed", 0.34, 0.14, Vector3(0.6, 1.1, -1.36), Vector3(-0.2, 0, 0))
 	closed_sign.visible = false
 	K.mug(self, Vector3(1.4, 1.02, -1.8), Color("4a6a8a"))
-	K.picture(self, "res://assets/docs/timetable.png", 0.21, 0.3, Vector3(1.0, 1.025, -1.7), Vector3(-PI / 2, 0, 0.15))
+	K.picture(self, "res://assets/docs/timetable.jpg", 0.21, 0.305, Vector3(1.0, 1.025, -1.7), Vector3(-PI / 2, 0, 0.15))
 	desk_lamp_light = K.desk_lamp(self, Vector3(2.0, 1.02, -1.9), -0.5, true)
 	K.desk_phone(self, Vector3(0.1, 1.02, -1.8), 0.2)
 	K.box(self, Vector3(0.36, 0.08, 0.26), Vector3(-0.35, 1.06, -1.8), K.mat(Color("7a7a70")))
 	for i in 5:
-		K.picture(self, "res://assets/docs/nell_form.png", 0.3, 0.21, Vector3(-0.35, 1.07 + i * 0.006, -1.8), Vector3(-PI / 2, 0, 0.02 * i))
+		K.picture(self, "res://assets/docs/dpc_blank.jpg", 0.21, 0.297, Vector3(-0.35, 1.07 + i * 0.006, -1.8), Vector3(-PI / 2, 0, PI / 2 + 0.03 * i))
 	K.chair(self, Vector3(1.2, 0, -2.2), PI, K.mat(Color("2a3a4a")), K.mat(Color("333")))
 	sal = K.person(self, Vector3(1.2, 0, -2.15), 0.0, {"coat": Color("3e5a4e"), "trousers": Color("26262c"), "skin": Color("c89878"),
 		"hair": Color("2a2420"), "hair_style": "short", "glasses": true, "height": 1.7}, "sit")
@@ -57,8 +57,8 @@ func build(_v: String) -> void:
 	tube_chair.visible = false
 	# notice board
 	K.box(self, Vector3(1.4, 0.95, 0.03), Vector3(3.8, 1.55, -D / 2 + 0.07), K.mat("cork", 2.0))
-	K.picture(self, "res://assets/docs/notice_lobby.png", 0.42, 0.6, Vector3(3.6, 1.55, -D / 2 + 0.095))
-	K.picture(self, "res://assets/docs/leaflet_arrivals.png", 0.21, 0.3, Vector3(4.2, 1.7, -D / 2 + 0.095), Vector3(0, 0, 0.05))
+	K.picture(self, "res://assets/docs/notice_lobby.jpg", 0.42, 0.58, Vector3(3.6, 1.55, -D / 2 + 0.095))
+	K.picture(self, "res://assets/docs/leaflet_arrivals.jpg", 0.21, 0.3, Vector3(4.2, 1.7, -D / 2 + 0.095), Vector3(0, 0, 0.05))
 	# eight orange chairs on a rail, facing the desk
 	K.box(self, Vector3(4.2, 0.05, 0.08), Vector3(-2.6, 0.25, 1.35), K.mat(Color("555")))
 	for i in 8:

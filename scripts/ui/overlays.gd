@@ -95,24 +95,62 @@ class DriftCard extends Control:
 class DocViewer extends Control:
 	signal done()
 	var doc_id := ""
+	var clip: Control
+	var sheet: Panel
+	var hint: Label
+	var zoomed := false
+	var base_rect := Rect2()
+	var tilt := 0.0
+	var uv := Vector2(0.5, 0.5)
+	const ZOOM := 2.3
 	func _ready() -> void:
 		set_anchors_preset(Control.PRESET_FULL_RECT)
 		Overlays.dim_bg(self, 0.9)
 		var d: Dictionary = Game.docs_def.get(doc_id, {})
+		clip = Control.new()
+		clip.position = Vector2(30, 40)
+		clip.size = Vector2(720, 600)
+		clip.clip_contents = true
+		clip.mouse_filter = Control.MOUSE_FILTER_STOP
+		clip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		add_child(clip)
+		sheet = Panel.new()
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.86, 0.84, 0.78)
+		sb.shadow_color = Color(0, 0, 0, 0.6)
+		sb.shadow_size = 18
+		sb.shadow_offset = Vector2(7, 11)
+		sheet.add_theme_stylebox_override("panel", sb)
+		sheet.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip.add_child(sheet)
 		var img := TextureRect.new()
 		var path: String = d.get("image", "")
+		var ts := Vector2(700, 990)
 		if path != "" and ResourceLoader.exists(path):
 			img.texture = load(path)
+			ts = img.texture.get_size()
 		img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		img.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		img.position = Vector2(40, 50)
-		img.size = Vector2(700, 620)
-		add_child(img)
+		img.stretch_mode = TextureRect.STRETCH_SCALE
+		img.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		img.set_anchors_preset(Control.PRESET_FULL_RECT)
+		img.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		sheet.add_child(img)
+		var avail := clip.size - Vector2(56, 56)
+		var k := minf(avail.x / ts.x, avail.y / ts.y)
+		base_rect = Rect2((clip.size - ts * k) / 2.0, ts * k)
+		# every page sits a little crooked, the same way each time it's picked up
+		tilt = deg_to_rad(float(hash(doc_id) % 17 - 8) * 0.12)
+		_place(false)
+		clip.gui_input.connect(_on_clip_input)
+		hint = Kit.label("Click the page or press Z to look closer.", 14, Kit.IVORY_DIM)
+		hint.position = Vector2(30, 650)
+		hint.size = Vector2(720, 24)
+		hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		add_child(hint)
 		var panel := PanelContainer.new()
 		panel.add_theme_stylebox_override("panel", Kit.flat(Color(0.05, 0.05, 0.06, 1), Color(Kit.IVORY_DIM, 0.4), 1, 0, 18))
-		panel.position = Vector2(770, 50)
-		panel.size = Vector2(470, 620)
+		panel.position = Vector2(770, 40)
+		panel.size = Vector2(480, 634)
 		add_child(panel)
 		var vb := VBoxContainer.new()
 		vb.add_theme_constant_override("separation", 10)
@@ -126,16 +164,70 @@ class DocViewer extends Control:
 		vb.add_child(sc)
 		var tr := Kit.label(d.get("text", ""), Settings.font_size() - 2, Kit.IVORY)
 		tr.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		tr.custom_minimum_size = Vector2(420, 0)
+		tr.custom_minimum_size = Vector2(430, 0)
 		sc.add_child(tr)
 		var b := Kit.button("Put it down", 18)
 		b.pressed.connect(func(): done.emit())
 		vb.add_child(b)
 		b.call_deferred("grab_focus")
+
+	## Lay the page flat in the frame, or hold it close with the point under
+	## the cursor (or the keyboard's reading point) brought into view.
+	func _place(animate: bool) -> void:
+		var pos := base_rect.position
+		var size := base_rect.size
+		var rot := tilt
+		if zoomed:
+			size = base_rect.size * ZOOM
+			pos = Vector2(
+				lerpf(24.0, clip.size.x - size.x - 24.0, uv.x) if size.x > clip.size.x else (clip.size.x - size.x) / 2.0,
+				lerpf(24.0, clip.size.y - size.y - 24.0, uv.y) if size.y > clip.size.y else (clip.size.y - size.y) / 2.0)
+			rot = 0.0
+		if animate and not Settings.reduced_motion:
+			var tw := create_tween().set_parallel().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			tw.tween_property(sheet, "position", pos, 0.18)
+			tw.tween_property(sheet, "size", size, 0.18)
+			tw.tween_property(sheet, "rotation", rot, 0.18)
+			tw.tween_property(sheet, "pivot_offset", size / 2.0, 0.18)
+		else:
+			sheet.position = pos
+			sheet.size = size
+			sheet.pivot_offset = size / 2.0
+			sheet.rotation = rot
+
+	func _toggle_zoom(at: Vector2 = Vector2(-1, -1)) -> void:
+		zoomed = not zoomed
+		if at.x >= 0.0:
+			uv = (at / clip.size).clamp(Vector2.ZERO, Vector2.ONE)
+		hint.text = "Move to read across it. Click or press Z to put it back. Arrow keys move too." if zoomed else "Click the page or press Z to look closer."
+		_place(true)
+
+	func _on_clip_input(e: InputEvent) -> void:
+		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+			_toggle_zoom(e.position)
+			accept_event()
+		elif e is InputEventMouseMotion and zoomed:
+			uv = (e.position / clip.size).clamp(Vector2.ZERO, Vector2.ONE)
+			_place(false)
+
 	func _unhandled_input(e: InputEvent) -> void:
 		if e.is_action_pressed("menu"):
 			done.emit()
 			get_viewport().set_input_as_handled()
+		elif e is InputEventKey and e.pressed and not e.echo and e.keycode == KEY_Z:
+			_toggle_zoom()
+			get_viewport().set_input_as_handled()
+		elif zoomed and e is InputEventKey and e.pressed:
+			var step := Vector2.ZERO
+			match e.keycode:
+				KEY_LEFT: step = Vector2(-0.12, 0)
+				KEY_RIGHT: step = Vector2(0.12, 0)
+				KEY_UP: step = Vector2(0, -0.12)
+				KEY_DOWN: step = Vector2(0, 0.12)
+			if step != Vector2.ZERO:
+				uv = (uv + step).clamp(Vector2.ZERO, Vector2.ONE)
+				_place(true)
+				get_viewport().set_input_as_handled()
 
 ## Name entry for registration.
 class NameInput extends Control:

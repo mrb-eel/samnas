@@ -38,7 +38,7 @@ func build(v: String) -> void:
 	add_child(glass_hand)
 	K.hand(glass_hand, Vector3(0.22, 1.72, 0.25), Vector3(0.9, 0.2, 0), K.mat("skin_dark", 8.0), K.mat(Color("6a3a4a")), false, 0.9)
 	K.cyl(glass_hand, 0.05, 0.045, 0.15, Vector3(0.2, 1.84, 0.12), K.glass(Color("d8e8f0"), 0.35), 10)
-	K.picture(glass_hand, "res://assets/docs/letter_crest.png", 0.2, 0.28, Vector3(-0.28, 1.7, 0.2), Vector3(0.9, 0.3, 0))
+	K.picture(glass_hand, "res://assets/docs/letter_crest.jpg", 0.2, 0.28, Vector3(-0.28, 1.7, 0.2), Vector3(0.9, 0.3, 0))
 	add_cam("nell_eye", Vector3(0.05, 1.58, 0.75), Vector3(0.0, H - 0.4, -0.25), 58)
 	add_cam("main", Vector3(0.8, 2.3, 1.9), Vector3(-0.1, 1.0, -0.5), 62)
 	add_cam("nell_window", Vector3(0.05, 1.58, 0.75), Vector3(0.0, H - 0.4, -0.25), 58)

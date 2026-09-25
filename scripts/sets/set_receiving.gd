@@ -69,10 +69,10 @@ func build(_v: String) -> void:
 	mirror_shape.visible = false
 	# photographs and the poster, index cards, the ledger
 	K.box(self, Vector3(0.56, 0.42, 0.03), Vector3(-0.9, 1.75, -D / 2 + 0.08), K.mat(Color("3a2a1a")))
-	K.picture(self, "res://assets/docs/photo_arrivals.png", 0.5, 0.36, Vector3(-0.9, 1.75, -D / 2 + 0.1))
+	K.picture(self, "res://assets/docs/photo_arrivals.jpg", 0.5, 0.36, Vector3(-0.9, 1.75, -D / 2 + 0.1))
 	K.box(self, Vector3(0.66, 0.36, 0.03), Vector3(0.05, 1.8, -D / 2 + 0.08), K.mat(Color("3a2a1a")))
-	K.picture(self, "res://assets/docs/photo_attendants.png", 0.6, 0.3, Vector3(0.05, 1.8, -D / 2 + 0.1))
-	K.picture(self, "res://assets/docs/poster_received.png", 0.45, 0.62, Vector3(W / 2 - 0.07, 1.5, 0.4), Vector3(0, -PI / 2, 0))
+	K.picture(self, "res://assets/docs/photo_attendants.jpg", 0.6, 0.3, Vector3(0.05, 1.8, -D / 2 + 0.1))
+	K.picture(self, "res://assets/docs/poster_received.jpg", 0.45, 0.637, Vector3(W / 2 - 0.07, 1.5, 0.4), Vector3(0, -PI / 2, 0))
 	for i in 3:
 		K.quad(self, 0.12, 0.08, Vector3(W / 2 - 0.07, 1.0 + i * 0.1, -0.55 + i * 0.03), K.mat(Color("e8dcc0")), Vector3(0, -PI / 2, 0.05 * i))
 	K.shelf(self, Vector3(W / 2 - 0.3, 0.6, 1.1), -PI / 2, 0.6, 0.26, 1, 0.3)
@@ -96,7 +96,7 @@ func build(_v: String) -> void:
 	sal.visible = false
 	pen_hand = Node3D.new()
 	add_child(pen_hand)
-	K.picture(pen_hand, "res://assets/docs/r1_standalone.png", 0.21, 0.3, Vector3(-0.2, 0.9, 0.55), Vector3(-1.0, 0.2, 0))
+	K.picture(pen_hand, "res://assets/docs/r1_form.jpg", 0.21, 0.288, Vector3(-0.2, 0.9, 0.55), Vector3(-1.0, 0.2, 0))
 	K.hand(pen_hand, Vector3(-0.15, 0.95, 0.62), Vector3(-0.9, 0.3, 0), K.mat("skin_pale", 8.0), K.mat("corduroy", 10.0), false, 0.6)
 	K.cyl(pen_hand, 0.005, 0.005, 0.14, Vector3(-0.2, 0.96, 0.52), K.mat(Color("1a2a6a")), 5).rotation.x = 0.8
 	pen_hand.visible = false

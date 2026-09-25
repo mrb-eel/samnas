@@ -17,6 +17,7 @@ var paperback: Node3D
 var reflection: Node3D
 var pool_fig: Node3D
 var roster: MeshInstance3D
+var roster_lim: MeshInstance3D
 var lanyard: Node3D
 var bag: Node3D
 var lamp_light: OmniLight3D
@@ -73,8 +74,10 @@ func build(_v: String) -> void:
 	K.box(paperback, Vector3(0.12, 0.025, 0.18), Vector3(-W / 2 + 1.05, 0.013, 0.4), K.mat(Color("2a3a6a")))
 	paperback.visible = false
 	# the roster and the lanyard, if Ari takes the job
-	roster = K.picture(self, "res://assets/docs/roster_continuous.png", 0.42, 0.58, Vector3(W / 2 - 0.07, 1.5, -0.2), Vector3(0, -PI / 2, 0))
+	roster = K.picture(self, "res://assets/docs/roster_continuous.jpg", 0.56, 0.418, Vector3(W / 2 - 0.07, 1.5, -0.2), Vector3(0, -PI / 2, 0))
 	roster.visible = false
+	roster_lim = K.picture(self, "res://assets/docs/roster_limited.jpg", 0.56, 0.418, Vector3(W / 2 - 0.07, 1.5, -0.2), Vector3(0, -PI / 2, 0))
+	roster_lim.visible = false
 	lanyard = Node3D.new()
 	add_child(lanyard)
 	K.box(lanyard, Vector3(0.08, 0.004, 0.12), Vector3(0.35, 0.765, -D / 2 + 0.55), K.mat(Color("e8e4d8")))
@@ -93,7 +96,7 @@ func build(_v: String) -> void:
 	add_child(folder)
 	var fb := K.box(folder, Vector3(0.24, 0.02, 0.32), Vector3(-W / 2 + 0.95, 0.52, 0.1), K.mat(Color("c8a868")))
 	fb.rotation.z = 0.12
-	K.picture(folder, "res://assets/docs/nell_form.png", 0.2, 0.28, Vector3(-W / 2 + 0.96, 0.535, 0.1), Vector3(-PI / 2, 0, 0.12))
+	K.picture(folder, "res://assets/docs/dpc_nell.jpg", 0.2, 0.28, Vector3(-W / 2 + 0.96, 0.535, 0.1), Vector3(-PI / 2, 0, 0.12))
 	K.hand(folder, Vector3(-W / 2 + 0.92, 0.56, -0.08), Vector3(0.1, PI / 2 + 0.3, 0), K.mat("skin_jad", 8.0), K.mat(Color("5c5e62")), true, 0.2)
 	K.hand(folder, Vector3(-W / 2 + 0.92, 0.56, 0.3), Vector3(0.1, PI / 2 - 0.2, 0), K.mat("skin_jad", 8.0), K.mat(Color("5c5e62")), false, 0.3)
 	folder.visible = false
@@ -160,12 +163,8 @@ func apply_state(key: String, value: String) -> void:
 		"pool_figure":
 			pool_fig.visible = value == "on"
 		"roster":
-			roster.visible = value != "off"
-			if value == "limited":
-				roster.material_override = null
-				var m := SetKit.picture(self, "res://assets/docs/roster_limited.png", 0.42, 0.58, roster.position, roster.rotation)
-				roster.visible = false
-				roster = m
+			roster.visible = value == "on"
+			roster_lim.visible = value == "limited"
 		"lanyard":
 			lanyard.visible = value == "on"
 		"bag":

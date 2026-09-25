@@ -531,8 +531,8 @@ static func hand(parent: Node3D, pos: Vector3, rot: Vector3, skin_m: Material, s
 	cyl(h, 0.04, 0.045, 0.16, Vector3(0, 0.0, 0.12), sleeve_m, 8).rotation.x = PI / 2
 	return h
 
-static func slip(parent: Node3D, pos: Vector3, rot: Vector3, w: float = 0.2, h: float = 0.13) -> MeshInstance3D:
-	return picture(parent, "res://assets/docs/slip.png", w, h, pos, rot)
+static func slip(parent: Node3D, pos: Vector3, rot: Vector3, w: float = 0.2, h: float = 0.142) -> MeshInstance3D:
+	return picture(parent, "res://assets/docs/slip.jpg", w, h, pos, rot)
 
 static func key_with_tag(parent: Node3D, pos: Vector3, rot_y: float) -> void:
 	var n := Node3D.new()
