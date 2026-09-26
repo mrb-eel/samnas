@@ -397,6 +397,13 @@ func make_save() -> Dictionary:
 		"backlog": backlog.duplicate(true),
 	}
 
+## A snapshot of the night, taken by the screen before a menu covers it,
+## pasted into the Receiving Register beside the save.
+var thumb: Image = null
+
+func thumb_path(slot: int) -> String:
+	return "user://save_%d.png" % slot
+
 func save_to(slot: int) -> bool:
 	if not playing or runner.waiting == "" or runner.waiting == "end":
 		return false
@@ -404,6 +411,9 @@ func save_to(slot: int) -> bool:
 	if f == null:
 		return false
 	f.store_string(JSON.stringify(make_save(), "  "))
+	f.close()
+	if thumb:
+		thumb.save_png(thumb_path(slot))
 	return true
 
 func read_save(slot: int) -> Dictionary:

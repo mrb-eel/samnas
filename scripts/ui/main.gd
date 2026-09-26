@@ -123,6 +123,16 @@ func _ready() -> void:
 	Audio.caption.connect(_on_caption)
 	Settings.changed.connect(func(): _layout(); feed.restyle())
 
+	# the air in the room and Ari's cord, over everything
+	var air_layer := CanvasLayer.new()
+	air_layer.layer = 90
+	add_child(air_layer)
+	air_layer.add_child(Atmos.Air.new())
+	var cord_layer := CanvasLayer.new()
+	cord_layer.layer = 120
+	add_child(cord_layer)
+	cord_layer.add_child(Atmos.Cord.new())
+
 	_apply_comp("black")
 	_show_title()
 	# screenshot / autoplay harness hooks
@@ -366,6 +376,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_open_backlog()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("quicksave") and not menu_open:
+		Game.thumb = _snapshot()
 		if Game.save_to(6):
 			_toast("Saved", "Quicksave written to slot 6.")
 		get_viewport().set_input_as_handled()
@@ -456,6 +467,7 @@ func _on_pres(name: String, args: Array) -> void:
 			else:
 				create_tween().tween_property(fade_rect, "color:a", target, 0.7)
 		"chapter":
+			Game.thumb = _snapshot()
 			Game.save_to(0)
 			chapter_label.text = args[1] if args.size() > 1 else ""
 			var card := Overlays.ChapterCard.new()
@@ -682,9 +694,21 @@ func _to_title() -> void:
 	_apply_comp("black")
 	_show_title()
 
+## A picture of the night as it is, before a menu covers it, for the
+## Receiving Register.
+func _snapshot() -> Image:
+	var img := get_viewport().get_texture().get_image()
+	var r := Rect2i(Vector2i(root.position), Vector2i(BASE * root.scale.x))
+	r = r.intersection(Rect2i(Vector2i.ZERO, img.get_size()))
+	if r.size.x > 8 and r.size.y > 8:
+		img = img.get_region(r)
+	img.resize(256, 144, Image.INTERPOLATE_BILINEAR)
+	return img
+
 func _open_pause() -> void:
 	if menu_open or title_screen:
 		return
+	Game.thumb = _snapshot()
 	menu_open = true
 	var p := Menus.Pause.new()
 	p.size = BASE

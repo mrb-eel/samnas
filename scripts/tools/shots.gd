@@ -83,6 +83,26 @@ func _go() -> void:
 				main._toggle_board()
 			"doc":
 				main._open_doc(parts[1], false)
+			"mouse":
+				Input.warp_mouse(Vector2(float(parts[1]), float(parts[2])))
+				var mm := InputEventMouseMotion.new()
+				mm.position = Vector2(float(parts[1]), float(parts[2]))
+				mm.global_position = mm.position
+				Input.parse_input_event(mm)
+			"pause":
+				main._open_pause()
+			"menu":
+				# open a menu directly: save | load | settings | log
+				match parts[1]:
+					"save": main._open_saveload(true)
+					"load": main._open_saveload(false)
+					"settings": main._open_settings()
+					"log": main._open_backlog()
+			"closemenu":
+				for ch in main.menu_root.get_children():
+					if ch != main.title_screen:
+						ch.queue_free()
+				main.menu_open = false
 			"closedoc":
 				for ch in main.overlay_root.get_children():
 					ch.queue_free()

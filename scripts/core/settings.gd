@@ -18,6 +18,7 @@ var music_vol := 0.8
 var sfx_vol := 0.9
 var amb_vol := 0.8
 var fullscreen := false
+var plain_cursor := false
 
 func _ready() -> void:
 	_setup_input()
@@ -41,6 +42,7 @@ func load_settings() -> void:
 	ambient_captions = cf.get_value("text", "ambient_captions", ambient_captions)
 	reduced_motion = cf.get_value("display", "reduced_motion", reduced_motion)
 	fullscreen = cf.get_value("display", "fullscreen", fullscreen)
+	plain_cursor = cf.get_value("display", "plain_cursor", plain_cursor)
 	master_vol = cf.get_value("audio", "master", master_vol)
 	music_vol = cf.get_value("audio", "music", music_vol)
 	sfx_vol = cf.get_value("audio", "sfx", sfx_vol)
@@ -55,6 +57,7 @@ func save_settings() -> void:
 	cf.set_value("text", "ambient_captions", ambient_captions)
 	cf.set_value("display", "reduced_motion", reduced_motion)
 	cf.set_value("display", "fullscreen", fullscreen)
+	cf.set_value("display", "plain_cursor", plain_cursor)
 	cf.set_value("audio", "master", master_vol)
 	cf.set_value("audio", "music", music_vol)
 	cf.set_value("audio", "sfx", sfx_vol)

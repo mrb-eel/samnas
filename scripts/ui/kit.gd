@@ -336,6 +336,10 @@ static func lamp(ci: CanvasItem, c: Vector2, r: float, col: Color, on: bool) -> 
 static func text(ci: CanvasItem, pos: Vector2, s: String, kind: String, size: int, col: Color, width: float = -1.0, align: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT) -> void:
 	ci.draw_string(font(kind), pos, s, align, width, size, col)
 
+## Wrapped text within a width, up to max_lines lines.
+static func para(ci: CanvasItem, pos: Vector2, s: String, kind: String, size: int, col: Color, width: float, max_lines: int = -1) -> void:
+	ci.draw_multiline_string(font(kind), pos, s, HORIZONTAL_ALIGNMENT_LEFT, width, size, max_lines, col)
+
 static func text_w(s: String, kind: String, size: int) -> float:
 	return font(kind).get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 
