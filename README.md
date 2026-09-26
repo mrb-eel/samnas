@@ -62,6 +62,7 @@ choice says so and the control is framed in red.
 | `shaders/` | the stage's dither, the phosphor screen, the grime over everything |
 | `assets/` | documents, photographs, portraits, faces, textures, fonts (all OFL / Apache licensed, licences alongside) |
 | `tools/art/` | the Python that makes the documents, faces, photographs and interface textures |
+| `tools/audio/` | the Python that synthesises every sound |
 
 ### Checking it
 
@@ -84,11 +85,14 @@ Scripted screenshots, and a whole night played through the real interface
 ## State of it
 
 Done: the full script (five chapters, three endings, all routes playable), every
-location in 3D with walkable rooms where people move, the talking heads, the
-documents, the Board, saves with pictures, settings.
+location in 3D, walkable rooms wherever someone is lending Ari their eyes and
+moving about (the lobby and G/1 in Chapter 1, the lobby again, the dry pool
+and the building map in Chapter 2, the frame room, the Receiving Room and the
+copy shop in Chapter 3, and Ari's own walks in the endings with a body), the
+talking heads, the documents, the Board, synthesised sound for every effect,
+room and hold tape (`tools/audio/gen_audio.py`), saves with pictures, settings.
 
-Not done: **sound**. The code plays ambience, effects, hold music and the Casio,
-and captions them, but no audio files have been made yet, so the game is
-silent. Some scenes are still conversations in a fixed view rather than rooms
-to walk: the street in Chapter 1, the flats in Chapter 2, the meeting in the
-pool in Chapter 4.
+Still conversations in a fixed view rather than rooms to walk: the street in
+Chapter 1, Dima's and Nell's flats in Chapter 2, the confession and the meeting
+in Chapter 4, and the calls in Chapter 5. The sound is synthesised, not
+recorded: it does the job and it sounds like it.

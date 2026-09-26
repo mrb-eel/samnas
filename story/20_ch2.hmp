@@ -731,8 +731,30 @@ JAD: It's nine.
 
 === ch2_jad_lobby
 @view jad
+@walk jad corridor
 @state starter {pref_hum}
 The lobby, from the middle of it. The desk, with Sal's mug and no Sal: a coat over the chair, a half-eaten sandwich in its triangle box.
+JAD: Go on. Have a look round. It's the same lobby.
+-> ch2_jad_lobby_look
+
+=== ch2_jad_lobby_look
+* [listen][spot:tube] The tube over the desk.
+    -> ch2_jad_tube
++ [look][spot:desk_sign] The desk.
+    Sal's mug, gone cold. A coat over the chair. Half an egg-and-cress sandwich in its triangle box, the other half nowhere.
+    JAD: Sal's doing the stairs. They eat like that, a half at a time, between floors.
+    -> ch2_jad_lobby_look
++ [look][spot:chairs] The chairs.
+    The orange chairs on their rail. Mrs. Kaye's crocheted cushion, still tied on the third one, for Thursday.
+    -> ch2_jad_lobby_look
++ [look][spot:vending] The vending machine.
+    JAD: Still not speaking to it.
+    -> ch2_jad_lobby_look
++ [read][spot:notice] The notice.
+    FINAL NIGHT. Your name, in capitals. Somebody has drawn a small sad face in the corner, in biro, and somebody else has scribbled it out.
+    -> ch2_jad_lobby_look
+
+=== ch2_jad_tube
 if pref_hum == "hate":
     The tube over the desk is dark.
     There's an orange chair dragged out of line underneath it. One of the bolted ones; somebody's worked it off the rail.

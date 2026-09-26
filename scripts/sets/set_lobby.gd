@@ -13,6 +13,7 @@ var residents: Node3D
 var sal: Node3D
 var sun: OmniLight3D
 var _resident_blocks: Array = []
+var _chair_block := Rect2(0.72, -1.08, 0.56, 0.56)
 var _t := 0.0
 
 func build(_v: String) -> void:
@@ -147,6 +148,13 @@ func apply_state(key: String, value: String) -> void:
 			tube["mesh"].visible = not dark
 			tube["light"].light_energy = 0.0 if dark else 1.6
 			tube_chair.visible = dark
+			# the chair somebody dragged under it is in the way
+			blocks.erase(_chair_block)
+			if dark:
+				blocks.append(_chair_block)
+			if hotspots.has("tube"):
+				hotspots["tube"]["stand"] = Vector3(0.3, 0, -0.9) if dark else Vector3(1.0, 0, -0.95)
+			nav_changed = true
 		"desk":
 			var closed := value == "closed"
 			desk_sign.visible = not closed
