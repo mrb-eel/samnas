@@ -46,6 +46,7 @@ func build(_v: String) -> void:
 	_walk(L, D)
 
 func _walk(L: float, D: float) -> void:
+	floor_sound = "soft"
 	add_floor(Rect2(-L / 2 + 0.1, -D / 2 + 0.1, L - 0.2, D - 0.2))
 	add_block(-0.5, -D / 2 + 0.5, 10.6, 0.85)  # the copiers
 	add_block(1.0, 1.2, 4.1, 0.8)  # the counter

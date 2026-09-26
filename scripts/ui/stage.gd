@@ -244,6 +244,7 @@ func _walker_for(who: String, pose: String = "phone") -> Walker:
 	w.name = "walker_" + who
 	add_child(w)
 	w.setup(fig)
+	w.floor_sound = current.floor_sound
 	walkers[who] = w
 	return w
 

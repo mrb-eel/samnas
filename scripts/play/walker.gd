@@ -99,7 +99,10 @@ func _process(d: float) -> void:
 			fig.position += to / dist * step
 		if dist > 0.001:
 			turning = _turn_toward(atan2(to.x, to.z), d * 9.0)
+		var before := int(floor(phase / PI))
 		phase += step / (STRIDE * (1.25 if hurry else 1.0)) * PI
+		if int(floor(phase / PI)) != before:
+			_footstep()
 		amp = move_toward(amp, 1.0, d * 4.0)
 	else:
 		amp = move_toward(amp, 0.0, d * 5.0)
@@ -109,6 +112,13 @@ func _process(d: float) -> void:
 		if not turning and _pending_arrive:
 			_arrive()
 	_pose(d)
+
+var floor_sound := "tile"
+var is_player := true
+
+func _footstep() -> void:
+	var v := -17.0 if is_player else -23.0
+	Audio.sfx("step_%s_%d" % [floor_sound, randi() % 4 + 1], v, true)
 
 func _turn_toward(want: float, rate: float) -> bool:
 	var cur := fig.rotation.y

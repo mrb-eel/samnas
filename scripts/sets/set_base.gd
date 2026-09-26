@@ -31,6 +31,8 @@ var walk_cam := {"offset": Vector3(0, 3.4, 4.2), "look": Vector3(0, 0.9, 0), "fo
 ## Set true when a state change moves furniture or people about, so the
 ## stage rebuilds its walking grid.
 var nav_changed := false
+## What shoes sound like on this floor: "tile" (hard) or "soft".
+var floor_sound := "tile"
 
 func can_walk() -> bool:
 	return not floors.is_empty()

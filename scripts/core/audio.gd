@@ -26,7 +26,7 @@ func _ready() -> void:
 	amb_b = _player("Amb")
 	amb2 = _player("Amb")
 	music = _player("Music")
-	for i in 8:
+	for i in 12:
 		sfx_pool.append(_player("SFX"))
 	if FileAccess.file_exists(DIR + "captions.json"):
 		var d = JSON.parse_string(FileAccess.get_file_as_string(DIR + "captions.json"))
@@ -92,7 +92,9 @@ func _loop(s: AudioStream) -> void:
 	elif s is AudioStreamOggVorbis:
 		s.loop = true
 
-func sfx(id: String, volume_db: float = 0.0) -> void:
+## `far`: the sound is at the other end of the line (a lender's footsteps),
+## so while a call is open it comes through the telephone band.
+func sfx(id: String, volume_db: float = 0.0, far: bool = false) -> void:
 	var s := stream(id)
 	if s == null:
 		return
@@ -100,7 +102,7 @@ func sfx(id: String, volume_db: float = 0.0) -> void:
 		if not p.playing:
 			p.stream = s
 			p.volume_db = volume_db
-			p.bus = "Far" if _far and id.begins_with("far_") else "SFX"
+			p.bus = "Far" if _far and (far or id.begins_with("far_")) else "SFX"
 			p.play()
 			return
 
