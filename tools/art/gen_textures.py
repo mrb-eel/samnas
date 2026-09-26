@@ -568,7 +568,7 @@ def main():
     corduroy("corduroy")
     corduroy("coat_navy", (40, 48, 80))
     plastic_bag("bag_blue")
-    skin("skin_jad", (170, 120, 90))
+    skin("skin_jad", (212, 174, 152))
     skin("skin_pale", (214, 180, 160))
     skin("skin_dark", (110, 74, 56))
     door_panel("door_panel")

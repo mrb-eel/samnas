@@ -211,7 +211,7 @@ residents' invented contact as proof that public provision can end.
 **Ari (player).** Voice set by choices: observant, sometimes unreasonable, allowed
 to be petty. Preferences are tracked as facts (see §9).
 
-**Jad Mansour, 33, Flat 4B.** Copy shop. Fixes things for another week, including
+**Jad Abdallah, 33, Flat 4B.** Copy shop. Fixes things for another week, including
 people. Gives instructions instead of feelings. Jokes that don't land, notices,
 keeps talking. Has postponed a supervisor job at a print works in Harwick twice;
 the coach for the trial week leaves at 07:10 this morning. Resents being relied on;

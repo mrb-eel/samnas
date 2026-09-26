@@ -3,3 +3,4 @@
 *.import.tmp
 export/
 *.tmp
+__pycache__/

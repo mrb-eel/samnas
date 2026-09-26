@@ -180,11 +180,74 @@ def title_art(src):
     save(im, "title_art")
 
 
+def shadow_tex():
+    """A soft shadow for 9-slice drawing: a rounded rect, blurred, alpha only."""
+    S, M = 128, 30
+    im = Image.new("L", (S, S), 0)
+    ImageDraw.Draw(im).rounded_rectangle([M, M, S - M, S - M], 8, fill=255)
+    im = im.filter(ImageFilter.GaussianBlur(11))
+    out = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    out.putalpha(im)
+    save(out, "shadow")
+
+
+def stamp_mask():
+    """Where a rubber stamp's ink didn't take: blotches and specks, tiling."""
+    S = 256
+    n = periodic_noise(S, S, ((8, 1.0), (16, 0.6), (32, 0.4)))
+    specks = rng.random((S, S)).astype(np.float32)
+    a = np.clip((n - 0.62) * 5.0, 0, 1) + (specks > 0.93) * 0.9
+    out = np.zeros((S, S, 4), np.uint8)
+    out[..., :3] = 255
+    out[..., 3] = (np.clip(a, 0, 1) * 255).astype(np.uint8)
+    save(Image.fromarray(out, "RGBA"), "stamp_mask")
+
+
+def grain_tex():
+    """Film grain: light and dark specks on transparency, tiling."""
+    S = 256
+    v = rng.random((S, S)).astype(np.float32)
+    out = np.zeros((S, S, 4), np.uint8)
+    light = v > 0.5
+    out[..., 0] = np.where(light, 255, 0)
+    out[..., 1] = out[..., 0]
+    out[..., 2] = out[..., 0]
+    out[..., 3] = (np.abs(v - 0.5) * 2 * 90).astype(np.uint8)
+    save(Image.fromarray(out, "RGBA"), "grain")
+
+
+def vignette_tex():
+    W, H = 640, 360
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    d = np.sqrt(((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2)
+    a = np.clip((d - 0.55) / 0.75, 0, 1) ** 1.6
+    out = np.zeros((H, W, 4), np.uint8)
+    out[..., 3] = (a * 200).astype(np.uint8)
+    save(Image.fromarray(out, "RGBA"), "vignette")
+
+
+def glow_tex():
+    """A round falloff for lamp light, additive."""
+    S = 256
+    yy, xx = np.mgrid[0:S, 0:S].astype(np.float32)
+    d = np.sqrt((xx - S / 2) ** 2 + (yy - S / 2) ** 2) / (S / 2)
+    a = np.clip(1 - d, 0, 1) ** 2.2
+    out = np.zeros((S, S, 4), np.uint8)
+    out[..., :3] = 255
+    out[..., 3] = (a * 255).astype(np.uint8)
+    save(Image.fromarray(out, "RGBA"), "glow")
+
+
 if __name__ == "__main__":
     paper()
     bakelite()
     panel_column()
     oval_frame()
     exchange_bg()
+    shadow_tex()
+    stamp_mask()
+    grain_tex()
+    vignette_tex()
+    glow_tex()
     if len(sys.argv) > 1:
         title_art(sys.argv[1])

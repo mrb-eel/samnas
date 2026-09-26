@@ -83,7 +83,7 @@ func build(_v: String) -> void:
 	K.omni(self, Vector3(0.2, H - 0.3, 0.2), Color("fff0dc"), 1.2, 6.0)
 	# people
 	var looks := {
-		"jad": {"coat": Color("5c5e62"), "trousers": Color("2a2c34"), "skin": Color("aa7a5a"), "hair": Color("1a1614"), "hair_style": "curly", "height": 1.78, "arms": "phone"},
+		"jad": Figure.cast("jad", {"arms": "phone"}),
 		"teodor": {"coat": Color("6a5a48"), "trousers": Color("3a3a3a"), "skin": Color("d8b8a0"), "hair": Color("c8c4bc"), "hair_style": "bald", "height": 1.84, "long_coat": true, "arms": "phone"},
 		"inez": {"coat": Color("3a4a5a"), "trousers": Color("3a4a5a"), "skin": Color("c8a088"), "hair": Color("b8b4ac"), "hair_style": "short", "height": 1.62, "arms": "phone"},
 	}

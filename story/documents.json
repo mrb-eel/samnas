@@ -52,7 +52,7 @@
  "dpc_stack": {
   "title": "Nine forms (photo from Sal)",
   "image": "res://assets/docs/dpc_stack.jpg",
-  "text": "Nine DPC-1 forms spread out on the desk in G/1 to compare, photographed from above under the tube light. The one-page version, photocopied.\n\nNine households: Adeyemi (1D), Pike (1B), Rostami (2A), Rusu (6A), Hollis (6C), Kaye (2C), Vass (5A), Amadi (3B), Mansour (4B). Nine different hands in the top boxes, nine signatures.\n\nIn the contact box of every one, the same neat capitals: ARI. FRIEND. 01632 960 247.\n\nDated 14 and 15 August.\n\nOn the Mansour form, bottom right, the neat capitals start at the top: the resident's name, the flat, the household are all in the same hand as the contact box.",
+  "text": "Nine DPC-1 forms spread out on the desk in G/1 to compare, photographed from above under the tube light. The one-page version, photocopied.\n\nNine households: Adeyemi (1D), Pike (1B), Rostami (2A), Rusu (6A), Hollis (6C), Kaye (2C), Vass (5A), Amadi (3B), Abdallah (4B). Nine different hands in the top boxes, nine signatures.\n\nIn the contact box of every one, the same neat capitals: ARI. FRIEND. 01632 960 247.\n\nDated 14 and 15 August.\n\nOn the Abdallah form, bottom right, the neat capitals start at the top: the resident's name, the flat, the household are all in the same hand as the contact box.",
   "print": "res://assets/docs/dpc_stack_print.png"
  },
  "arp2_top": {
@@ -74,7 +74,7 @@
  "jad_letter": {
   "title": "Jad's letter",
   "image": "res://assets/docs/jad_letter.jpg",
-  "text": "To every household at Ferrier Court, and to Community Services.\n\nI filled in the DPC-1 forms for nine households in August, at a table in the lobby. Where people had nobody who could promise to come, I wrote ARI, the name from the council's sample form, and gave a number that rang in the building.\n\nThere was no Ari. The forms were my idea and my handwriting. The people who signed them did so because the council asked them to name somebody and they were frightened of losing help.\n\nThe Overnight Support Service was closed on the grounds that every resident had a contact. That wasn't true, and it isn't their fault. I'd like the closure looked at again.\n\nJad Mansour, Flat 4B\n\n(Printed at Aldine Copy & Print, 04:12. 42 copies. Paid.)",
+  "text": "To every household at Ferrier Court, and to Community Services.\n\nI filled in the DPC-1 forms for nine households in August, at a table in the lobby. Where people had nobody who could promise to come, I wrote ARI, the name from the council's sample form, and gave a number that rang in the building.\n\nThere was no Ari. The forms were my idea and my handwriting. The people who signed them did so because the council asked them to name somebody and they were frightened of losing help.\n\nThe Overnight Support Service was closed on the grounds that every resident had a contact. That wasn't true, and it isn't their fault. I'd like the closure looked at again.\n\nJad Abdallah, Flat 4B\n\n(Printed at Aldine Copy & Print, 04:12. 42 copies. Paid.)",
   "print": "res://assets/docs/jad_letter_print.png"
  },
  "rota_note": {

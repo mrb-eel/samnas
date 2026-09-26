@@ -676,7 +676,7 @@ SAL: Continuous. Forty-two households. Nine sixty per hour of active. G/1, charg
 You hold a pen for the first time. It's lighter than it should be, or you're stronger. You write ARI in the box, in capitals, because that's how it's written everywhere else.
 SOUND: Carbon. The one box going through to two pages.
 if holder == "jad":
-    JAD: Witness. J. Mansour. Here.
+    JAD: Witness. J. Abdallah. Here.
 elif holder == "teodor":
     TEODOR: Witness. T. Vass. Here. I've got good handwriting. Tram depot.
 else:
@@ -703,7 +703,7 @@ SAL: Name?
 @state sign on
 You hold a pen for the first time. It's lighter than it should be. You write {chosen_name} in the box. Your handwriting is somebody's. It's yours; you just haven't met it.
 if holder == "jad":
-    JAD: Witness. J. Mansour. Here.
+    JAD: Witness. J. Abdallah. Here.
 elif holder == "teodor":
     TEODOR: Witness. T. Vass. Here.
 else:

@@ -615,7 +615,7 @@ NINE = [
     ("Bernadette Kaye", "2C, Ferrier Court", "Mrs B. Kaye", "B. Kaye", "14 Aug", "kaye"),
     ("Teodor Vass", "5A, Ferrier Court", "Teodor Vass", "T. Vass", "15 Aug", "teodor"),
     ("Nell Amadi", "3B, Ferrier Court", "Nell Amadi; Tobi Amadi (7)", "N. Amadi", "14 Aug", "nell"),
-    ("Jad Mansour", "4B, Ferrier Court", "J. Mansour", "J. Mansour", "15 Aug", "jad"),
+    ("Jad Abdallah", "4B, Ferrier Court", "J. Abdallah", "J. Abdallah", "15 Aug", "jad"),
 ]
 
 
@@ -970,7 +970,7 @@ def jad_letter():
     for ln in text:
         d.text((80, y), ln, font=SANS(28), fill=INK)
         y += 42 if ln else 24
-    write(img, (80, y + 20), "Jad Mansour", "jad_sig", 64, BIRO_BLACK, slant=-0.2)
+    write(img, (80, y + 20), "Jad Abdallah", "jad_sig", 64, BIRO_BLACK, slant=-0.2)
     d.text((80, y + 110), "Flat 4B", font=SANS(26), fill=INK)
     d.text((80, 1180), "Printed at Aldine Copy & Print, 04:12. 42 copies. Paid.", font=SANS(18), fill=GREY)
     save(img, "jad_letter")

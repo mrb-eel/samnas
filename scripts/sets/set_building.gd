@@ -61,7 +61,7 @@ func build(_v: String) -> void:
 	figures["3D"] = K.person(self, Vector3(x0 + 3 * FW, 3 * FH, -2.5), 0.3, {"coat": Color("7a6a8a"), "trousers": Color("3a3a4a"), "skin": Color("d8b8a8"), "hair": Color("5a3a2a"), "hair_style": "bun", "height": 1.68})
 	figures["3B"] = K.person(self, Vector3(x0 + 1 * FW, 3 * FH, -2.5), -0.2, {"coat": Color("6a3a4a"), "trousers": Color("2a2a3a"), "skin": Color("6a4636"), "hair": Color("1a1412"), "hair_style": "bun", "height": 1.64})
 	figures["5A"] = K.person(self, Vector3(x0, 5 * FH, -2.5), 0.1, {"coat": Color("6a5a48"), "trousers": Color("3a3a3a"), "skin": Color("d8b8a0"), "hair": Color("c8c4bc"), "hair_style": "bald", "height": 1.84})
-	figures["4B"] = K.person(self, Vector3(x0 + 1 * FW, 4 * FH, -2.5), 0.4, {"coat": Color("5c5e62"), "trousers": Color("2a2c34"), "skin": Color("aa7a5a"), "hair": Color("1a1614"), "hair_style": "curly", "height": 1.78})
+	figures["4B"] = K.person(self, Vector3(x0 + 1 * FW, 4 * FH, -2.5), 0.4, Figure.cast("jad"))
 	for k in figures:
 		figures[k].visible = false
 	add_cam("main", Vector3(5.0, 9.5, 32.0), Vector3(0.0, 7.4, -2.5), 0.0, 25.0)

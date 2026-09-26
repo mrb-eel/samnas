@@ -36,7 +36,8 @@ def mix(a, b, t):
 class Face:
     def __init__(self, name, skin, hair, eyes=(70, 48, 30), brow=1.0, brow_col=None, lips=None, age=0.0,
                  stubble=0.0, freckles=0.0, eye_w=1.0, eye_h=1.0, mouth_w=1.0, lip_full=1.0, blush=0.25,
-                 lids=0.0, modulate=False, seed=None, lashes=0.0, mole=None, hairline=None):
+                 lids=0.0, modulate=False, seed=None, lashes=0.0, mole=None, hairline=None,
+                 fringe="round", moustache=0.0, goatee=0.0, heavy=0.0, brow_flat=0.0):
         self.__dict__.update(locals())
         del self.__dict__["self"]
         self.brow_col = brow_col or mix(hair, (20, 16, 14), 0.35)
@@ -69,7 +70,11 @@ class Face:
             pts = [(0, 0), (W, 0), (W, (top + 40) * k)]
             for i in range(21):
                 x = 256 - i * 12.8
-                y = top + 34 * abs((x - 128) / 128) ** 1.6 + self.R.uniform(-2.5, 2.5)
+                u = abs((x - 128) / 128)
+                if self.fringe == "straight":
+                    y = top + 5 * u + 40 * max(0.0, u - 0.62) / 0.38 + self.R.uniform(-1.2, 1.2)
+                else:
+                    y = top + 34 * u ** 1.6 + self.R.uniform(-2.5, 2.5)
                 pts.append((x * k, y * k))
             pts.append((0, (top + 40) * k))
             hd.polygon(pts, fill=255)
@@ -117,6 +122,25 @@ class Face:
             layer = Image.new("RGB", (W, W), mix(sk, (30, 24, 22), 0.75))
             img.paste(layer, (0, 0), Image.fromarray((m * 255).astype(np.uint8)))
             d = ImageDraw.Draw(img, "RGBA")
+        # a thin moustache along the top lip, and hair on the point of the chin
+        if self.moustache > 0 or self.goatee > 0:
+            hm = Image.new("L", (W, W), 0)
+            hd = ImageDraw.Draw(hm)
+            if self.moustache > 0:
+                my0 = MOUTH_Y - 9
+                hd.polygon([P(128 - 27, MOUTH_Y - 2), P(128 - 14, my0 - 2), P(128, my0 - 3.5), P(128 + 14, my0 - 2), P(128 + 27, MOUTH_Y - 2),
+                            P(128 + 20, MOUTH_Y - 4.5), P(128, MOUTH_Y - 6.5), P(128 - 20, MOUTH_Y - 4.5)], fill=255)
+            if self.goatee > 0:
+                hd.ellipse([(128 - 15) * k, (MOUTH_Y + 16) * k, (128 + 15) * k, (CHIN_Y + 8) * k], fill=190)
+                hd.ellipse([(128 - 6) * k, (MOUTH_Y + 8) * k, (128 + 6) * k, (MOUTH_Y + 15) * k], fill=160)
+            hm = hm.filter(ImageFilter.GaussianBlur(2.4 * k))
+            n = (np.random.default_rng(9).random((W, W)) > 0.5).astype(np.float32)
+            m = np.asarray(hm, np.float32) / 255.0 * n
+            m[:MOUTH_Y * k] = np.clip(m[:MOUTH_Y * k] * min(1.0, self.moustache) * 1.25, 0, 1)
+            m[MOUTH_Y * k:] *= min(1.0, self.goatee) * 0.55
+            layer = Image.new("RGB", (W, W), mix(self.hair, sk, 0.25))
+            img.paste(layer, (0, 0), Image.fromarray((np.clip(m, 0, 1) * 255).astype(np.uint8)))
+            d = ImageDraw.Draw(img, "RGBA")
         # nose: nostrils and a little shadow under the tip
         for s in (-1, 1):
             ell(128 + s * 9, NOSE_Y + 1, 4.2, 2.6, shade(130))
@@ -143,6 +167,11 @@ class Face:
             # the upper lid, heavy; the lower, faint
             lid = (*mix(sk, dark, 0.78), 255)
             line([(ex - ew - 1, ey + 0.5), (ex - ew * 0.3, ey - eh - 0.4), (ex + ew * 0.5, ey - eh * 0.9 - 0.4), (ex + ew + 1, ey - lift * 0.3)], lid, 2.0 + self.lashes)
+            if self.heavy > 0:
+                drop = eh * 0.55 * self.heavy
+                d.polygon([P(ex - ew - 1, ey - 0.5), P(ex - ew * 0.3, ey - eh - 1.5), P(ex + ew * 0.5, ey - eh * 0.9 - 1.5), P(ex + ew + 1, ey - 0.5),
+                           P(ex + ew * 0.5, ey - eh * 0.9 + drop), P(ex - ew * 0.3, ey - eh + drop)], fill=(*sk, 255))
+                line([(ex - ew - 1, ey + 0.2), (ex - ew * 0.3, ey - eh + drop), (ex + ew * 0.5, ey - eh * 0.9 + drop), (ex + ew + 1, ey - 0.3)], lid, 2.2 + self.lashes)
             if self.lids > 0:
                 line([(ex - ew * 0.9, ey - eh - 2.6), (ex + ew * 0.2, ey - eh - 3.4), (ex + ew, ey - eh * 0.5 - 1.5)], shade(int(110 * self.lids)), 1.2)
             line([(ex - ew * 0.6, ey + eh * 0.85), (ex + ew * 0.6, ey + eh * 0.85)], shade(70), 1.0)
@@ -153,7 +182,10 @@ class Face:
             inner, outer = ex - s * 18, ex + s * 20
             yi = BROW_Y + (-5 if worried else 1 if expr == "cross" else 0)
             yo = BROW_Y - 2 + (2 if worried else 0)
-            line([(inner, yi), (ex, BROW_Y - 4), (outer, yo)], bc, 2.4 * self.brow)
+            peak = BROW_Y - 4 * (1.0 - self.brow_flat)
+            line([(inner, yi), (ex, peak), (outer, yo + 1.5 * self.brow_flat)], bc, 2.4 * self.brow)
+            if self.brow_flat > 0:
+                line([(inner, yi + 1.4), (ex, peak + 1.6), (outer - s * 4, yo + 2.6)], bc, 1.6 * self.brow)
         # mouth
         mw = 25 * self.mouth_w
         lip = (*self.lips, 255) if not self.modulate else (190, 170, 170, 255)
@@ -183,7 +215,8 @@ def save(face, expr):
 
 PEOPLE = [
     # Jad: tired, stubble, heavy brows
-    Face("jad", (170, 122, 90), (26, 22, 20), eyes=(52, 34, 22), brow=1.35, stubble=0.8, lids=0.8, age=0.15, mouth_w=1.05, hairline=60),
+    Face("jad", (212, 174, 152), (28, 22, 18), eyes=(56, 38, 26), brow=1.7, brow_flat=0.8, stubble=0.35, heavy=0.7, lids=0.4,
+         mouth_w=1.0, lip_full=1.25, lips=(190, 128, 124), blush=0.2, moustache=0.8, goatee=0.7, hairline=64, fringe="straight"),
     # Inez: seventy-one, weathered, direct
     Face("inez", (200, 160, 136), (184, 180, 172), eyes=(70, 80, 72), brow=0.9, brow_col=(120, 110, 100), age=0.9, lids=0.6, mouth_w=0.95, lip_full=0.7, blush=0.15, hairline=62),
     # Dima: freckles, quick

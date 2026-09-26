@@ -86,7 +86,7 @@ func build(_v: String) -> void:
 	# the ceiling light
 	K.tube(self, Vector3(0, H - 0.05, 0), 1.2, Color("f0ece0"), 0.9, 5.0)
 	# people
-	var jad_look := {"coat": Color("5c5e62"), "trousers": Color("2a2c34"), "skin": Color("aa7a5a"), "hair": Color("1a1614"), "hair_style": "curly", "height": 1.78}
+	var jad_look := Figure.cast("jad")
 	jad = K.person(self, Vector3(0.1, 0, -0.2), PI, jad_look)
 	var jl2 := jad_look.duplicate()
 	jl2["arms"] = "forward"
@@ -97,8 +97,8 @@ func build(_v: String) -> void:
 	var fb := K.box(folder, Vector3(0.24, 0.02, 0.32), Vector3(-W / 2 + 0.95, 0.52, 0.1), K.mat(Color("c8a868")))
 	fb.rotation.z = 0.12
 	K.picture(folder, "res://assets/docs/dpc_nell.jpg", 0.2, 0.28, Vector3(-W / 2 + 0.96, 0.535, 0.1), Vector3(-PI / 2, 0, 0.12))
-	K.hand(folder, Vector3(-W / 2 + 0.92, 0.56, -0.08), Vector3(0.1, PI / 2 + 0.3, 0), K.mat("skin_jad", 8.0), K.mat(Color("5c5e62")), true, 0.2)
-	K.hand(folder, Vector3(-W / 2 + 0.92, 0.56, 0.3), Vector3(0.1, PI / 2 - 0.2, 0), K.mat("skin_jad", 8.0), K.mat(Color("5c5e62")), false, 0.3)
+	K.hand(folder, Vector3(-W / 2 + 0.92, 0.56, -0.08), Vector3(0.1, PI / 2 + 0.3, 0), K.mat("skin_jad", 8.0), K.mat(Color("26282e")), true, 0.2)
+	K.hand(folder, Vector3(-W / 2 + 0.92, 0.56, 0.3), Vector3(0.1, PI / 2 - 0.2, 0), K.mat("skin_jad", 8.0), K.mat(Color("26282e")), false, 0.3)
 	folder.visible = false
 	var teo := {"coat": Color("6a5a48"), "trousers": Color("3a3a3a"), "skin": Color("d8b8a0"), "hair": Color("c8c4bc"), "hair_style": "bald", "height": 1.84, "long_coat": true}
 	teodor_door = K.person(self, Vector3(W / 2 + 0.25, 0, 0.75), -PI / 2, teo)

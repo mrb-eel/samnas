@@ -153,7 +153,7 @@ func build(v: String) -> void:
 		[spots[5], {"coat": Color("6a3a4a"), "trousers": Color("3a2a3a"), "skin": Color("6a4636"), "hair": Color("1a1412"), "hair_style": "bun", "height": 1.64}, "sit"],
 		[spots[7], {"coat": Color("4a4a50"), "trousers": Color("2a2a30"), "skin": Color("5a3a2a"), "hair": Color("1a1412"), "hair_style": "short", "height": 1.74}, "sit"],
 		[spots[8], {"coat": Color("7a6a8a"), "trousers": Color("4a4a4a"), "skin": Color("d8b8a8"), "hair": Color("b8a890"), "hair_style": "set", "height": 1.6}, "sit"],
-		[spots[1], {"coat": Color("5c5e62"), "trousers": Color("2a2c34"), "skin": Color("aa7a5a"), "hair": Color("1a1614"), "hair_style": "curly", "height": 1.78}, "sit"],
+		[spots[1], Figure.cast("jad"), "sit"],
 	]
 	for s in sat:
 		var p2: Vector3 = s[0]

@@ -70,8 +70,7 @@ func build(v: String) -> void:
 		for j in 5:
 			K.quad(self, 120, 30, Vector3(-20, 1.2 + j * 0.45, 7), K.glass(Color("e4e6e2"), 0.22), Vector3(-PI / 2, 0, 0))
 	# Jad, by the door, looking down into the bag
-	jad = K.person(self, Vector3(0.35, 0, 1.25), PI, {"coat": Color("5c5e62"), "trousers": Color("2a2c34"),
-		"skin": Color("aa7a5a"), "hair": Color("1a1614"), "hair_style": "curly", "height": 1.78, "arms": "forward"})
+	jad = K.person(self, Vector3(0.35, 0, 1.25), PI, Figure.cast("jad", {"arms": "forward"}))
 	show_node(jad, not fog)
 	# the bag, held open under his eyes
 	bag_group = Node3D.new()
@@ -83,7 +82,7 @@ func build(v: String) -> void:
 	K.slip(bag_group, Vector3(0.06, 0.14, 0.02), Vector3(-1.2, 0.1, 0.25), 0.19, 0.12)
 	K.key_with_tag(bag_group, Vector3(-0.12, 0.13, -0.05), 0.6)
 	K.token(bag_group, Vector3(0.1, 0.125, -0.06))
-	K.hand(bag_group, Vector3(0.1, 0.19, 0.1), Vector3(-0.75, -0.4, 0.1), K.mat("skin_jad", 8.0), K.mat(Color("5c5e62")), true, 0.35)
+	K.hand(bag_group, Vector3(0.1, 0.19, 0.1), Vector3(-0.75, -0.4, 0.1), K.mat("skin_jad", 8.0), K.mat(Color("26282e")), true, 0.35)
 	bag_group.visible = false
 	green_near = K.omni(self, Vector3(0.6, 2.4, 2.4), Color("60ff88"), 1.6, 5.0)
 	K.omni(self, Vector3(0.1, 1.5, 0.6), Color("d8d0b8"), 0.35, 1.6)

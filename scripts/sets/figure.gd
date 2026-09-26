@@ -29,8 +29,8 @@ static var _mat_cache: Dictionary = {}
 ## The regulars. Sets pass these (with overrides) so everyone is the same
 ## person everywhere.
 const CAST := {
-	"jad": {"coat": Color("5c5e62"), "trousers": Color("2a2c34"), "skin": Color("aa7a5a"), "hair": Color("1a1614"),
-		"hair_style": "curly", "height": 1.78, "shape": "m", "face": "jad"},
+	"jad": {"coat": Color("26282e"), "inner": Color("4d4f55"), "trousers": Color("2a2c34"), "skin": Color("d4ae98"), "hair": Color("1c1612"),
+		"hair_style": "crop", "height": 1.78, "build": 1.06, "shape": "m", "face": "jad", "nose": 1.18, "jaw": 1.12},
 	"inez": {"coat": Color("3a4a5a"), "trousers": Color("3a4a5a"), "skin": Color("c8a088"), "hair": Color("b8b4ac"),
 		"hair_style": "short", "height": 1.62, "shape": "f", "face": "inez"},
 	"dima": {"coat": Color("7a6a8a"), "trousers": Color("3a3a4a"), "skin": Color("d8b8a8"), "hair": Color("5a3a2a"),
@@ -295,6 +295,12 @@ static func hair_mesh(style: String) -> ArrayMesh:
 			side = 0.0
 			front = 0.6
 			thick = 0.008
+		"crop":
+			back = -0.42
+			side = 0.12
+			front = 0.5
+			thick = 0.006
+	var straight := style == "crop"
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var rows := 14
@@ -309,13 +315,15 @@ static func hair_mesh(style: String) -> ArrayMesh:
 			var a := TAU * i / segs
 			var d := Vector3(sin(th) * cos(a), cos(th), sin(th) * sin(a))
 			var f := d.z
-			var hl := lerpf(back, side, _ss(-1.0, 0.0, f)) if f < 0.0 else lerpf(side, front, _ss(0.0, 1.0, f))
+			var hl := lerpf(back, side, _ss(-1.0, 0.0, f)) if f < 0.0 else lerpf(side, front, _ss(0.0, 0.55 if straight else 1.0, f))
 			var k := d.y > hl
 			if band:
 				k = d.y > -0.42 and d.y < 0.1 and f < 0.15
 			var p := _sculpt(d, 1.0, 1.0)
 			var taper := 1.0 if band else _ss(hl - 0.02, hl + 0.3, d.y)
 			var out := 0.002 + thick * taper
+			if straight:
+				out += 0.007 * _ss(0.35, 0.95, d.y)
 			if bumps > 0.0:
 				out += bumps * taper * (0.55 + 0.45 * sin(a * 5.0 + th * 4.0) * cos(a * 3.0 - th * 5.0))
 			p += Vector3(d.x, d.y * 0.6, d.z).normalized() * out
@@ -414,7 +422,17 @@ static func build(parent: Node3D, pos: Vector3, rot_y: float, look_in: Dictionar
 	var rings: Array = []
 	for r in tr:
 		rings.append([r[0] * k, r[1] * b, r[2] * lerpf(1.0, b, 0.6)])
-	_mi(pelvis, loft(rings, 12), coat, Vector3.ZERO, "torso")
+	var has_inner: bool = look.has("inner") and not look.get("robe", false)
+	_mi(pelvis, loft(rings, 12), _m(look["inner"]) if has_inner else coat, Vector3.ZERO, "torso")
+	if has_inner:
+		# the jacket: a shell over the tee, open down the front
+		var jr: Array = []
+		for r in rings.slice(0, rings.size() - 1):
+			jr.append([r[0], r[1] * 1.045, r[2] * 1.06])
+		var gap := 0.3
+		var jm: StandardMaterial3D = coat.duplicate()
+		jm.cull_mode = BaseMaterial3D.CULL_DISABLED
+		_mi(pelvis, arc_loft(jr, PI * 0.5 + gap, PI * 2.5 - gap, 16), jm, Vector3.ZERO, "jacket")
 	var top_y: float = tr[-1][0] * k
 	var shoulder_y: float = tr[-4][0] * k
 	var shoulder_x: float = tr[-4][1] * b - 0.012
@@ -429,6 +447,9 @@ static func build(parent: Node3D, pos: Vector3, rot_y: float, look_in: Dictionar
 		# the tie, and a wrap of towelling at the neck
 		_mi(pelvis, loft([[0.1 * k, .158 * b, .108], [0.14 * k, .158 * b, .108]], 12), _m(Color(look.get("coat", Color.WHITE)).darkened(0.12)))
 		_mi(pelvis, loft([[top_y - 0.06, .1, .075], [top_y + 0.01, .085, .065]], 10), coat)
+	elif has_inner:
+		# the tee's round neck, close round the throat
+		_mi(pelvis, loft([[top_y - 0.02, .068, .06, 0, 0.004], [top_y + 0.01, .06, .056, 0, 0.006]], 12), _m(look["inner"]))
 	else:
 		# a collar
 		_mi(pelvis, loft([[top_y - 0.03, .076, .066], [top_y + 0.035, .064, .058]], 10, false, false), _m(Color(look.get("coat", Color("4a4a52"))).darkened(0.15)))
