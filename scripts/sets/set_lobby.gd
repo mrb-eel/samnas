@@ -135,7 +135,7 @@ func _walk(L: float) -> void:
 	add_hotspot("corridor", Vector3(L / 2 + 0.3, 1.1, 0.0), Vector3(0.7, 2.2, 1.4), Vector3(L / 2 + 0.9, 0, 0.0), "The corridor", "go", Vector3(L / 2 + 6.0, 1.2, 0.0))
 	add_hotspot("g1_door", Vector3(L / 2 + 9.9, 1.1, 0.0), Vector3(0.2, 2.2, 1.4), Vector3(L / 2 + 9.2, 0, 0.0), "G/1", "go")
 	walk_cam = {"offset": Vector3(0, 3.2, 5.2), "look": Vector3(0, 0.95, -0.6), "fov": 50.0,
-		"min": Vector3(-2.4, 0, 0), "max": Vector3(2.6, 0, 0)}
+		"min": Vector3(-4.0, 0, 0), "max": Vector3(3.4, 0, 0)}
 
 func apply_state(key: String, value: String) -> void:
 	super.apply_state(key, value)

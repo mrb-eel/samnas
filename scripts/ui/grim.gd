@@ -297,16 +297,20 @@ static func dymo(ci: CanvasItem, pos: Vector2, s: String, size: int = 12, tape_c
 	ci.draw_string(f, pos + Vector2(5, size), s, HORIZONTAL_ALIGNMENT_LEFT, -1, size, letter)
 	return r.size.x
 
-## Checkerboard shade: how old hardware did transparency.
+## Checkerboard shade: how old hardware did transparency. One tiled
+## texture, not a rect per pixel.
+static var _checker: Dictionary = {}
 static func dither(ci: CanvasItem, r: Rect2, col: Color, density: int = 2) -> void:
 	r = snap(r)
-	var y := int(r.position.y)
-	while y < int(r.end.y):
-		var x := int(r.position.x) + (y % density)
-		while x < int(r.end.x):
-			ci.draw_rect(Rect2(x, y, 1, 1), col)
-			x += density
-		y += 1
+	if not _checker.has(density):
+		var img := Image.create(density * 2, density * 2, false, Image.FORMAT_RGBA8)
+		img.fill(Color(0, 0, 0, 0))
+		for y in density * 2:
+			for x in density * 2:
+				if (x + (y % density)) % density == 0:
+					img.set_pixel(x, y, Color.WHITE)
+		_checker[density] = ImageTexture.create_from_image(img)
+	ci.draw_texture_rect(_checker[density], r, true, col)
 
 ## Horizontal bars of wrong colour and shifted blocks, for when the signal
 ## doesn't hold.

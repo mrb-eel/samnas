@@ -28,6 +28,7 @@ var overlay_open := false
 var menu_open := false
 var title_screen: Control
 var options: Array = []  # the choices on offer, as the runner gave them
+var _console_opts: Array = []
 var _wait_timer: SceneTreeTimer
 var _walkto_token := 0
 
@@ -76,7 +77,7 @@ func _ready() -> void:
 	root.add_child(menu_root)
 
 	console.advance_requested.connect(_advance)
-	console.chosen.connect(_on_chosen)
+	console.chosen.connect(_on_console_pick)
 	stage.clicked.connect(_advance)
 	stage.spot_clicked.connect(_on_spot)
 	stage.walk_picked.connect(_on_walk_pick)
@@ -207,6 +208,9 @@ func _on_choices(opts: Array) -> void:
 			verbs[spot] = verb
 		var oo := o.duplicate()
 		oo["index"] = i
+		for t in o["tags"]:
+			if t.begins_with("jack:") or t.begins_with("key:"):
+				oo["board"] = true
 		rest.append(oo)
 	if not world.is_empty():
 		console.set_mode("walk")
@@ -215,6 +219,7 @@ func _on_choices(opts: Array) -> void:
 		stage.clear_walk_spots()
 		if console.mode == "walk":
 			console.set_mode("panel" if comp != "black" else "center")
+	_console_opts = rest
 	console.show_choices(rest)
 	stage.set_spots(Game.pres.get("spots", {}), screen_spots)
 	stage.set_spot_labels(labels, verbs)
@@ -239,6 +244,18 @@ func _on_chosen(i: int) -> void:
 	_remember_actor()
 	Audio.sfx("click", -8.0)
 	Game.runner.choose(i)
+
+## A choice that means doing something on the board (plugging into a jack,
+## throwing a key) isn't done from the console: it opens the board with
+## the control framed in red, and the player does it there.
+func _on_console_pick(i: int) -> void:
+	if i >= 0 and i < options.size() and not browsing:
+		for t in options[i]["tags"]:
+			if t.begins_with("jack:") or t.begins_with("key:"):
+				console.show_choices(_console_opts)
+				_set_browsing(true)
+				return
+	_on_chosen(i)
 
 func _on_walk_pick(spot: String) -> void:
 	for i in options.size():

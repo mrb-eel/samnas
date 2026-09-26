@@ -243,6 +243,8 @@ func _opt_text(o: Dictionary) -> String:
 	var s: String = o["text"]
 	if o.get("speech", false):
 		s = "\"" + s + "\""
+	if o.get("board", false):
+		s = "[ON THE BOARD] " + s
 	return s
 
 func pick(i: int) -> void:

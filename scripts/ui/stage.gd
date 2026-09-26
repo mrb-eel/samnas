@@ -477,6 +477,8 @@ class Marks extends Control:
 		if stage == null or not stage.walking or not stage.interactive or stage.cutaway != "":
 			return
 		var show_all: bool = stage.reveal or Settings.show_hotspots
+		var placed: Array = []
+		var marks_list: Array = []
 		for sid in stage.walk_spots:
 			var r := stage.spot_rect(sid)
 			if r.size == Vector2.ZERO:
@@ -484,14 +486,28 @@ class Marks extends Control:
 			if sid == stage.hover_spot:
 				_brackets(r.grow(2), Grim.IVORY)
 			elif show_all:
-				var c := r.get_center().round()
-				draw_rect(Rect2(c - Vector2(3, 3), Vector2(7, 7)), Grim.INK)
-				draw_rect(Rect2(c - Vector2(2, 2), Vector2(5, 5)), Grim.AMBER)
-				var lab: String = stage.walk_spots[sid].get("label", "")
-				if lab != "":
-					var w := Grim.text_w(lab, "tiny", 8)
-					Grim.band(self, Rect2(c + Vector2(-w * 0.5 - 2, 5), Vector2(w + 4, 10)), 0.75)
-					Grim.text(self, c + Vector2(-w * 0.5, 13), lab, "tiny", 8, Grim.IVORY)
+				marks_list.append([r.get_center().round(), stage.walk_spots[sid].get("label", "")])
+		# labels pushed down until they stop overlapping each other
+		marks_list.sort_custom(func(a, b): return a[0].y < b[0].y)
+		for m in marks_list:
+			var c: Vector2 = m[0]
+			draw_rect(Rect2(c - Vector2(3, 3), Vector2(7, 7)), Grim.INK)
+			draw_rect(Rect2(c - Vector2(2, 2), Vector2(5, 5)), Grim.AMBER)
+			var lab: String = m[1]
+			if lab == "":
+				continue
+			var w := Grim.text_w(lab, "tiny", 8)
+			var lr := Rect2(c + Vector2(-w * 0.5 - 2, 5), Vector2(w + 4, 10))
+			lr.position.x = clampf(lr.position.x, 2, size.x - lr.size.x - 2)
+			var tries := 0
+			while tries < 12 and placed.any(func(q): return q.intersects(lr)):
+				lr.position.y += 11
+				tries += 1
+			placed.append(lr)
+			if lr.position.y > c.y + 6:
+				draw_rect(Rect2(c.x, c.y + 3, 1, lr.position.y - c.y - 3), Color(Grim.AMBER, 0.6))
+			Grim.band(self, lr, 0.8)
+			Grim.text(self, lr.position + Vector2(2, 8), lab, "tiny", 8, Grim.IVORY)
 		if _flag_t > 0.0 and _flag != Vector3.INF:
 			var cam := stage.vp.get_camera_3d()
 			if cam and not cam.is_position_behind(_flag):

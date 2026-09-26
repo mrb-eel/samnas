@@ -21,6 +21,7 @@ var roster_lim: MeshInstance3D
 var lanyard: Node3D
 var bag: Node3D
 var lamp_light: OmniLight3D
+var _hall: Node3D
 var hall_light: OmniLight3D
 var _t := 0.0
 
@@ -118,6 +119,7 @@ func build(_v: String) -> void:
 	var hall := Node3D.new()
 	hall.position = Vector3(0, -3.2, -D / 2 - 8.0)
 	add_child(hall)
+	_hall = hall
 	K.box(hall, Vector3(30, 0.1, 16), Vector3(0, -0.05, 0), K.mat("white_tile", 0.6))
 	K.box(hall, Vector3(10, 0.12, 12), Vector3(0, 0.0, -1), K.mat("pool_tile_deep", 1.2))
 	K.box(hall, Vector3(10.4, 0.14, 0.3), Vector3(0, 0.02, 5.1), K.mat(Color("d8d4c8")))
@@ -126,7 +128,7 @@ func build(_v: String) -> void:
 	hall_light = K.omni(hall, Vector3(0, 3.0, 2.0), Color("5070a0"), 0.6, 14.0)
 	pool_fig = K.person(hall, Vector3(-3.0, 0, 0.0), PI / 2, teo)
 	pool_fig.visible = false
-	cam_hide = {"window": [jad], "window_close": [jad], "jad_bed": [jad_bed], "teodor_eye": [teodor_bed], "door": [jad]}
+	cam_hide = {"window": [jad], "window_close": [jad], "jad_bed": [jad_bed], "teodor_eye": [teodor_bed], "door": [jad], "walk": [hall], "main": [hall]}
 	add_cam("main", Vector3(2.9, 3.3, 4.4), Vector3(-0.3, 0.55, -0.35), 50)
 	add_cam("window", Vector3(0.1, 1.66, -0.25), Vector3(0.05, 1.35, -2.2), 56)
 	add_cam("window_close", Vector3(0.05, 1.55, -1.15), Vector3(0.0, -3.0, -12.0), 60)
