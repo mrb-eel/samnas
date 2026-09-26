@@ -139,6 +139,21 @@ func _go() -> void:
 			"reveal":
 				main.stage.reveal = parts[1] == "on"
 				main.stage.marks.queue_redraw()
+			"setting":
+				# change a setting for this run only (not saved)
+				var v: Variant = parts[2]
+				if parts[2] in ["true", "false"]:
+					v = parts[2] == "true"
+				elif parts[2].is_valid_int():
+					v = int(parts[2])
+				Settings.set(parts[1], v)
+				Settings.apply_window()
+				Settings.changed.emit()
+			"go":
+				# start walking and don't wait
+				var w2: Walker = main.stage.walker
+				if w2:
+					w2.go(main.stage.nav.path(w2.fig.position, main.stage.nav.nearest(Vector3(float(parts[1]), 0.0, float(parts[2])))))
 			"walkxz":
 				var dest := Vector3(float(parts[1]), 0.0, float(parts[2]))
 				var w: Walker = main.stage.walker
