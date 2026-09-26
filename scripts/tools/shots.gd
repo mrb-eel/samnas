@@ -3,6 +3,8 @@ extends Node
 ## godot --path . -- --shots out_dir "new" "adv 3" "shot a" "choose 1" ...
 ## Commands: new | load N | adv N | choose I | shot NAME | wait S | board | doc ID | closedoc |
 ## cmd NAME ARGS... | jump KNOT | key NAME | untilchoice | play N (auto-advance N steps picking first choice)
+## Walking: spot NAME (walk to a live hotspot and use it) | hover NAME | reveal on|off | walkxz X Z
+## mouse X Y takes 640x360 coordinates.
 
 var main
 var out_dir := ""
@@ -30,7 +32,7 @@ func _go() -> void:
 				for i in int(parts[1]):
 					await _settle()
 					if Game.runner.waiting == "line":
-						main.feed.finish_typing()
+						main.console.finish_typing()
 						Game.runner.advance()
 					elif Game.runner.waiting == "cmd":
 						Game.runner.resume()
@@ -47,7 +49,7 @@ func _go() -> void:
 					await _settle()
 					n += 1
 					if Game.runner.waiting == "line":
-						main.feed.finish_typing()
+						main.console.finish_typing()
 						Game.runner.advance()
 					elif Game.runner.waiting == "cmd":
 						Game.runner.resume()
@@ -59,7 +61,7 @@ func _go() -> void:
 					await _settle()
 					match Game.runner.waiting:
 						"line":
-							main.feed.finish_typing()
+							main.console.finish_typing()
 							Game.runner.advance()
 						"choice":
 							main._on_chosen(0)
@@ -71,10 +73,12 @@ func _go() -> void:
 			"shot":
 				await _settle()
 				await get_tree().create_timer(0.35).timeout
-				main.feed.finish_typing()
+				main.console.finish_typing()
 				await get_tree().process_frame
 				await get_tree().process_frame
 				var img := get_viewport().get_texture().get_image()
+				if img.get_width() < 1000:
+					img.resize(img.get_width() * 2, img.get_height() * 2, Image.INTERPOLATE_NEAREST)
 				img.save_png(out_dir.path_join(parts[1] + ".png"))
 				print("SHOT ", parts[1], " waiting=", Game.runner.waiting, " at ", Game.parser.locate(Game.runner.pc))
 			"wait":
@@ -84,11 +88,40 @@ func _go() -> void:
 			"doc":
 				main._open_doc(parts[1], false)
 			"mouse":
-				Input.warp_mouse(Vector2(float(parts[1]), float(parts[2])))
+				var k := Vector2(DisplayServer.window_get_size()) / Vector2(640, 360)
+				var wp := Vector2(float(parts[1]), float(parts[2])) * k
+				Input.warp_mouse(wp)
 				var mm := InputEventMouseMotion.new()
-				mm.position = Vector2(float(parts[1]), float(parts[2]))
-				mm.global_position = mm.position
+				mm.position = wp
+				mm.global_position = wp
 				Input.parse_input_event(mm)
+			"spot":
+				await _settle()
+				if main.stage.walk_spots.has(parts[1]):
+					main.stage._go_spot(parts[1])
+					var n := 0
+					while Game.runner.waiting == "choice" and n < 600:
+						await get_tree().process_frame
+						n += 1
+				else:
+					print("NO LIVE SPOT ", parts[1], " live=", main.stage.walk_spots.keys())
+			"hover":
+				main.stage.hover_spot = parts[1]
+				main.stage.marks.queue_redraw()
+				var ws: Dictionary = main.stage.walk_spots.get(parts[1], {})
+				ScreenFx.want(ws.get("verb", "look"), ws.get("label", ""))
+			"reveal":
+				main.stage.reveal = parts[1] == "on"
+				main.stage.marks.queue_redraw()
+			"walkxz":
+				var dest := Vector3(float(parts[1]), 0.0, float(parts[2]))
+				var w: Walker = main.stage.walker
+				if w:
+					w.go(main.stage.nav.path(w.fig.position, main.stage.nav.nearest(dest)))
+					var n2 := 0
+					while w.moving and n2 < 900:
+						await get_tree().process_frame
+						n2 += 1
 			"pause":
 				main._open_pause()
 			"menu":
@@ -112,6 +145,9 @@ func _go() -> void:
 				Game._on_command(parts[1], Array(parts.slice(2)))
 			"jump":
 				# start the story at a knot, with whatever state the game has
+				for ch in main.overlay_root.get_children():
+					ch.queue_free()
+				main.overlay_open = false
 				Game.runner.start(parts[1])
 			"key":
 				var ev := InputEventKey.new()

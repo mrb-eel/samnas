@@ -271,17 +271,15 @@ The sentence arrives already finished, like something read out to you. You didn'
 
 === ch1_lobby
 @set lobby
-@cam jad_eye
+@walk jad street_door
 @acoustic lobby
 @amb lobby_hum
 @time 23:24
 The lobby is long and low, lit by one tube over the desk. Brown floor tiles. A row of orange plastic chairs bolted to a rail. Pigeonholes. A vending machine with a hand-written sign, EXACT MONEY ONLY, and under it in a different pen, AND EVEN THEN.
 The desk has a sign on a little stand: BACK IN 10 MINS. S. Next to it, a printed bus timetable with one time circled twice.
 SOUND: The tube over the desk hums. There's a tick in the hum, once a second, like a clock that's fallen behind.
-@spot notice 0.62 0.20 0.20 0.26
-@spot chairs 0.02 0.55 0.34 0.30
-@spot tray 0.44 0.58 0.16 0.14
-@spot tube 0.36 0.02 0.30 0.10
+JAD: Right. You're steering. I'm just the legs.
+THINK: He means it. Point at something and he'll walk to it. Point at the floor and he'll go there.
 -> ch1_lobby_look
 
 === ch1_lobby_look
@@ -327,11 +325,49 @@ SOUND: The tube over the desk hums. There's a tick in the hum, once a second, li
         ~ pref_hum = "listened"
         He stands under it with you and doesn't ask why.
     -> ch1_lobby_look
-* {k_notice} Go on. The office.
++ [look][spot:vending] The vending machine.
+    if seen_vending:
+        JAD: Still not speaking to it.
+    else:
+        ~ seen_vending = true
+        Lit from inside, mostly empty. Two rows of the same cheese and onion. A coil turned halfway, holding nothing.
+        JAD: It took a pound off me in March. We're not speaking.
+    -> ch1_lobby_look
++ [look][spot:pigeonholes] The pigeonholes.
+    if seen_pigeonholes:
+        Forty-two little boxes. 3B's is still the fullest.
+    else:
+        ~ seen_pigeonholes = true
+        Forty-two little wooden boxes, one per flat, labelled in three people's handwriting over thirty years. Most are empty. 3B's is stuffed.
+        JAD: Nell sorts the post. Everybody's, every morning. Except her own, apparently.
+    -> ch1_lobby_look
++ [read][spot:desk_sign] The sign on the desk.
+    if seen_desk_sign:
+        BACK IN 10 MINS. S.
+    else:
+        ~ seen_desk_sign = true
+        BACK IN 10 MINS. S. The card has gone soft at the fold from being stood up and laid down a thousand times.
+        JAD: Sal. They do the stairs every hour, in case anyone's fallen. Last week of it.
+    -> ch1_lobby_look
++ [look][spot:desk_phone] The desk phone.
+    A grey desk phone with a label gone the colour of tea: 210.
+    THINK: If it rang, you'd know. It would light up on the board as 210.
+    -> ch1_lobby_look
++ [go][spot:street_door] The street door.
+    The glass door, the diamond wire in it, the chemist's cross still flashing green on the far side of the road.
+    JAD: I'm not going back out there. It took me forty minutes to get in.
+    -> ch1_lobby_look
++ [go][spot:corridor] The corridor.
+    if not k_notice:
+        JAD: Hang on. That notice by the desk has got your name on it.
+        THINK: He's right. It has. You can see it from here: the name, in capitals, at the top.
+        -> ch1_lobby_look
+    JAD: G/1's down here. Mind the bucket.
     -> ch1_corridor
 
 === ch1_corridor
 @spots_clear
+@walkto jad corridor
 @cam corridor
 @time 23:27
 A corridor off the back of the lobby. Fire doors held open with wedges. A smell you can't smell, only see: bleach-coloured light, a mop bucket.
@@ -367,24 +403,20 @@ JAD: Anyway. This is you.
 -> ch1_office
 
 === ch1_office
-
 @set office
 @comp room
 @view plan
-@cam main
+@walk jad door
 @acoustic office
 @amb office_room
 @time 23:31
 SOUND: A handle rattling. A door that won't.
 JAD: Lift and shove. Everything down here is lift and shove.
 SOUND: The door gives all at once.
+@walkto jad middle
 And the room is there, all of it at once, in a way that isn't seeing. The phone on the desk is your phone. You know this room the way you know the phone: the corners, where the window is, where the cold comes in under the door.
 A small office. A window onto the pool hall, black. A desk with a beige phone. A camp bed made up with a blanket. A kettle on a filing cabinet. A coat hook with nothing on it.
 Jad stands in the middle of it with the bag hanging off his wrist.
-@spot bed 0.05 0.52 0.36 0.30
-@spot mug 0.66 0.40 0.12 0.14
-@spot window 0.34 0.08 0.40 0.34
-@spot phone 0.52 0.44 0.14 0.14
 -> ch1_office_look
 
 === ch1_office_look
@@ -409,6 +441,21 @@ Jad stands in the middle of it with the bag hanging off his wrist.
     -> ch1_desk_phone
 * [look][spot:window] The window.
     -> ch1_window
++ [look][spot:kettle] The kettle.
+    A white plastic kettle with limescale round the spout like a tidemark. Full. Someone filled it and didn't boil it.
+    JAD: They've thought of everything. Except whether you drink tea.
+    -> ch1_office_look
++ [look][spot:hook] The coat hook.
+    A brass hook screwed into the plaster at the height of a tall man's shoulder. Nothing on it.
+    JAD: You could hang the coat up. If it's yours.
+    -> ch1_office_look
++ [look][spot:bag] The bag.
+    The blue bag, slumped at the foot of the bed where he put it. The label tape on the handle: ARI.
+    JAD: It's not going anywhere.
+    -> ch1_office_look
++ [go][spot:door] The door.
+    JAD: I'm not leaving you on your first night. Whatever you are.
+    -> ch1_office_look
 * {k_desk_phone and k_window} Ask him what happens now.
     -> ch1_what_now
 
@@ -497,6 +544,7 @@ JAD: Half five, lobby. That's six hours. I can help before then. If you want.
 === ch1_teodor
 @sfx knock
 SOUND: Three knocks on the office door. Careful ones, evenly spaced.
+@walkto jad middle
 @state teodor door
 @portrait teodor neutral oval
 A tall old man in the doorway: dressing gown over trousers, outdoor shoes, a tartan flask held against his chest in both hands. White eyebrows like two small moustaches.

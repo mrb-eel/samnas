@@ -1,93 +1,66 @@
 extends Control
-## Main scene. Builds the screen, routes story output to the right surface,
-## runs overlays for blocking commands, and owns the menus.
+## Main scene. Builds the screen, routes story output to the console and
+## the room, turns choices that live in the room into things to click, runs
+## overlays for blocking commands, and owns the menus.
+##
+## The screen is 640x360. The room fills it. The console sits along the
+## bottom when someone is talking; when the player is free to walk, it
+## shrinks away and the room is the interface.
 
-const BASE := Vector2(1280, 720)
-const ROOM_STAGE := Rect2(24, 56, 800, 600)
-const ROOM_FEED := Rect2(846, 56, 410, 644)
-const CALL_FEED := Rect2(28, 444, 850, 258)
-const XCH_FEED := Rect2(34, 486, 850, 216)
-const BLACK_FEED := Rect2(250, 120, 620, 500)
+const BASE := Vector2(640, 360)
 
 var root: Control
 var bg: ColorRect
 var xlayer: Layers.ExchangeLayer
 var stage: Stage
 var collage: Layers.CollageLayer
-var portraits: Layers.PortraitLayer
-var feed: Feed
+var console: Console
+var hud: Hud
 var board: Board
-var cord_chip: Label
-var hud: Control
-var clock_label: Label
-var chapter_label: Label
-var board_btn: Button
-var board_badge: Label
-var toast_box: VBoxContainer
-var caption_label: Label
 var fade_rect: ColorRect
 var overlay_root: Control
 var menu_root: Control
+var post: ScreenFx.Post
 
 var comp := "black"
 var browsing := false
-var choice_surface := "feed"
 var overlay_open := false
 var menu_open := false
 var title_screen: Control
+var options: Array = []  # the choices on offer, as the runner gave them
 var _wait_timer: SceneTreeTimer
-var _pending_lines := 0
+var _walkto_token := 0
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg = ColorRect.new()
-	bg.color = Color("0b0a0e")
+	bg.color = Color("050505")
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 	root = Control.new()
 	root.size = BASE
-	root.clip_contents = false
 	add_child(root)
-	get_viewport().size_changed.connect(_center)
-	_center()
 
 	xlayer = Layers.ExchangeLayer.new()
 	xlayer.size = BASE
 	root.add_child(xlayer)
 	stage = Stage.new()
+	stage.size = BASE
 	root.add_child(stage)
 	xlayer.stage = stage
 	collage = Layers.CollageLayer.new()
 	collage.size = BASE
 	collage.visible = false
 	root.add_child(collage)
-	portraits = Layers.PortraitLayer.new()
-	portraits.size = BASE
-	root.add_child(portraits)
-	feed = Feed.new()
-	root.add_child(feed)
-	cord_chip = Kit.label("", 14, Kit.IVORY, "bold")
-	cord_chip.add_theme_stylebox_override("normal", Kit.flat(Color(0.35, 0.08, 0.06, 0.9), Color("b08d4a"), 1, 3, 4))
-	cord_chip.position = Vector2(ROOM_STAGE.end.x - 330, ROOM_STAGE.position.y + 12)
-	cord_chip.size = Vector2(318, 26)
-	cord_chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	cord_chip.visible = false
-	cord_chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(cord_chip)
+	console = Console.new()
+	console.size = BASE
+	root.add_child(console)
+	hud = Hud.new()
+	hud.size = BASE
+	root.add_child(hud)
 	board = Board.new()
 	root.add_child(board)
 	board.visible = false
-	_build_hud()
-	toast_box = VBoxContainer.new()
-	toast_box.position = Vector2(430, 58)
-	toast_box.size = Vector2(420, 10)
-	toast_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(toast_box)
-	caption_label = Kit.label("", 14, Color("79a88c"), "italic")
-	caption_label.position = Vector2(28, 694)
-	caption_label.size = Vector2(800, 22)
-	caption_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(caption_label)
 	fade_rect = ColorRect.new()
 	fade_rect.color = Color(0, 0, 0, 0)
 	fade_rect.size = BASE
@@ -102,12 +75,15 @@ func _ready() -> void:
 	menu_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(menu_root)
 
-	feed.clicked.connect(_advance)
+	console.advance_requested.connect(_advance)
+	console.chosen.connect(_on_chosen)
 	stage.clicked.connect(_advance)
 	stage.spot_clicked.connect(_on_spot)
-	feed.choices.chosen.connect(_on_chosen)
-	board.choices.chosen.connect(_on_chosen)
-	board.advance_requested.connect(_advance)
+	stage.walk_picked.connect(_on_walk_pick)
+	stage.actor_settled.connect(_remember_actor)
+	hud.board_pressed.connect(_toggle_board)
+	hud.log_pressed.connect(_open_backlog)
+	hud.menu_pressed.connect(_open_pause)
 	board.close_requested.connect(func(): _set_browsing(false))
 	board.call_requested.connect(_board_call)
 	board.reply_requested.connect(_board_reply)
@@ -120,88 +96,27 @@ func _ready() -> void:
 	Game.notify.connect(_on_notify)
 	Game.story_finished.connect(_on_finished)
 	Game.phone_changed.connect(_update_badge)
-	Audio.caption.connect(_on_caption)
-	Settings.changed.connect(func(): _layout(); feed.restyle())
+	Audio.caption.connect(func(s): hud.caption(s))
+	Settings.changed.connect(func(): _layout(); console.restyle())
 
-	# the air in the room and Ari's cord, over everything
-	var air_layer := CanvasLayer.new()
-	air_layer.layer = 90
-	add_child(air_layer)
-	air_layer.add_child(Atmos.Air.new())
-	var cord_layer := CanvasLayer.new()
-	cord_layer.layer = 120
-	add_child(cord_layer)
-	cord_layer.add_child(Atmos.Cord.new())
+	# the grime over everything, and the pointer over that
+	var post_layer := CanvasLayer.new()
+	post_layer.layer = 100
+	add_child(post_layer)
+	post = ScreenFx.Post.new()
+	post_layer.add_child(post)
+	var ptr_layer := CanvasLayer.new()
+	ptr_layer.layer = 120
+	add_child(ptr_layer)
+	ptr_layer.add_child(ScreenFx.Pointer.new())
 
 	_apply_comp("black")
 	_show_title()
-	# screenshot / autoplay harness hooks
 	var args := OS.get_cmdline_user_args()
 	if args.size() > 0 and args[0] == "--shots":
 		var h = load("res://scripts/tools/shots.gd").new()
 		add_child(h)
 		h.run(self, args.slice(1))
-
-func _center() -> void:
-	var vs := get_viewport_rect().size
-	var s := minf(vs.x / BASE.x, vs.y / BASE.y)
-	root.scale = Vector2(s, s)
-	root.position = (vs - BASE * s) / 2.0
-
-# ------------------------------------------------------------------ HUD
-
-func _build_hud() -> void:
-	hud = Control.new()
-	hud.size = Vector2(BASE.x, 46)
-	root.add_child(hud)
-	var strip := ColorRect.new()
-	strip.color = Color(0.03, 0.03, 0.04, 0.7)
-	strip.size = Vector2(BASE.x, 46)
-	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hud.add_child(strip)
-	clock_label = Kit.label("", 24, Kit.IVORY, "display")
-	clock_label.position = Vector2(26, 8)
-	hud.add_child(clock_label)
-	chapter_label = Kit.label("", 17, Kit.IVORY_DIM, "display")
-	chapter_label.position = Vector2(108, 14)
-	hud.add_child(chapter_label)
-	var hb := HBoxContainer.new()
-	hb.position = Vector2(700, 6)
-	hb.size = Vector2(560, 34)
-	hb.alignment = BoxContainer.ALIGNMENT_END
-	hb.add_theme_constant_override("separation", 6)
-	hud.add_child(hb)
-	board_btn = _hud_btn(hb, "The Board  Tab", func(): _toggle_board())
-	board_badge = Kit.label("", 13, Kit.IVORY, "bold")
-	board_badge.position = Vector2(-6, -6)
-	var bp := PanelContainer.new()
-	bp.add_theme_stylebox_override("panel", Kit.flat(Kit.RED, Color(0, 0, 0, 0), 0, 8, 2))
-	bp.add_child(board_badge)
-	bp.position = Vector2(-8, -4)
-	bp.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board_btn.add_child(bp)
-	_hud_btn(hb, "History  L", func(): _open_backlog())
-	_hud_btn(hb, "Save", func(): _open_saveload(true))
-	_hud_btn(hb, "Load", func(): _open_saveload(false))
-	_hud_btn(hb, "Settings", func(): _open_settings())
-	_hud_btn(hb, "Menu  Esc", func(): _open_pause())
-
-func _hud_btn(parent: Control, text: String, cb: Callable) -> Button:
-	var b := Kit.button(text, 15)
-	b.focus_mode = Control.FOCUS_NONE
-	b.pressed.connect(cb)
-	parent.add_child(b)
-	return b
-
-func _update_badge() -> void:
-	var n := Game.unread_total()
-	board_badge.text = " %d " % n if n > 0 else ""
-	board_badge.get_parent().visible = n > 0
-	var locked: bool = Game.pres.get("phone_locked", false)
-	board_btn.disabled = locked and not browsing
-	board_btn.tooltip_text = "Not now." if locked else "The attendant's board: calls, the printer, the tape, the pinboard (Tab)"
-	if board.visible:
-		board.refresh()
 
 # ------------------------------------------------------------------ compositions
 
@@ -211,157 +126,165 @@ func _apply_comp(c: String) -> void:
 
 func _layout() -> void:
 	var call_active: bool = Game.phone.get("call", {}).get("active", false)
+	var xw: Dictionary = Game.pres.get("xwins", {})
+	var xview: bool = xw.has("1") and xw["1"].size() > 0 and xw["1"][0] == "view"
 	xlayer.visible = comp == "exchange"
-	stage.visible = comp in ["room", "building", "call", "exchange"]
-	match comp:
-		"room", "building":
-			_place(stage, ROOM_STAGE)
-			_place(feed, ROOM_FEED)
-			feed.set_mode("column")
-		"call":
-			_place(stage, Rect2(Vector2.ZERO, BASE))
-			var fr := CALL_FEED
-			if Game.pres.get("portraits", {}).size() > 0:
-				fr = Rect2(300, 444, 590, 258)
-			_place(feed, fr)
-			feed.set_mode("band")
-		"exchange":
-			_place(stage, Layers.ExchangeLayer.SLOTS["1"])
-			_place(feed, XCH_FEED)
-			feed.set_mode("band")
-		_:
-			_place(feed, BLACK_FEED)
-			feed.set_mode("center")
-	_update_board()
-	portraits.show_all(Game.pres.get("portraits", {}), stage.get_rect() if stage.visible else Rect2(Vector2.ZERO, BASE))
+	stage.visible = comp in ["room", "building", "call"] or (comp == "exchange" and xview)
+	xlayer.stage_full = stage.visible
+	if comp == "black":
+		if console.mode != "center":
+			console.set_mode("center")
+	elif console.mode == "center" or console.mode == "hidden":
+		console.set_mode("panel")
 	stage.set_view(Game.pres.get("view", "none"), call_active)
-
-func _place(c: Control, r: Rect2) -> void:
-	c.position = r.position
-	c.size = r.size
-
-func _update_board() -> void:
-	var call_active: bool = Game.phone.get("call", {}).get("active", false)
-	var ring: String = Game.pres.get("ring", "")
-	var scripted: bool = Game.pres.get("phone_open", false)
-	var call_who: String = str(Game.phone["call"]["who"]) if call_active else ""
-	board.sync(ring, call_who, Game.pres.get("view", "none"), Game.pres.get("phone_thread", "") if scripted else "")
-	var m := ""
-	if browsing:
-		m = "full"
-	elif scripted:
-		m = "printer"
-	elif ring != "":
-		m = "strip"
-	elif call_active and comp in ["call", "exchange"]:
-		m = "strip"
-	if m == "":
-		board.visible = false
-	else:
-		if board.mode != m:
-			board.set_mode(m)
-		board.visible = true
-		if m == "strip":
-			board.position = Vector2(480, 56) if comp in ["room", "building"] else Vector2(918, 50)
-		elif m == "printer":
-			board.position = Vector2(880, 52) if comp in ["call", "exchange", "black"] else Vector2(452, 52)
-	cord_chip.visible = call_active and not browsing and not (board.visible and board.mode == "strip") and comp in ["room", "building"]
-	if cord_chip.visible:
-		cord_chip.text = "cord in %s · Tab for the board  " % str(Game.contacts_def.get(call_who, {}).get("place", call_who))
 	_update_badge()
+
+func _update_badge() -> void:
+	var locked: bool = Game.pres.get("phone_locked", false)
+	hud.set_badge(Game.unread_total(), locked and not browsing)
+	if board.visible:
+		board.refresh()
 
 func _set_browsing(v: bool) -> void:
 	browsing = v
 	if v:
 		Audio.sfx("board_open", -6.0)
-	_update_board()
-	if Game.runner.waiting == "choice":
-		# keep jacks that stand for current choices live while browsing
-		pass
+		board.set_mode("full")
+		board.visible = true
+		var ring: String = Game.pres.get("ring", "")
+		var call_active: bool = Game.phone.get("call", {}).get("active", false)
+		board.sync(ring, str(Game.phone["call"]["who"]) if call_active else "", Game.pres.get("view", "none"), Game.pres.get("phone_thread", ""))
+		board.set_active_tags(options)
+		board.refresh()
+	else:
+		board.visible = false
+	_update_badge()
 
 func _toggle_board() -> void:
 	if menu_open or overlay_open or title_screen:
 		return
 	if Game.pres.get("phone_locked", false) and not browsing:
-		_toast("The board", "Not now.")
+		hud.toast("The board", "Not now.")
 		return
 	_set_browsing(not browsing)
 
 # ------------------------------------------------------------------ story output
 
 func _on_line(entry: Dictionary) -> void:
-	if entry["kind"] == "sms" and Game.pres.get("phone_open", false):
+	stage.clear_walk_spots()
+	if console.mode == "walk":
+		console.set_mode("panel" if comp != "black" else "center")
+	console.clear_choices()
+	console.add_line(entry)
+	if browsing and entry.get("kind", "") == "sms":
 		board.refresh()
-		Audio.sfx("printer", -6.0)
-		feed.show_more(false)
-	else:
-		feed.add_line(entry)
-	if entry["kind"] == "sound" and entry["text"].length() > 0:
-		pass
 
-func _on_choices(options: Array) -> void:
-	var surface := "board" if (board.visible and board.mode in ["strip", "printer"]) else "feed"
-	choice_surface = surface
-	feed.finish_typing()
-	feed.show_more(false)
-	if surface == "board":
-		board.choices.show_options(options)
-		board.choices.visible = board.mode != "full"
-		feed.choices.clear()
-	else:
-		feed.choices.show_options(options)
-		board.choices.clear()
-	board.set_active_tags(options)
-	var active_spots: Array = []
+## Choices that name a hotspot in a walkable room become things in the
+## room. The rest stay on the console.
+func _on_choices(opts: Array) -> void:
+	options = opts
+	console.finish_typing()
+	var world := {}
+	var rest: Array = []
+	var screen_spots: Array = []
 	var labels := {}
-	for o in options:
+	var verbs := {}
+	var in_room := stage.walking and stage.current != null
+	for i in opts.size():
+		var o: Dictionary = opts[i]
+		var spot := ""
 		for t in o["tags"]:
 			if t.begins_with("spot:"):
-				active_spots.append(t.substr(5))
-				labels[t.substr(5)] = o["text"]
-	stage.set_spots(Game.pres.get("spots", {}), active_spots)
-	stage.set_spot_labels(labels)
+				spot = t.substr(5)
+		var verb := ScreenFx.verb_for_tags(o["tags"])
+		var label := _label_of(o)
+		if spot != "" and in_room and stage.current.hotspots.has(spot):
+			world[spot] = {"index": i, "label": label, "verb": verb}
+			continue
+		if spot != "" and Game.pres.get("spots", {}).has(spot):
+			screen_spots.append(spot)
+			labels[spot] = label
+			verbs[spot] = verb
+		var oo := o.duplicate()
+		oo["index"] = i
+		rest.append(oo)
+	if not world.is_empty():
+		console.set_mode("walk")
+		stage.set_walk_spots(world)
+	else:
+		stage.clear_walk_spots()
+		if console.mode == "walk":
+			console.set_mode("panel" if comp != "black" else "center")
+	console.show_choices(rest)
+	stage.set_spots(Game.pres.get("spots", {}), screen_spots)
+	stage.set_spot_labels(labels, verbs)
+	if browsing:
+		board.set_active_tags(opts)
+
+func _label_of(o: Dictionary) -> String:
+	var s: String = o["text"]
+	s = s.strip_edges()
+	if s.ends_with("."):
+		s = s.substr(0, s.length() - 1)
+	if o.get("speech", false):
+		s = "\"" + s + "\""
+	return s
 
 func _on_chosen(i: int) -> void:
 	stage.set_spots({}, [])
-	feed.choices.clear()
-	board.choices.clear()
+	stage.clear_walk_spots()
+	console.clear_choices()
 	board.clear_active()
+	options = []
+	_remember_actor()
 	Audio.sfx("click", -8.0)
 	Game.runner.choose(i)
 
+func _on_walk_pick(spot: String) -> void:
+	for i in options.size():
+		for t in options[i]["tags"]:
+			if t == "spot:" + spot:
+				_on_chosen(i)
+				return
+
 func _on_spot(spot: String) -> void:
-	var list: ChoiceList = board.choices if choice_surface == "board" else feed.choices
-	var idx := list.spot_index(spot)
-	if idx >= 0:
-		list.pick(idx)
+	for i in options.size():
+		for t in options[i]["tags"]:
+			if t == "spot:" + spot:
+				_on_chosen(i)
+				return
 
 func _on_control(tag: String) -> void:
-	if Game.runner.waiting != "choice" or not board.active_tags.has(tag):
+	if Game.runner.waiting != "choice":
 		return
-	var idx: int = board.active_tags[tag]
-	if browsing:
-		browsing = false
-		_update_board()
-	var list: ChoiceList = board.choices if choice_surface == "board" else feed.choices
-	list.pick(idx)
+	for i in options.size():
+		if options[i]["tags"].has(tag):
+			_set_browsing(false)
+			_on_chosen(i)
+			return
+
+func _remember_actor() -> void:
+	var st := stage.actor_state()
+	if not st.is_empty():
+		Game.pres["actor"] = st
 
 func _advance() -> void:
-	if overlay_open or menu_open or title_screen:
+	if overlay_open or menu_open or title_screen or browsing:
 		return
-	if feed.is_typing():
-		feed.finish_typing()
+	if console.consume_advance():
 		return
 	if Game.runner.waiting == "line":
 		Game.runner.advance()
 
 func _input(event: InputEvent) -> void:
-	# Tab would otherwise move keyboard focus between choices; the board comes first.
 	if title_screen or menu_open:
 		return
 	if event.is_action_pressed("board"):
 		_toggle_board()
 		get_viewport().set_input_as_handled()
+	elif event.is_action("reveal"):
+		stage.reveal = event.is_pressed()
+		stage.marks.queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if title_screen:
@@ -377,18 +300,26 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("quicksave") and not menu_open:
 		Game.thumb = _snapshot()
+		_remember_actor()
 		if Game.save_to(6):
-			_toast("Saved", "Quicksave written to slot 6.")
+			hud.toast("Saved", "Quicksave, slot 6.")
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("quickload") and not menu_open:
 		if Game.read_save(6).size() > 0:
 			_load_slot(6)
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("spot_next") and stage.interactive:
+		stage.cycle_spot(1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("spot_prev") and stage.interactive:
+		stage.cycle_spot(-1)
+		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("advance"):
-		var list_visible := feed.choices.visible or board.choices.visible
-		if not list_visible:
+		if stage.interactive and stage.hover_spot != "":
+			stage.pick_hovered()
+		elif console.options.is_empty():
 			_advance()
-			get_viewport().set_input_as_handled()
+		get_viewport().set_input_as_handled()
 
 # ------------------------------------------------------------------ presentation commands
 
@@ -402,28 +333,49 @@ func _on_pres(name: String, args: Array) -> void:
 			stage.load_set(args[0], args[1] if args.size() > 1 else "")
 		"cam":
 			stage.set_cam(args[0])
+		"walk":
+			if args.is_empty() or args[0] == "off":
+				stage.walk_end()
+				stage.set_cam(Game.pres.get("cam", "main"))
+			else:
+				if comp == "black":
+					Game.pres["comp"] = "room"
+					_apply_comp("room")
+				stage.walk_begin(args[0], args[1] if args.size() > 1 else "", args[2] if args.size() > 2 else "phone")
+				_remember_actor()
+		"walkto":
+			_walkto_token += 1
+			var tok := _walkto_token
+			stage.walk_to(args[0], args[1], func():
+				if tok == _walkto_token and Game.runner.waiting == "cmd":
+					_remember_actor()
+					Game.runner.resume())
+		"place":
+			stage.place(args[0], args[1])
+			_remember_actor()
 		"view":
 			_layout()
 			var acoustic: String = Game.pres.get("acoustic", "")
 			Audio.set_far(Game.phone["call"]["active"], args[0] != "none", acoustic)
 			if args[0] != "none":
 				Audio.sfx("view_open", -6.0)
+				post.kick(0.5)
 		"state":
 			stage.apply_state(args[0], args[1] if args.size() > 1 else "on")
 		"portrait":
-			_layout()
+			pass
 		"time":
-			clock_label.text = args[0]
+			hud.set_clock(args[0])
 			board.refresh()
 		"clear":
-			feed.clear()
+			console.clear()
 		"call":
 			Audio.stop_sfx("ring")
 			Audio.sfx("pickup", -4.0)
 			if comp != "exchange":
 				_apply_comp("call")
 			Audio.set_far(true, Game.pres.get("view", "none") != "none", Game.pres.get("acoustic", ""))
-			_update_board()
+			_update_badge()
 		"hangup":
 			Audio.sfx("hangup", -4.0)
 			Audio.set_far(false, false, "")
@@ -433,11 +385,9 @@ func _on_pres(name: String, args: Array) -> void:
 				Audio.stop_sfx("ring")
 			else:
 				Audio.sfx("ring")
-			_update_board()
+			_update_badge()
 		"phone", "phone_lock":
-			if name == "phone" and args[0] != "close":
-				browsing = false
-			_update_board()
+			_update_badge()
 		"sfx":
 			Audio.sfx(args[0], float(args[1]) if args.size() > 1 else 0.0)
 		"amb":
@@ -452,7 +402,7 @@ func _on_pres(name: String, args: Array) -> void:
 			pass
 		"hold":
 			Audio.sfx("plug_in", -8.0)
-			_update_board()
+			_update_badge()
 		"collage":
 			collage.visible = args[0] == "on"
 			collage.set_items(Game.pres.get("collage_items", []))
@@ -460,6 +410,7 @@ func _on_pres(name: String, args: Array) -> void:
 			collage.set_items(Game.pres.get("collage_items", []))
 		"xwin":
 			xlayer.wins = Game.pres.get("xwins", {})
+			_layout()
 		"fade":
 			var target := 1.0 if args[0] == "out" else 0.0
 			if Settings.reduced_motion:
@@ -467,14 +418,13 @@ func _on_pres(name: String, args: Array) -> void:
 			else:
 				create_tween().tween_property(fade_rect, "color:a", target, 0.7)
 		"chapter":
-			Game.thumb = _snapshot()
-			Game.save_to(0)
-			chapter_label.text = args[1] if args.size() > 1 else ""
+			hud.set_chapter(_chapter_tape(int(args[0]), args[1] if args.size() > 1 else ""))
 			var card := Overlays.ChapterCard.new()
 			card.num = int(args[0])
 			card.title = args[1] if args.size() > 1 else ""
 			Audio.sfx("chapter", -4.0)
-			_overlay(card, func(): Game.runner.resume())
+			post.kick(1.0)
+			_overlay(card, _after_chapter_card)
 		"title_card":
 			var card2 := Overlays.ChapterCard.new()
 			card2.num = 0
@@ -495,11 +445,13 @@ func _on_pres(name: String, args: Array) -> void:
 			var d := Overlays.DriftCard.new()
 			d.from = args[0]
 			d.to = args[1] if args.size() > 1 else args[0]
-			clock_label.text = d.to
+			hud.set_clock(d.to)
+			post.kick(1.0)
 			_overlay(d, func(): Game.runner.resume())
 		"rupture":
 			fade_rect.color = Color(0.95, 0.93, 0.88, 1.0)
 			Audio.sfx("rupture")
+			post.kick(1.0)
 			var tw := create_tween()
 			tw.tween_interval(0.2 if Settings.reduced_motion else 1.4)
 			tw.tween_property(fade_rect, "color:a", 0.0, 0.2 if Settings.reduced_motion else 2.2)
@@ -514,6 +466,7 @@ func _on_pres(name: String, args: Array) -> void:
 			ni.default_value = str(Game.vars.get(args[0], "Ari"))
 			var var_name: String = args[0]
 			overlay_open = true
+			ni.size = BASE
 			overlay_root.add_child(ni)
 			ni.done.connect(func(v):
 				Game.vars[var_name] = v
@@ -523,6 +476,7 @@ func _on_pres(name: String, args: Array) -> void:
 		"casio":
 			var cs := Overlays.Casio.new()
 			overlay_open = true
+			cs.size = BASE
 			overlay_root.add_child(cs)
 			cs.done.connect(func(res, n):
 				Game.vars["casio_resolved"] = res
@@ -538,6 +492,19 @@ func _on_pres(name: String, args: Array) -> void:
 			_overlay(ec, func(): Game.runner.resume())
 		_:
 			push_warning("Unhandled presentation command @%s %s" % [name, args])
+
+## The autosave's picture is taken once the card has gone and the first
+## frame of the chapter is on screen, not the card or the title.
+func _after_chapter_card() -> void:
+	Game.runner.resume()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	Game.thumb = _snapshot()
+	Game.save_to(0)
+
+func _chapter_tape(n: int, title: String) -> String:
+	var roman: String = ["", "I", "II", "III", "IV", "V", "VI"][clampi(n, 0, 6)]
+	return (roman + ". " if roman != "" else "") + title
 
 func _overlay(ctl: Control, on_done: Callable) -> void:
 	overlay_open = true
@@ -567,18 +534,22 @@ func _restore_all() -> void:
 	for c in overlay_root.get_children():
 		c.queue_free()
 	overlay_open = false
-	browsing = false
-	feed.clear()
-	feed.choices.clear()
-	board.choices.clear()
+	_set_browsing(false)
+	console.clear()
+	console.clear_choices()
 	board.clear_active()
+	options = []
 	stage.load_set(p.get("set", ""), p.get("variant", ""))
-	stage.set_cam(p.get("cam", "main"))
 	var st: Dictionary = p.get("states", {})
 	for k in st:
 		stage.apply_state(k, st[k])
-	clock_label.text = p.get("clock", "")
-	chapter_label.text = p.get("chapter_title", "")
+	stage.set_cam(p.get("cam", "main"))
+	var w: Array = p.get("walk", [])
+	if w.size() > 0:
+		stage.walk_begin(w[0], w[1] if w.size() > 1 else "", w[2] if w.size() > 2 else "phone")
+		stage.actor_restore(p.get("actor", {}))
+	hud.set_clock(p.get("clock", ""))
+	hud.set_chapter(_chapter_tape(int(p.get("chapter", 0)), p.get("chapter_title", "")))
 	xlayer.wins = p.get("xwins", {})
 	collage.visible = p.get("collage", false)
 	collage.set_items(p.get("collage_items", []))
@@ -588,60 +559,44 @@ func _restore_all() -> void:
 	Audio.set_far(Game.phone["call"]["active"], p.get("view", "none") != "none", p.get("acoustic", ""))
 	fade_rect.color = Color(0, 0, 0, 0)
 	_apply_comp(p.get("comp", "black"))
+	# the last few lines, so the screen isn't blank
 	var bl: Array = Game.backlog
-	var start := maxi(0, bl.size() - 6)
+	var start := maxi(0, bl.size() - (6 if comp == "black" else 1))
 	for i in range(start, bl.size()):
-		var e: Dictionary = bl[i]
-		if e.get("kind", "") == "sms" and p.get("phone_open", false):
-			continue
-		feed.add_line(e, true)
+		console.add_line(bl[i], true)
 
 func _on_notify(kind: String, who: String, text: String) -> void:
 	var name: String = Game.contacts_def.get(who, {}).get("name", who.capitalize())
 	match kind:
 		"text":
-			if board.visible and board.mode == "printer" and board.script_thread == who:
-				return
 			if browsing and board.sub == "strip" and board.sel_contact == who:
 				board.refresh()
 				Game.mark_thread_read(who)
 				return
+			if Game.pres.get("phone_open", false) and Game.pres.get("phone_thread", "") == who:
+				return
 			Audio.sfx("printer", -4.0)
-			_toast("On the printer · " + name, text if text != "" else "[a picture, printed in dots]")
+			hud.toast("Printer: " + name, text if text != "" else "[a picture, in dots]")
 		"reply":
-			_toast("On the spike · " + name, text + "  (Tab: the board)")
+			hud.toast("On the spike: " + name, text + "  (TAB)")
 		"voicemail":
 			Audio.sfx("tape_click", -6.0)
-			_toast("On the tape", "A new message from " + name)
-
-func _toast(title: String, body: String) -> void:
-	var t := Overlays.Toast.new()
-	t.setup(title, body)
-	toast_box.add_child(t)
-	while toast_box.get_child_count() > 3:
-		toast_box.get_child(0).queue_free()
-
-func _on_caption(text: String) -> void:
-	caption_label.text = "≈ " + text
-	var tw := create_tween()
-	caption_label.modulate.a = 1.0
-	tw.tween_interval(6.0)
-	tw.tween_property(caption_label, "modulate:a", 0.0, 1.5)
+			hud.toast("On the tape", "A new message from " + name)
 
 func _board_call(who: String) -> void:
 	_set_browsing(false)
 	if not Game.phone_call(who):
-		_toast("The board", "You can't ring out just now.")
+		hud.toast("The board", "You can't ring out just now.")
 
 func _board_reply(who: String) -> void:
 	_set_browsing(false)
 	if not Game.phone_reply(who):
-		_toast("The board", "Not right now.")
+		hud.toast("The board", "Not right now.")
 
 func _on_finished(reason: String) -> void:
 	Game.playing = false
 	if reason == "error":
-		_toast("Story error", "The night stopped unexpectedly. Check the output log.")
+		hud.toast("Story error", "The night stopped. Check the output log.")
 	await get_tree().create_timer(0.5).timeout
 	_to_title()
 
@@ -655,6 +610,7 @@ func _show_title() -> void:
 	menu_root.add_child(title_screen)
 	title_screen.action.connect(_on_title_action)
 	hud.visible = false
+	console.visible = false
 
 func _on_title_action(what: String) -> void:
 	match what:
@@ -678,37 +634,34 @@ func _close_title() -> void:
 		title_screen.queue_free()
 		title_screen = null
 	hud.visible = true
+	console.visible = true
 	Audio.stop_all()
 
 func _to_title() -> void:
 	for c in overlay_root.get_children():
 		c.queue_free()
 	overlay_open = false
-	browsing = false
-	feed.clear()
-	feed.choices.clear()
-	board.choices.clear()
+	_set_browsing(false)
+	console.clear()
+	console.clear_choices()
 	board.clear_active()
+	options = []
 	stage.load_set("", "")
 	collage.visible = false
 	_apply_comp("black")
 	_show_title()
 
-## A picture of the night as it is, before a menu covers it, for the
-## Receiving Register.
+## A picture of the night as it is, before a menu covers it.
 func _snapshot() -> Image:
 	var img := get_viewport().get_texture().get_image()
-	var r := Rect2i(Vector2i(root.position), Vector2i(BASE * root.scale.x))
-	r = r.intersection(Rect2i(Vector2i.ZERO, img.get_size()))
-	if r.size.x > 8 and r.size.y > 8:
-		img = img.get_region(r)
-	img.resize(256, 144, Image.INTERPOLATE_BILINEAR)
+	img.resize(160, 90, Image.INTERPOLATE_NEAREST)
 	return img
 
 func _open_pause() -> void:
 	if menu_open or title_screen:
 		return
 	Game.thumb = _snapshot()
+	_remember_actor()
 	menu_open = true
 	var p := Menus.Pause.new()
 	p.size = BASE
@@ -754,10 +707,11 @@ func _open_saveload(saving: bool) -> void:
 		s.queue_free()
 		menu_open = false
 		if saving:
+			_remember_actor()
 			if Game.save_to(slot):
-				_toast("Saved", "Slot %d." % slot)
+				hud.toast("Saved", "Slot %d." % slot)
 			else:
-				_toast("Can't save", "Try again after this moment.")
+				hud.toast("Can't save", "Try again after this moment.")
 		else:
 			if title_screen:
 				_close_title()
@@ -766,7 +720,7 @@ func _open_saveload(saving: bool) -> void:
 func _load_slot(slot: int) -> void:
 	Audio.stop_all()
 	if not Game.load_from(slot):
-		_toast("Can't load", "That save couldn't be read.")
+		hud.toast("Can't load", "That save couldn't be read.")
 
 func _open_settings() -> void:
 	if menu_open:

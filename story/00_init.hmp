@@ -27,6 +27,11 @@ return
 ~ drift_from = ""
 ~ drifts = 0
 
+# things looked at while walking around (flavour; no consequences)
+~ seen_vending = false
+~ seen_pigeonholes = false
+~ seen_desk_sign = false
+
 # what Ari knows (k_*)
 ~ k_pocket_things = false
 ~ k_can_look = false

@@ -850,7 +850,7 @@ func _draw_strip() -> void:
 	var vcol := Kit.IVORY_DIM
 	if view_who != "none" and view_who != "" and view_who != "plan" and view_who != "ari":
 		v = "SEEING THROUGH " + str(Stage.VIEW_NAMES.get(view_who, view_who.to_upper()))
-		vcol = Stage.VIEW_COLORS.get(view_who, Kit.IVORY)
+		vcol = Grim.WHO.get(view_who, Kit.IVORY)
 	if call_who != "":
 		draw_string(Kit.font("bold"), Vector2(18, 262), v, HORIZONTAL_ALIGNMENT_LEFT, size.x - 36, 12, vcol)
 	# keys

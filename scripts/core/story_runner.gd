@@ -18,6 +18,7 @@ signal runtime_error(msg: String)
 const BLOCKING := {
 	"wait": true, "chapter": true, "show_doc": true, "casio": true, "input_name": true,
 	"drift": true, "rupture": true, "pause": true, "ending": true, "title_card": true,
+	"walkto": true,
 }
 
 var parser: StoryParser

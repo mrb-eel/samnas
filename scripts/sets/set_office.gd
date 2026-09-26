@@ -87,7 +87,8 @@ func build(_v: String) -> void:
 	K.tube(self, Vector3(0, H - 0.05, 0), 1.2, Color("f0ece0"), 0.9, 5.0)
 	# people
 	var jad_look := Figure.cast("jad")
-	jad = K.person(self, Vector3(0.1, 0, -0.2), PI, jad_look)
+	jad = K.person(self, Vector3(0.1, 0, -0.2), PI, Figure.cast("jad", {"arms": "phone"}))
+	set_actor("jad", jad)
 	var jl2 := jad_look.duplicate()
 	jl2["arms"] = "forward"
 	jad_bed = K.person(self, Vector3(-W / 2 + 0.55, 0.0, 0.1), PI / 2, jl2, "sit")
@@ -133,6 +134,30 @@ func build(_v: String) -> void:
 	add_cam("teodor_eye", Vector3(-W / 2 + 0.6, 1.08, 0.3), Vector3(0.6, 1.55, -0.9), 66)
 	add_cam("door", Vector3(-0.2, 1.62, -0.5), Vector3(W / 2 + 0.3, 1.45, 0.75), 58)
 	add_cam("ari_eye", Vector3(-0.5, 1.62, 0.6), Vector3(W / 2, 1.45, -0.2), 60)
+	_walk(W, D)
+
+func _walk(W: float, D: float) -> void:
+	add_floor(Rect2(-W / 2 + 0.06, -D / 2 + 0.06, W - 0.12, D - 0.12))
+	add_floor(Rect2(W / 2 - 0.5, 0.25, 1.6, 1.1))  # the doorway and the corridor outside
+	add_block(0.1, -1.0, 1.55, 0.65)  # desk
+	add_block(0.05, -0.45, 0.45, 0.45)  # chair
+	add_block(-W / 2 + 0.5, 0.3, 0.75, 1.95)  # camp bed
+	add_block(W / 2 - 0.35, -1.0, 0.62, 0.62)  # cabinet
+	add_block(W / 2 - 0.35, 0.62, 0.42, 0.42)  # the open door
+	add_entry("door", Vector3(W / 2 + 0.5, 0, 0.85), -PI / 2)
+	add_entry("middle", Vector3(0.3, 0, 0.35), PI)
+	add_hotspot("bed", Vector3(-W / 2 + 0.5, 0.35, 0.3), Vector3(0.75, 0.5, 1.9), Vector3(-0.55, 0, 0.3), "The camp bed")
+	add_hotspot("mug", Vector3(W / 2 - 0.35, 1.1, -D / 2 + 0.58), Vector3(0.22, 0.16, 0.22), Vector3(1.0, 0, -0.35), "The mug")
+	add_hotspot("kettle", Vector3(W / 2 - 0.35, 1.16, -D / 2 + 0.28), Vector3(0.24, 0.28, 0.2), Vector3(1.0, 0, -0.35), "The kettle")
+	add_hotspot("phone", Vector3(-0.25, 0.83, -D / 2 + 0.42), Vector3(0.3, 0.16, 0.26), Vector3(-0.5, 0, -0.35), "The desk phone")
+	add_hotspot("window", Vector3(0, 1.5, -D / 2 + 0.02), Vector3(1.6, 1.0, 0.1), Vector3(0.55, 0, -0.38), "The window")
+	add_hotspot("bag", Vector3(-W / 2 + 0.5, 0.2, 1.35), Vector3(0.42, 0.42, 0.36), Vector3(-0.6, 0, 1.15), "The bag")
+	add_hotspot("hook", Vector3(-W / 2 + 0.1, 1.72, -0.95), Vector3(0.2, 0.3, 0.3), Vector3(-1.05, 0, -1.08), "The coat hook")
+	add_hotspot("door", Vector3(W / 2 + 0.02, 1.05, 0.8), Vector3(0.2, 2.1, 1.2), Vector3(W / 2 - 0.2, 0, 0.95), "The door", "go", Vector3(W / 2 + 2.0, 1.2, 0.8))
+	if teodor_door:
+		person_spot("teodor", teodor_door, "Teodor", Vector3(0, 0, 0.8))
+	walk_cam = {"offset": Vector3(2.9, 3.3, 4.4), "look": Vector3(-0.3, 0.55, -0.35), "fov": 50.0,
+		"min": Vector3.ZERO, "max": Vector3.ZERO}
 
 func apply_state(key: String, value: String) -> void:
 	super.apply_state(key, value)

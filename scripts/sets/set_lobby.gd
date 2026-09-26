@@ -109,6 +109,33 @@ func build(_v: String) -> void:
 	add_cam("jad_eye", Vector3(-1.4, 1.66, 0.9), Vector3(2.6, 1.3, -2.3), 58)
 	add_cam("corridor", Vector3(L / 2 + 0.4, 1.62, 0.1), Vector3(L / 2 + 10.0, 1.2, 0.0), 62)
 	add_cam("sal_desk", Vector3(1.0, 1.25, -2.05), Vector3(-4.0, 0.9, 1.6), 64)
+	_walk(L)
+
+## Where people can go in the lobby, and what they can be asked to look at.
+func _walk(L: float) -> void:
+	add_floor(Rect2(-L / 2 + 0.1, -2.4, L - 0.2, 4.8))
+	add_floor(Rect2(L / 2 - 1.0, -0.7, 11.0, 1.4))  # through to the corridor
+	add_block(1.0, -1.95, 2.6, 1.2)  # the desk and the space behind it
+	add_block(-3.0, -2.05, 0.95, 0.85)  # vending machine
+	add_block(-5.6, -2.25, 1.35, 0.45)  # pigeonholes
+	add_block(-2.6, 1.42, 4.35, 0.55)  # the chairs on their rail
+	add_block(L / 2 + 4.5, 0.4, 0.4, 0.4)  # the mop bucket
+	add_entry("street_door", Vector3(-L / 2 + 0.7, 0, 0.0), PI / 2)
+	add_entry("corridor", Vector3(L / 2 + 0.8, 0, 0.0), -PI / 2)
+	add_entry("desk", Vector3(1.0, 0, -0.9), PI)
+	add_hotspot("notice", Vector3(3.7, 1.55, -2.42), Vector3(1.4, 0.95, 0.14), Vector3(3.7, 0, -1.55), "The notice", "read")
+	add_hotspot("chairs", Vector3(-2.6, 0.45, 1.4), Vector3(4.2, 0.9, 0.5), Vector3(-3.35, 0, 0.72), "The chairs", "look", Vector3(-3.35, 0.45, 1.4))
+	add_hotspot("tray", Vector3(-0.35, 1.1, -1.8), Vector3(0.5, 0.2, 0.45), Vector3(-0.35, 0, -0.98), "The wire tray", "look")
+	add_hotspot("tube", Vector3(1.0, 2.62, -1.2), Vector3(1.6, 0.2, 0.3), Vector3(1.0, 0, -0.95), "The tube light", "listen")
+	add_hotspot("vending", Vector3(-3.0, 0.93, -2.05), Vector3(0.9, 1.85, 0.8), Vector3(-3.0, 0, -1.25), "The vending machine")
+	add_hotspot("pigeonholes", Vector3(-5.6, 1.45, -2.3), Vector3(1.3, 1.1, 0.35), Vector3(-5.6, 0, -1.6), "The pigeonholes")
+	add_hotspot("desk_sign", Vector3(0.6, 1.1, -1.36), Vector3(0.42, 0.22, 0.12), Vector3(0.6, 0, -0.95), "The sign on the desk", "read")
+	add_hotspot("desk_phone", Vector3(0.1, 1.08, -1.8), Vector3(0.3, 0.16, 0.26), Vector3(0.15, 0, -0.95), "The desk phone")
+	add_hotspot("street_door", Vector3(-L / 2 + 0.05, 1.1, 0.0), Vector3(0.3, 2.2, 1.5), Vector3(-L / 2 + 0.7, 0, 0.0), "The street door", "go")
+	add_hotspot("corridor", Vector3(L / 2 + 0.3, 1.1, 0.0), Vector3(0.7, 2.2, 1.4), Vector3(L / 2 + 0.9, 0, 0.0), "The corridor", "go", Vector3(L / 2 + 6.0, 1.2, 0.0))
+	add_hotspot("g1_door", Vector3(L / 2 + 9.9, 1.1, 0.0), Vector3(0.2, 2.2, 1.4), Vector3(L / 2 + 9.2, 0, 0.0), "G/1", "go")
+	walk_cam = {"offset": Vector3(0, 3.2, 5.2), "look": Vector3(0, 0.95, -0.6), "fov": 50.0,
+		"min": Vector3(-2.4, 0, 0), "max": Vector3(2.6, 0, 0)}
 
 func apply_state(key: String, value: String) -> void:
 	super.apply_state(key, value)

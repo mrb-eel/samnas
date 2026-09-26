@@ -91,7 +91,8 @@ func reset_state() -> void:
 	pres = {"comp": "black", "set": "", "variant": "", "cam": "", "view": "none", "portraits": {},
 		"clock": "23:14", "chapter": 0, "chapter_title": "", "amb": "", "amb2": "", "music": "",
 		"acoustic": "", "phone_open": false, "phone_thread": "", "phone_locked": false,
-		"states": {}, "spots": {}, "collage": false, "collage_items": [], "ring": "", "xwins": {}}
+		"states": {}, "spots": {}, "collage": false, "collage_items": [], "ring": "", "xwins": {},
+		"walk": [], "actor": {}}
 	phone = {"contacts": {}, "voicemails": [], "gallery": [], "log": [], "call": {"active": false, "who": ""},
 		"archive_open": false}
 	for id in contacts_order:
@@ -265,6 +266,15 @@ func _record_pres(name: String, args: Array) -> void:
 			pres["variant"] = args[1] if args.size() > 1 else ""
 			pres["states"] = {}
 			pres["spots"] = {}
+			pres["walk"] = []
+			pres["actor"] = {}
+		"walk":
+			if args.is_empty() or args[0] == "off":
+				pres["walk"] = []
+			else:
+				pres["walk"] = args.duplicate()
+				if args.size() > 1 and args[1] != "":
+					pres["actor"] = {}
 		"cam":
 			pres["cam"] = args[0]
 		"view":
