@@ -2,7 +2,8 @@ extends SetBase
 ## G/1, the old lifeguard office: a desk under a window that looks down into
 ## the dark pool hall, a camp bed somebody made up, a kettle, a coat hook.
 ## States: jad (stand/bed/off), teodor (door/bed/off), coat (bed/hook),
-## flask, postcard, reflect, pool_figure, roster, lanyard, morning.
+## flask, postcard, reflect, pool_figure, roster, lanyard, morning,
+## window_hand (on: a hand on the glass, from outside).
 
 var jad: Node3D
 var jad_bed: Node3D
@@ -16,6 +17,7 @@ var postcard: MeshInstance3D
 var paperback: Node3D
 var reflection: Node3D
 var reflection_ari: Node3D
+var window_hand: MeshInstance3D
 var pool_fig: Node3D
 var roster: MeshInstance3D
 var roster_lim: MeshInstance3D
@@ -124,6 +126,9 @@ func build(_v: String) -> void:
 		(m as MeshInstance3D).transparency = 0.45
 	K.sphere(reflection_ari, 0.08, Vector3(0.6, 1.1, -D - 1.1), K.emis(Color("ffe0a0"), 0.7), 6)
 	reflection_ari.visible = false
+	# a hand on the far side of the glass, from the pool hall, where nobody is
+	window_hand = K.blood(self, "hand", 0.22, 0.44, Vector3(0.35, 1.42, -D / 2 - 0.04))
+	window_hand.visible = false
 	# the pool hall below, dark
 	var hall := Node3D.new()
 	hall.position = Vector3(0, -3.2, -D / 2 - 8.0)
@@ -200,6 +205,8 @@ func apply_state(key: String, value: String) -> void:
 		"reflect":
 			reflection.visible = value == "on"
 			reflection_ari.visible = value == "ari"
+		"window_hand":
+			window_hand.visible = value == "on"
 		"pool_figure":
 			pool_fig.visible = value == "on"
 		"roster":

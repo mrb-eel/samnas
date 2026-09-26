@@ -77,6 +77,8 @@ func _text_rect() -> Rect2:
 	match mode:
 		"center":
 			return Rect2(96, 60, 448, 240)
+		"cutscene":
+			return Rect2(48, size.y - 36, size.x - 96, 34)
 		_:
 			return Rect2(100, size.y - _panel_h() + 10, size.x - 110, _panel_h() - 20)
 
@@ -161,6 +163,8 @@ func _rewrap() -> void:
 	lines = Grim.wrap_text(_entry_text(entry), "body", body_px(), w)
 	if mode == "center":
 		per_page = 99
+	elif mode == "cutscene":
+		per_page = 2
 	else:
 		per_page = 4
 
@@ -318,7 +322,7 @@ func _unhandled_key_input(e: InputEvent) -> void:
 func has_point(p: Vector2) -> bool:
 	if not visible:
 		return false
-	if mode == "center":
+	if mode == "center" or mode == "cutscene":
 		return true
 	return p.y >= size.y - _panel_h()
 
@@ -334,6 +338,8 @@ func _draw() -> void:
 			return
 		"center":
 			_draw_center()
+		"cutscene":
+			_draw_cutscene()
 		_:
 			_draw_panel()
 
@@ -511,6 +517,46 @@ func _draw_center() -> void:
 	elif not typing and int(t * 2.0) % 2 == 0:
 		draw_rect(Rect2(r.position.x + 10, y - 4, 8, 3), Grim.PHOS_MID)
 	Grim.crt_glass(self, r)
+
+## Subtitles in the bottom bar; choices, if any, float just above it.
+func _draw_cutscene() -> void:
+	var r := _text_rect()
+	var sz := 16 if not Grim.plain() else 12
+	var lhh := 15.0
+	if not entry.is_empty() and options.is_empty():
+		var col := _col_of(entry)
+		var name := _name_of(entry)
+		var pl := _page_lines()
+		var y := r.position.y + (8 if pl.size() > 1 else 16)
+		var shown := int(typed) if typing else 1 << 30
+		for i in pl.size():
+			var s: String = pl[i]
+			if i == 0 and name != "":
+				s = name + ": " + s
+			var vis := s.substr(0, maxi(0, shown + (name.length() + 2 if i == 0 and name != "" else 0)))
+			shown -= pl[i].length()
+			Grim.glow_text(self, Vector2(r.position.x, y + 4), vis, "body", sz, col, r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+			y += lhh
+	if not options.is_empty():
+		var w := r.size.x - 60
+		var total := 0.0
+		for o in options:
+			total += lhh * Grim.wrap_text(_opt_text(o), "body", sz, w).size() + 4
+		var y2 := size.y - 44 - total
+		Grim.band(self, Rect2(r.position.x - 8, y2 - 6, r.size.x + 16, total + 10), 0.8)
+		for i in options.size():
+			var o: Dictionary = options[i]
+			var ls := Grim.wrap_text(_opt_text(o), "body", sz, w)
+			var h := lhh * ls.size() + 2
+			var orow := Rect2(r.position.x, y2 - 2, r.size.x, h + 2)
+			_opt_rects.append(orow)
+			var is_hot := i == hot and taking < 0
+			if is_hot:
+				draw_rect(orow, Color(Grim.RED_DK, 0.5))
+			Grim.red_button(self, Vector2(r.position.x + 8, y2 + lhh * 0.5 - 1), is_hot, i == taking, 3)
+			for k in ls.size():
+				Grim.glow_text(self, Vector2(r.position.x + 20, y2 + lhh - 3 + k * lhh), ls[k], "body", sz, Grim.IVORY if is_hot else Grim.IVORY_DIM)
+			y2 += h + 2
 
 func _name_of(e: Dictionary) -> String:
 	match e.get("kind", ""):

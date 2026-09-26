@@ -122,6 +122,9 @@ func load_set(name: String, variant: String) -> void:
 	set_cam("main")
 
 func set_cam(name: String) -> void:
+	if _cam_tw:
+		_cam_tw.kill()
+		_cam_tw = null
 	if current == null:
 		return
 	if walking:
@@ -130,6 +133,56 @@ func set_cam(name: String) -> void:
 	if c:
 		c.current = true
 		current.on_cam(name if current.cams.has(name) else "main")
+
+var _tween_cam: Camera3D
+var _cam_tw: Tween
+var _shake_t := 0.0
+var _shake_amp := 0.0
+
+## Move the camera to a named camera over `secs`, the way a film cuts less
+## than it drifts.
+func cam_to(name: String, secs: float) -> void:
+	if current == null:
+		return
+	var target := current.cam(name)
+	var from := vp.get_camera_3d()
+	if target == null:
+		return
+	if from == null or secs <= 0.0 or Settings.reduced_motion or from == target:
+		set_cam(name)
+		return
+	if _tween_cam == null or not is_instance_valid(_tween_cam) or _tween_cam.get_parent() != current:
+		_tween_cam = Camera3D.new()
+		_tween_cam.name = "cam_tween"
+		current.add_child(_tween_cam)
+	var from_t := from.global_transform
+	var to_t := target.global_transform
+	var f0 := from.fov
+	_tween_cam.global_transform = from_t
+	_tween_cam.fov = f0
+	_tween_cam.near = target.near
+	_tween_cam.far = target.far
+	_tween_cam.current = true
+	if walking:
+		cutaway = name
+	current.on_cam(name if current.cams.has(name) else "main")
+	if _cam_tw:
+		_cam_tw.kill()
+	_cam_tw = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	var tc := _tween_cam
+	_cam_tw.tween_method(func(k: float):
+		if is_instance_valid(tc):
+			tc.global_transform = from_t.interpolate_with(to_t, k)
+			tc.fov = lerpf(f0, target.fov, k), 0.0, 1.0, secs)
+	_cam_tw.tween_callback(func():
+		if is_instance_valid(target) and tc.current:
+			target.current = true)
+
+func shake(amount: float, secs: float) -> void:
+	if Settings.reduced_motion:
+		return
+	_shake_amp = amount
+	_shake_t = secs
 
 func apply_state(key: String, value: String) -> void:
 	if current:
@@ -344,6 +397,16 @@ func actor_restore(st: Dictionary) -> void:
 	_ensure_walk_cam(true)
 
 func _process(d: float) -> void:
+	if _shake_t > 0.0:
+		_shake_t -= d
+		var cam := vp.get_camera_3d()
+		if cam:
+			var a := _shake_amp * clampf(_shake_t, 0.0, 1.0)
+			cam.h_offset = randf_range(-a, a)
+			cam.v_offset = randf_range(-a, a)
+			if _shake_t <= 0.0:
+				cam.h_offset = 0.0
+				cam.v_offset = 0.0
 	if not walking or walker == null or not is_instance_valid(walker.fig):
 		return
 	if _walk_cam and is_instance_valid(_walk_cam):

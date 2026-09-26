@@ -127,3 +127,27 @@ class CollageLayer extends Control:
 			draw_set_transform((pos + drift).round(), rot, Vector2(sc, sc))
 			draw_texture(tex, -tex.get_size() / 2)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+## Black bars for when the night takes the camera off you.
+class Letterbox extends Control:
+	var amount := 0.0
+	var target := 0.0
+	const BAR := 38.0
+	func _ready() -> void:
+		set_anchors_preset(Control.PRESET_FULL_RECT)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+	func show_bars(on: bool, snap: bool = false) -> void:
+		target = 1.0 if on else 0.0
+		if snap or Settings.reduced_motion:
+			amount = target
+		queue_redraw()
+	func _process(d: float) -> void:
+		if amount != target:
+			amount = move_toward(amount, target, d * 2.2)
+			queue_redraw()
+	func _draw() -> void:
+		if amount <= 0.0:
+			return
+		var h := roundf(BAR * amount)
+		draw_rect(Rect2(0, 0, size.x, h), Color("020202"))
+		draw_rect(Rect2(0, size.y - h, size.x, h), Color("020202"))

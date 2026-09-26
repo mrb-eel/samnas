@@ -20,6 +20,7 @@ const KNOWN_CMDS := {
 	"text": 2, "sent": 2, "text_doc": 2, "vm_add": 1, "vm_archive_open": 0, "vm_mark": 1,
 	"gallery_add": 1, "log": 2, "board": 1, "board_lock": 1, "hold": 1, "saved_as": 2, "xwin": 2, "clear": 0, "faint": 1, "pause": 0,
 	"walk": 1, "walkto": 2, "place": 2,
+	"cutscene": 1, "camto": 1, "shake": 1, "glitch": 1, "tint": 1, "flash": 1,
 }
 const SPEAKERS := ["ARI", "JAD", "INEZ", "DIMA", "SAL", "TEODOR", "KAYE", "NELL", "TOBI", "JUNE", "ADEYEMI", "MAN", "WOMAN", "LINE", "OPERATOR", "DRIVER", "RADIO"]
 const SETS := ["street", "lobby", "office", "building", "courtyard", "nell", "pool", "exchange", "receiving", "copyshop", "bakery"]
@@ -202,13 +203,15 @@ func _current_set() -> Dictionary:
 		return {}
 	if not _set_cache.has(name):
 		var path := "res://scripts/sets/set_%s.gd" % name
-		var info := {"hotspots": {}, "entries": {}, "floor": false}
+		var info := {"hotspots": {}, "entries": {}, "cams": {}, "floor": false}
 		if FileAccess.file_exists(path):
 			var src := FileAccess.get_file_as_string(path)
 			for m in RegEx.create_from_string("(?:add_hotspot|person_spot)\\(\"([A-Za-z0-9_]+)\"").search_all(src):
 				info["hotspots"][m.get_string(1)] = true
 			for m in RegEx.create_from_string("add_entry\\(\"([A-Za-z0-9_]+)\"").search_all(src):
 				info["entries"][m.get_string(1)] = true
+			for m in RegEx.create_from_string("add_cam\\(\"([A-Za-z0-9_]+)\"").search_all(src):
+				info["cams"][m.get_string(1)] = true
 			info["floor"] = src.find("add_floor(") != -1
 			if src.find("_flat_spot(") != -1:
 				for f in range(1, 7):
@@ -227,7 +230,27 @@ func _check_target(target: String, src: String) -> void:
 			_spot_warned[k] = true
 			problems.append("%s: '%s' is neither a hotspot nor a door in set '%s'" % [src, target, game.pres.get("set", "")])
 
+## A camera the set doesn't have falls back to its main camera without a
+## word, so say so here.
+func _check_cam(cam: String) -> void:
+	var st := _current_set()
+	if st.is_empty() or st["cams"].is_empty() or st["cams"].has(cam):
+		return
+	var k := "cam:%s:%s" % [game.pres.get("set", ""), cam]
+	if not _spot_warned.has(k):
+		_spot_warned[k] = true
+		var at: Array = game.parser.locate(game.runner.pc)
+		problems.append("%s: no camera '%s' in set '%s'" % [at[0], cam, game.pres.get("set", "")])
+
 func _check_spots() -> void:
+	if game.pres.get("cutscene", false):
+		for o in game.runner.current_options:
+			for t in o["tags"]:
+				if str(t).begins_with("spot:"):
+					var kc := "cut:%s" % o["src"]
+					if not _spot_warned.has(kc):
+						_spot_warned[kc] = true
+						problems.append("%s: a room choice (%s) while a cutscene has the camera" % [o["src"], t])
 	var w: Array = game.pres.get("walk", [])
 	if w.is_empty():
 		return
@@ -271,8 +294,12 @@ func _play(prefer: Array, rng: RandomNumberGenerator, interrupts: bool, transcri
 	var err := ""
 	var cb_line := func(e): transcript.append("%s%s: %s" % [("[%s] " % e["kind"]) if e["kind"] != "say" else "", e["speaker"], e["text"]])
 	var cb_err := func(m): transcript.append("!! ERROR " + m)
+	var cb_pres := func(n, a):
+		if n in ["cam", "camto"] and a.size() > 0:
+			_check_cam(str(a[0]))
 	game.runner.line.connect(cb_line)
 	game.runner.runtime_error.connect(cb_err)
+	game.pres_command.connect(cb_pres)
 	var steps := 0
 	var picks_seen := {}
 	while game.runner.waiting != "end" and steps < max_steps:
@@ -320,8 +347,11 @@ func _play(prefer: Array, rng: RandomNumberGenerator, interrupts: bool, transcri
 		if l.begins_with("!! ERROR"):
 			err = l
 			break
+	if err == "" and game.pres.get("cutscene", false):
+		err = "the night ended inside a cutscene"
 	game.runner.line.disconnect(cb_line)
 	game.runner.runtime_error.disconnect(cb_err)
+	game.pres_command.disconnect(cb_pres)
 	return err
 
 func _try_interrupt(rng: RandomNumberGenerator, transcript: PackedStringArray) -> void:

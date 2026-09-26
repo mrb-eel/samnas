@@ -3,7 +3,8 @@ extends SetBase
 ## Six underwater lamps in the deep-end walls, a wooden chair in the deep end.
 ## Variants: "meeting" (chairs round the deep end, the speakerphone on the
 ## chair), "fog" (morning; the pool full of fog to the brim).
-## States: lights 0..6, chairs on/off, teodor (walk), torch on/off.
+## States: lights 0..6, chairs on/off, teodor (walk), torch on/off,
+## attendants on/off (a vision), water red/blue/off (a vision).
 
 const PL := 25.0   # pool length (x)
 const PW := 10.0   # pool width (z)
@@ -16,6 +17,12 @@ var chairs_group: Node3D
 var people: Node3D
 var walker: Node3D
 var torch: SpotLight3D
+var attendants: Node3D
+var water_red: MeshInstance3D
+var water_blue: MeshInstance3D
+var vision_lamp: Node3D
+var vision_spot: SpotLight3D
+var red_glow: OmniLight3D
 var _t := 0.0
 
 func build(v: String) -> void:
@@ -186,7 +193,8 @@ func build(v: String) -> void:
 	walker.visible = false
 	# Inez's head torch
 	torch = K.spot(self, Vector3(PL / 2 + 1.0, 1.6, 5.8), Vector3(4, -2.5, -1), Color("fff4d8"), 0.0, 22.0, 18.0)
-	cam_hide = {"meeting": [roof, sky] + near_walls, "main": near_walls}
+	_visions()
+	cam_hide = {"meeting": [roof, sky] + near_walls, "main": near_walls, "vision_high": near_walls + [roof]}
 	add_cam("main", Vector3(-15.5, 6.2, 10.5), Vector3(6.0, -1.8, 0.0), 52)
 	_walk(hx, hz, near_walls)
 	add_cam("inez_eye", Vector3(PL / 2 + 1.0, 1.62, 5.9), Vector3(4.0, -2.4, -1.2), 60)
@@ -200,9 +208,55 @@ func build(v: String) -> void:
 	if fog:
 		apply_state("lights", "4")
 
+## What Ari sees in the minutes that go missing: the pool full again, or
+## full of something else, and the eleven attendants from the photograph
+## standing in the deep end in their caps, waiting to be told something.
+func _visions() -> void:
+	var K := SetKit
+	attendants = Node3D.new()
+	add_child(attendants)
+	var r := RandomNumberGenerator.new()
+	r.seed = 1965
+	for i in 11:
+		var z := -4.0 + i * 0.8
+		var look := {"coat": Color("1e2430"), "trousers": Color("1a1d26"), "skin": Color("c8a890").lerp(Color("8a6450"), r.randf() * 0.6),
+			"hair": Color("2a2420"), "hair_style": "cap", "cap_color": Color("1e2430"), "height": r.randf_range(1.7, 1.86),
+			"face": "blank", "shape": "m", "arms": "clasp" if i == 5 else "down", "cap_tilt": 0.12 if i == 2 else 0.0}
+		Figure.build(attendants, Vector3(11.3 + r.randf_range(-0.1, 0.1), -DEEP, z), -PI / 2, look)
+	attendants.visible = false
+	var red := StandardMaterial3D.new()
+	red.albedo_color = Color("5a0708")
+	red.emission_enabled = true
+	red.emission = Color("2a0203")
+	red.roughness = 0.22
+	red.metallic_specular = 0.6
+	water_red = K.box(self, Vector3(15.0, 0.04, PW - 0.05), Vector3(5.0, -1.9, 0.0), red)
+	water_red.visible = false
+	red_glow = K.omni(self, Vector3(8.0, -0.4, 0.0), Color("c02018"), 0.0, 11.0)
+	# one caged lamp on a flex over the deep end, the kind nobody fitted
+	vision_lamp = Node3D.new()
+	add_child(vision_lamp)
+	K.cyl(vision_lamp, 0.006, 0.006, 4.2, Vector3(11.0, 2.9, 0.0), K.mat(Color("1a1a1a")), 4)
+	K.sphere(vision_lamp, 0.07, Vector3(11.0, 0.75, 0.0), K.emis(Color("f0f4e0"), 1.6), 6)
+	K.cyl(vision_lamp, 0.1, 0.02, 0.12, Vector3(11.0, 0.86, 0.0), K.mat(Color("3a4038")), 6)
+	vision_spot = K.spot(vision_lamp, Vector3(11.0, 0.7, 0.0), Vector3(11.3, -DEEP, 0.0), Color("dce8dc"), 7.0, 9.0, 52.0)
+	vision_lamp.visible = false
+	water_blue = K.box(self, Vector3(PL - 0.05, 0.04, PW - 0.05), Vector3(0.0, -0.12, 0.0), K.liquid(Color("1e5a8a"), 0.55))
+	water_blue.visible = false
+	add_cam("vision_high", Vector3(1.5, 4.2, 8.0), Vector3(10.0, -2.6, 0.0), 50)
+	add_cam("vision_row", Vector3(6.6, -1.55, 0.9), Vector3(11.3, -1.8, 0.0), 58)
+	add_cam("vision_face", Vector3(10.2, -1.55, 0.05), Vector3(11.3, -1.62, 0.0), 40)
+
 func apply_state(key: String, value: String) -> void:
 	super.apply_state(key, value)
 	match key:
+		"attendants":
+			attendants.visible = value == "on"
+			vision_lamp.visible = value == "on"
+		"water":
+			water_red.visible = value == "red"
+			water_blue.visible = value == "blue"
+			red_glow.light_energy = 1.3 if value == "red" else 0.0
 		"lights":
 			lights_on = int(value)
 			for i in lamps.size():

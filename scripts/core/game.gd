@@ -275,8 +275,15 @@ func _record_pres(name: String, args: Array) -> void:
 				pres["walk"] = args.duplicate()
 				if args.size() > 1 and args[1] != "":
 					pres["actor"] = {}
-		"cam":
+		"cam", "camto":
 			pres["cam"] = args[0]
+		"cutscene":
+			pres["cutscene"] = args[0] == "on"
+		"tint":
+			if args[0] == "off":
+				pres.erase("tint")
+			else:
+				pres["tint"] = [args[0], float(args[1]) if args.size() > 1 else 0.5]
 		"view":
 			pres["view"] = args[0]
 		"portrait":

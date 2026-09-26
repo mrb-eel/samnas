@@ -201,6 +201,9 @@ func _go() -> void:
 				Input.parse_input_event(ev2)
 			"save":
 				Game.save_to(int(parts[1]))
+			"line":
+				# put a line up as if the story had said it: line INEZ say Some words
+				main._on_line({"kind": parts[2], "speaker": parts[1], "text": " ".join(parts.slice(3))})
 			"var":
 				print("VAR ", parts[1], "=", Game.vars.get(parts[1]))
 	get_tree().quit()

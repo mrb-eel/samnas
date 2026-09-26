@@ -18,11 +18,15 @@ var console: Console
 var hud: Hud
 var board: Board
 var fade_rect: ColorRect
+var tint_rect: ColorRect  # a grade over the room: multiplied, so it stains rather than covers
+var flash_rect: ColorRect
+var letterbox: Layers.Letterbox
 var overlay_root: Control
 var menu_root: Control
 var post: ScreenFx.Post
 
 var comp := "black"
+var cutscene := false
 var browsing := false
 var overlay_open := false
 var menu_open := false
@@ -53,6 +57,18 @@ func _ready() -> void:
 	collage.size = BASE
 	collage.visible = false
 	root.add_child(collage)
+	tint_rect = ColorRect.new()
+	tint_rect.color = Color.WHITE
+	tint_rect.size = BASE
+	tint_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mul := CanvasItemMaterial.new()
+	mul.blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
+	tint_rect.material = mul
+	tint_rect.visible = false
+	root.add_child(tint_rect)
+	letterbox = Layers.Letterbox.new()
+	letterbox.size = BASE
+	root.add_child(letterbox)
 	console = Console.new()
 	console.size = BASE
 	root.add_child(console)
@@ -62,6 +78,11 @@ func _ready() -> void:
 	board = Board.new()
 	root.add_child(board)
 	board.visible = false
+	flash_rect = ColorRect.new()
+	flash_rect.color = Color(1, 1, 1, 0)
+	flash_rect.size = BASE
+	flash_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(flash_rect)
 	fade_rect = ColorRect.new()
 	fade_rect.color = Color(0, 0, 0, 0)
 	fade_rect.size = BASE
@@ -132,13 +153,48 @@ func _layout() -> void:
 	xlayer.stage_full = true
 	if xlayer.visible:
 		root.move_child(xlayer, stage.get_index() + 1)
-	if comp == "black":
+	if cutscene:
+		if console.mode != "cutscene":
+			console.set_mode("cutscene")
+	elif comp == "black":
 		if console.mode != "center":
 			console.set_mode("center")
-	elif console.mode == "center" or console.mode == "hidden":
+	elif console.mode in ["center", "hidden", "cutscene"]:
 		console.set_mode("panel")
 	stage.set_view(Game.pres.get("view", "none"), call_active)
 	_update_badge()
+
+## Where the console sits when someone's talking.
+func _talk_mode() -> String:
+	if cutscene:
+		return "cutscene"
+	return "panel" if comp != "black" else "center"
+
+## The night takes the camera: bars, no strip, subtitles, nothing to click
+## in the room until it gives it back.
+func _set_cutscene(on: bool, snap: bool = false) -> void:
+	cutscene = on
+	letterbox.show_bars(on, snap)
+	hud.strip_visible = not on
+	hud.queue_redraw()
+	if on:
+		stage.clear_walk_spots()
+		stage.set_spots({}, [])
+	_layout()
+
+func _set_tint(col: String, strength: float, secs: float) -> void:
+	var target := Color.WHITE
+	if col != "off":
+		target = Color.WHITE.lerp(Color(col), clampf(strength, 0.0, 1.0))
+	if secs <= 0.0 or Settings.reduced_motion:
+		tint_rect.color = target
+		tint_rect.visible = col != "off"
+		return
+	tint_rect.visible = true
+	var tw := create_tween()
+	tw.tween_property(tint_rect, "color", target, secs)
+	if col == "off":
+		tw.tween_callback(func(): tint_rect.visible = false)
 
 func _update_badge() -> void:
 	var locked: bool = Game.pres.get("phone_locked", false)
@@ -174,7 +230,7 @@ func _toggle_board() -> void:
 func _on_line(entry: Dictionary) -> void:
 	stage.clear_walk_spots()
 	if console.mode == "walk":
-		console.set_mode("panel" if comp != "black" else "center")
+		console.set_mode(_talk_mode())
 	console.clear_choices()
 	console.add_line(entry)
 	if browsing and entry.get("kind", "") == "sms":
@@ -190,7 +246,7 @@ func _on_choices(opts: Array) -> void:
 	var screen_spots: Array = []
 	var labels := {}
 	var verbs := {}
-	var in_room := stage.walking and stage.current != null
+	var in_room := stage.walking and stage.current != null and not cutscene
 	for i in opts.size():
 		var o: Dictionary = opts[i]
 		var spot := ""
@@ -202,7 +258,7 @@ func _on_choices(opts: Array) -> void:
 		if spot != "" and in_room and stage.current.hotspots.has(spot):
 			world[spot] = {"index": i, "label": label, "verb": verb}
 			continue
-		if spot != "" and Game.pres.get("spots", {}).has(spot):
+		if spot != "" and not cutscene and Game.pres.get("spots", {}).has(spot):
 			screen_spots.append(spot)
 			labels[spot] = label
 			verbs[spot] = verb
@@ -218,7 +274,7 @@ func _on_choices(opts: Array) -> void:
 	else:
 		stage.clear_walk_spots()
 		if console.mode == "walk":
-			console.set_mode("panel" if comp != "black" else "center")
+			console.set_mode(_talk_mode())
 	_console_opts = rest
 	console.show_choices(rest)
 	stage.set_spots(Game.pres.get("spots", {}), screen_spots)
@@ -350,6 +406,25 @@ func _on_pres(name: String, args: Array) -> void:
 			stage.load_set(args[0], args[1] if args.size() > 1 else "")
 		"cam":
 			stage.set_cam(args[0])
+		"camto":
+			stage.cam_to(args[0], float(args[1]) if args.size() > 1 else 2.0)
+		"cutscene":
+			_set_cutscene(args[0] == "on")
+		"shake":
+			stage.shake(float(args[0]), float(args[1]) if args.size() > 1 else 0.6)
+			post.kick(clampf(float(args[0]) * 5.0, 0.15, 1.0))
+		"glitch":
+			post.kick(clampf(float(args[0]), 0.0, 1.0))
+		"tint":
+			if args[0] == "off":
+				_set_tint("off", 0.0, float(args[1]) if args.size() > 1 else 1.0)
+			else:
+				_set_tint(args[0], float(args[1]) if args.size() > 1 else 0.5, float(args[2]) if args.size() > 2 else 1.0)
+		"flash":
+			var fc := Color(args[0])
+			var fsecs := float(args[1]) if args.size() > 1 else 0.6
+			flash_rect.color = Color(fc, 0.35 if Settings.reduced_motion else 0.9)
+			create_tween().tween_property(flash_rect, "color:a", 0.0, fsecs)
 		"walk":
 			if args.is_empty() or args[0] == "off":
 				stage.walk_end()
@@ -575,7 +650,11 @@ func _restore_all() -> void:
 	Audio.set_music(p.get("music", ""))
 	Audio.set_far(Game.phone["call"]["active"], p.get("view", "none") != "none", p.get("acoustic", ""))
 	fade_rect.color = Color(0, 0, 0, 0)
-	_apply_comp(p.get("comp", "black"))
+	flash_rect.color.a = 0.0
+	var tn: Array = p.get("tint", [])
+	_set_tint(tn[0] if tn.size() > 0 else "off", float(tn[1]) if tn.size() > 1 else 0.0, 0.0)
+	comp = p.get("comp", "black")
+	_set_cutscene(p.get("cutscene", false), true)
 	# the last few lines, so the screen isn't blank
 	var bl: Array = Game.backlog
 	var start := maxi(0, bl.size() - (6 if comp == "black" else 1))
@@ -633,6 +712,8 @@ func _on_title_action(what: String) -> void:
 	match what:
 		"new":
 			_close_title()
+			_set_tint("off", 0.0, 0.0)
+			_set_cutscene(false, true)
 			Game.new_game()
 		"continue":
 			var slot := Game.latest_slot()
@@ -665,7 +746,10 @@ func _to_title() -> void:
 	options = []
 	stage.load_set("", "")
 	collage.visible = false
-	_apply_comp("black")
+	_set_tint("off", 0.0, 0.0)
+	flash_rect.color.a = 0.0
+	comp = "black"
+	_set_cutscene(false, true)
 	_show_title()
 
 ## A picture of the night as it is, before a menu covers it.

@@ -3,6 +3,7 @@ extends SetBase
 ## reclining bath, a brass meter, a cream handset on 201, photographs, the
 ## poster, the ledger in a plastic bag, and a mirror gone brown at the edges.
 ## States: cradle (off/on/full), fog (on/off), meter (on), mirror (on),
+## blood (on: 1979, after), remainder (on: what stopped arriving), tooth (on),
 ## holder (jad/teodor/inez/off), sal (on), sign (on), inez (on/off).
 
 var water: MeshInstance3D
@@ -14,6 +15,9 @@ var holders: Dictionary = {}
 var sal: Node3D
 var inez: Node3D
 var pen_hand: Node3D
+var gore: Node3D
+var remainder: Node3D
+var tooth: MeshInstance3D
 var _t := 0.0
 
 func build(_v: String) -> void:
@@ -101,6 +105,7 @@ func build(_v: String) -> void:
 	K.hand(pen_hand, Vector3(-0.15, 0.95, 0.62), Vector3(-0.9, 0.3, 0), K.mat("skin_pale", 8.0), K.mat("corduroy", 10.0), false, 0.6)
 	K.cyl(pen_hand, 0.005, 0.005, 0.14, Vector3(-0.2, 0.96, 0.52), K.mat(Color("1a2a6a")), 5).rotation.x = 0.8
 	pen_hand.visible = false
+	_gore(W, D, H)
 	cam_hide = {"main": [ceiling], "inez_eye": [inez]}
 	add_cam("main", Vector3(2.6, 3.4, 4.6), Vector3(-0.2, 0.8, -0.5), 54)
 	add_cam("inez_eye", Vector3(W / 2 - 0.1, 1.58, 1.3), Vector3(-0.6, 1.0, -1.0), 64)
@@ -127,9 +132,70 @@ func _walk(W: float, D: float, H: float) -> void:
 	walk_cam = {"offset": Vector3(2.6, 3.4, 4.6), "look": Vector3(-0.2, 0.8, -0.5), "fov": 54.0,
 		"min": Vector3.ZERO, "max": Vector3.ZERO}
 
+## What the room looks like after an arrival that stopped at minute
+## nineteen: 1979, in the building's memory, and in Ari's.
+func _gore(W: float, D: float, H: float) -> void:
+	var K := SetKit
+	gore = Node3D.new()
+	add_child(gore)
+	K.box(gore, Vector3(0.72, 0.03, 1.02), Vector3(-0.4, 0.63, 0.0), K.liquid(Color("4a0506"), 0.94))
+	K.blood(gore, "pool", 1.5, 1.2, Vector3(-0.15, 0.006, 0.95), Vector3(-PI / 2, 0, 0.4))
+	K.blood(gore, "splat", 1.0, 1.0, Vector3(0.45, 0.007, 0.25), Vector3(-PI / 2, 0, 1.2))
+	K.blood(gore, "trail", 1.7, 0.8, Vector3(1.0, 0.008, 0.4), Vector3(-PI / 2, 0, 0))
+	K.blood(gore, "hand", 0.3, 0.6, Vector3(-0.72, 1.1, -D / 2 + 0.065))
+	K.blood(gore, "hand", 0.28, 0.56, Vector3(-0.22, 0.98, -D / 2 + 0.066), Vector3(0, 0, 0.25))
+	K.blood(gore, "hand", 0.26, 0.52, Vector3(W / 2 - 0.065, 1.05, 0.95), Vector3(0, -PI / 2, -0.2))
+	K.blood(gore, "drip", 0.6, 0.36, Vector3(0.056, 0.19, -0.3), Vector3(0, PI / 2, 0))
+	K.blood(gore, "drip", 0.5, 0.3, Vector3(-0.4, 0.19, 0.606), Vector3(0, 0, 0))
+	K.blood(gore, "splat", 0.9, 0.9, Vector3(W / 2 - 0.065, 0.95, 1.4), Vector3(0, -PI / 2, 0))
+	K.blood(gore, "drip", 0.8, 0.5, Vector3(W / 2 - 0.066, 1.2, 1.4), Vector3(0, -PI / 2, 0))
+	# the handset, dropped, hanging off its bracket by the cord
+	K.box(gore, Vector3(0.07, 0.24, 0.08), Vector3(0.92, 0.55, -D / 2 + 0.2), K.mat(Color("e4dcc4")))
+	K.cyl(gore, 0.006, 0.006, 0.6, Vector3(0.91, 0.97, -D / 2 + 0.19), K.mat(Color("2a2a2a")), 4)
+	gore.visible = false
+	# what's left in the cradle: not a person, never a person. Something that
+	# was getting there. An arm over the rim with one joint too many, the
+	# hand flat on the tiles as if it meant to push itself up.
+	remainder = Node3D.new()
+	add_child(remainder)
+	var flesh := K.mat(Color("c4a498"))
+	var raw := K.mat(Color("7a3a36"))
+	var wet := K.liquid(Color("5a0a0a"), 0.9)
+	K.sphere(remainder, 0.2, Vector3(-0.45, 0.6, -0.12), flesh, 7, Vector3(1.0, 0.45, 1.3))
+	K.sphere(remainder, 0.15, Vector3(-0.3, 0.62, 0.18), raw, 6, Vector3(1.1, 0.5, 0.9))
+	K.sphere(remainder, 0.12, Vector3(-0.58, 0.61, 0.34), flesh, 6, Vector3(0.8, 0.5, 1.2))
+	var sh := Vector3(-0.28, 0.64, 0.16)
+	var rim := Vector3(-0.02, 0.77, 0.2)
+	var j2 := Vector3(0.17, 0.42, 0.25)
+	var wr := Vector3(0.34, 0.05, 0.22)
+	K.limb(remainder, sh, rim, 0.05, 0.04, flesh)
+	K.limb(remainder, rim, j2, 0.04, 0.034, flesh)
+	K.limb(remainder, j2, wr, 0.034, 0.03, flesh)
+	for jp in [rim, j2]:
+		K.sphere(remainder, 0.046, jp, raw, 6)
+	K.hand(remainder, Vector3(wr.x + 0.1, 0.02, wr.z), Vector3(0, -PI / 2, 0), flesh, raw, false, 0.05)
+	K.limb(remainder, rim + Vector3(0.01, 0.0, 0.0), rim + Vector3(0.02, -0.34, 0.01), 0.012, 0.004, wet, 4)
+	K.blood(remainder, "splat", 0.5, 0.5, Vector3(wr.x + 0.12, 0.009, wr.z), Vector3(-PI / 2, 0, 2.2))
+	var r := RandomNumberGenerator.new()
+	r.seed = 141
+	var enamel := K.emis(Color("ece4c8"), 0.25)
+	for i in 11:
+		var tp := Vector3(-0.4 + r.randf_range(-0.3, 0.3), 0.652, r.randf_range(-0.42, 0.42))
+		K.box(remainder, Vector3(0.018, 0.024, 0.018), tp, enamel, r.randf() * TAU)
+	remainder.visible = false
+	# one tooth, on the drain
+	tooth = K.box(self, Vector3(0.014, 0.018, 0.014), Vector3(-0.37, 0.014, 0.8), K.emis(Color("f4ecd4"), 0.4), 0.6)
+	tooth.visible = false
+
 func apply_state(key: String, value: String) -> void:
 	super.apply_state(key, value)
 	match key:
+		"blood":
+			gore.visible = value == "on"
+		"remainder":
+			remainder.visible = value == "on"
+		"tooth":
+			tooth.visible = value == "on"
 		"cradle":
 			water.visible = value == "on" or value == "full"
 			water.position.y = 0.6 if value == "on" else 0.64

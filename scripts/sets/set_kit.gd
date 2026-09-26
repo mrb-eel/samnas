@@ -90,6 +90,17 @@ static func cyl(parent: Node3D, r_top: float, r_bot: float, h: float, pos: Vecto
 	parent.add_child(mi)
 	return mi
 
+## A cylinder from a to b: an arm, a pipe, a cord.
+static func limb(parent: Node3D, a: Vector3, b: Vector3, r_a: float, r_b: float, material: Material, segs: int = 6) -> MeshInstance3D:
+	var c := cyl(parent, r_b, r_a, a.distance_to(b), (a + b) * 0.5, material, segs)
+	var up := (b - a).normalized()
+	var axis := Vector3.UP.cross(up)
+	if axis.length() > 0.0001:
+		c.basis = Basis(axis.normalized(), Vector3.UP.angle_to(up))
+	elif up.y < 0.0:
+		c.basis = Basis(Vector3.RIGHT, PI)
+	return c
+
 static func sphere(parent: Node3D, r: float, pos: Vector3, material: Material, segs: int = 8, scale: Vector3 = Vector3.ONE) -> MeshInstance3D:
 	var mi := MeshInstance3D.new()
 	var sm := SphereMesh.new()
@@ -224,6 +235,41 @@ static func picture(parent: Node3D, img_path: String, w: float, h: float, pos: V
 
 static func tex_quad(parent: Node3D, tex_name: String, w: float, h: float, pos: Vector3, rot: Vector3 = Vector3.ZERO, unshaded: bool = false, blend: String = "") -> MeshInstance3D:
 	return picture(parent, "res://assets/tex/%s.png" % tex_name, w, h, pos, rot, unshaded, blend)
+
+## Blood on a surface: an alpha-blended decal, hard pixels, lifted a hair off
+## whatever it's on. kind: pool, splat, hand, drip, trail.
+static func blood(parent: Node3D, kind: String, w: float, h: float, pos: Vector3, rot: Vector3 = Vector3.ZERO, alpha: float = 1.0) -> MeshInstance3D:
+	var key := "blood|%s|%s" % [kind, alpha]
+	var m: StandardMaterial3D
+	if _mat_cache.has(key):
+		m = _mat_cache[key]
+	else:
+		m = StandardMaterial3D.new()
+		m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+		m.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+		m.albedo_texture = tex("blood_" + kind)
+		m.albedo_color = Color(1, 1, 1, alpha)
+		m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		m.cull_mode = BaseMaterial3D.CULL_DISABLED
+		m.roughness = 0.2
+		_mat_cache[key] = m
+	return quad(parent, w, h, pos, m, rot)
+
+## Water with something in it. col is the water's colour; a = how much you
+## can see through it.
+static func liquid(c: Color, a: float) -> StandardMaterial3D:
+	var key := "liquid|%s|%s" % [c, a]
+	if _mat_cache.has(key):
+		return _mat_cache[key]
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(c, a)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
+	m.roughness = 0.15
+	m.metallic_specular = 0.8
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_mat_cache[key] = m
+	return m
 
 # ------------------------------------------------------------------ light fittings
 

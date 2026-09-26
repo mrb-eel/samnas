@@ -95,6 +95,24 @@ the set's source to check every `spot:`, `@walk` door and `@walkto` target.
 | `@amb`, `@amb2`, `@music`, `@sfx ID [db]`, `@acoustic` | sound |
 | `@input_name VAR "prompt"`, `@casio`, `@ending ID "Title"`, `@wait S` | blocking moments |
 
+### Cutscenes
+
+`@cutscene on` takes the camera off the player: black bars, the strip at the
+top goes, lines become subtitles in the bottom bar, and choices float above it
+(nothing in the room can be clicked). `@cutscene off` gives it back. The
+validator fails a night that ends inside a cutscene, or a room choice
+(`[spot:...]`) offered during one.
+
+| Command | |
+|---|---|
+| `@camto NAME [secs]` | move the camera to one of the set's cameras over `secs` (a cut with Keep still on) |
+| `@shake AMOUNT [secs]` | the camera shakes; `AMOUNT` in metres, `0.03` is a knock, `0.15` is the floor going |
+| `@tint COLOR STRENGTH [secs]` / `@tint off [secs]` | stain the room with a colour (multiplied, so darks stay dark); hex without `#` |
+| `@flash COLOR [secs]` | the whole screen goes one colour and fades back |
+| `@glitch AMOUNT` | the picture tears (0..1) |
+
+Every camera name given to `@cam` or `@camto` is checked against the set.
+
 ## The board
 
 `@call WHO`, `@hangup`, `@ring WHO|off`, `@hold on|off`, `@callable WHO KNOT|off`,
