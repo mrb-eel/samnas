@@ -77,6 +77,11 @@ func _go() -> void:
 							main.overlay_open = false
 						_:
 							break
+			"autoplay":
+				# the whole night through the real interface: walk to hotspots,
+				# use the board for board choices, screenshot every N choices.
+				# autoplay SEED [max_choices] [shot_every]
+				await _autoplay(int(parts[1]), int(parts[2]) if parts.size() > 2 else 3000, int(parts[3]) if parts.size() > 3 else 0)
 			"play":
 				for i in int(parts[1]):
 					await _settle()
@@ -188,3 +193,99 @@ func _go() -> void:
 func _settle() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
+
+func _autoplay(seed: int, max_choices: int, shot_every: int) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	var picks := {}
+	var n_choices := 0
+	var steps := 0
+	var walked := 0
+	var stuck := 0
+	while Game.runner.waiting != "end" and n_choices < max_choices and steps < 40000:
+		steps += 1
+		await _settle()
+		match Game.runner.waiting:
+			"line":
+				main.console.finish_typing()
+				Game.runner.advance()
+			"cmd":
+				var op: Dictionary = Game.parser.ops[Game.runner.pc]
+				if op["name"] == "walkto":
+					# let the walk happen; it resumes by itself
+					var n := 0
+					while Game.runner.waiting == "cmd" and n < 900:
+						await get_tree().process_frame
+						n += 1
+					if Game.runner.waiting == "cmd":
+						print("AUTOPLAY stuck in walkto at ", Game.parser.locate(Game.runner.pc))
+						Game.runner.resume()
+					continue
+				if op["name"] == "input_name":
+					Game.vars[op["args"][0]] = "Wren"
+				elif op["name"] == "casio":
+					Game.vars["casio_resolved"] = rng.randf() < 0.5
+					Game.vars["casio_played"] = 5
+				for ch in main.overlay_root.get_children():
+					ch.queue_free()
+				main.overlay_open = false
+				Game.runner.resume()
+			"choice":
+				n_choices += 1
+				var opts: Array = Game.runner.current_options
+				var at := str(Game.runner.pc)
+				var i := rng.randi_range(0, opts.size() - 1)
+				# don't go round a room forever: prefer what hasn't been picked here
+				var tries := 0
+				while picks.get(at + ":" + str(i), 0) > 1 and tries < 8:
+					i = rng.randi_range(0, opts.size() - 1)
+					tries += 1
+				picks[at + ":" + str(i)] = picks.get(at + ":" + str(i), 0) + 1
+				if picks[at + ":" + str(i)] > 6:
+					# find a once-only option to break out
+					for k in opts.size():
+						if not opts[k]["sticky"]:
+							i = k
+				var spot := ""
+				var board_tag := ""
+				for t in opts[i]["tags"]:
+					if str(t).begins_with("spot:"):
+						spot = str(t).substr(5)
+					elif str(t).begins_with("jack:") or str(t).begins_with("key:"):
+						board_tag = str(t)
+				if shot_every > 0 and n_choices % shot_every == 0:
+					await _shot("auto_%04d" % n_choices)
+				if spot != "" and main.stage.walk_spots.has(spot):
+					walked += 1
+					var pc_before: int = Game.runner.pc
+					var seen_before := Game.seen_choices.size()
+					main.stage._go_spot(spot)
+					var n2 := 0
+					while Game.runner.waiting == "choice" and Game.runner.pc == pc_before and Game.seen_choices.size() == seen_before and not main.stage.walk_spots.is_empty() and n2 < 2400:
+						await get_tree().process_frame
+						n2 += 1
+					if Game.runner.waiting == "choice" and Game.runner.pc == pc_before and n2 >= 2400:
+						stuck += 1
+						print("AUTOPLAY could not reach spot ", spot, " at ", Game.parser.locate(Game.runner.pc))
+						main._on_chosen(i)
+				elif board_tag != "" and not main.browsing:
+					main._on_console_pick(i)
+					await _settle()
+					if main.browsing:
+						main.board._activate(board_tag)
+					else:
+						main._on_chosen(i)
+				else:
+					main._on_chosen(i)
+			_:
+				break
+	print("AUTOPLAY done seed=%d choices=%d walked=%d stuck=%d waiting=%s ending=%s at %s" % [seed, n_choices, walked, stuck, Game.runner.waiting, Game.vars.get("ending_seen", "?"), Game.parser.locate(Game.runner.pc)])
+
+func _shot(name: String) -> void:
+	main.console.finish_typing()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var img := get_viewport().get_texture().get_image()
+	if img.get_width() < 1000:
+		img.resize(img.get_width() * 2, img.get_height() * 2, Image.INTERPOLATE_NEAREST)
+	img.save_png(out_dir.path_join(name + ".png"))

@@ -106,6 +106,11 @@ lockouts, checks on people, and books escorts to appointments. It closes at
    headache's pressure, tiredness). Ari never gets their thoughts or memories and
    never controls their body. The lender feels it as someone reading over their
    shoulder, a warmth at the back of the neck. They can end it at any moment.
+   *In play:* this is the point-and-click. The camera hangs over the lender's
+   shoulder; clicking the floor or a thing is Ari asking them to go there or
+   look at it. They go because they're willing, and they can say no ("I'm not
+   going back out there"). Only after an arrival does the player walk a body
+   that answers to nobody else.
 5. **Drift.** With no call open and nothing holding it, a presence loses time. Ari
    hangs up at 00:07 and finds it is 00:19. Nothing hurts. Minutes are just gone.
 6. **Hold.** The exchange's hold circuit keeps a presence continuous between calls.

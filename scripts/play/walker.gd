@@ -25,6 +25,7 @@ var _hip_y := 0.0
 var _breath := 0.0
 var _pending_arrive := false
 var free_arms := [true, true]  # arms held in a pose (a phone at the ear) don't swing
+var hurry := false  # a double click: get there
 
 func setup(f: Node3D) -> void:
 	fig = f
@@ -49,7 +50,8 @@ func setup(f: Node3D) -> void:
 		if arm and absf(arm.rotation.x) > 0.5:
 			free_arms[i] = false
 
-func go(p: PackedVector3Array, face: Vector3 = Vector3.INF) -> void:
+func go(p: PackedVector3Array, face: Vector3 = Vector3.INF, fast: bool = false) -> void:
+	hurry = fast
 	path = p
 	face_to = face
 	if path.size() > 0 and fig and Vector2(path[0].x - fig.position.x, path[0].z - fig.position.z).length() < 0.05:
@@ -83,7 +85,11 @@ func _process(d: float) -> void:
 		var target := path[0]
 		var to := Vector3(target.x - fig.position.x, 0, target.z - fig.position.z)
 		var dist := to.length()
-		var step := SPEED * d * clampf(amp * 1.6, 0.35, 1.0)
+		var left := dist
+		for k in range(1, path.size()):
+			left += path[k].distance_to(path[k - 1])
+		var pace := clampf(1.0 + (left - 3.0) * 0.12, 1.0, 2.1) * (2.0 if hurry else 1.0)
+		var step := SPEED * pace * d * clampf(amp * 1.6, 0.35, 1.0)
 		if dist <= step:
 			fig.position = Vector3(target.x, fig.position.y, target.z)
 			path.remove_at(0)
@@ -93,7 +99,7 @@ func _process(d: float) -> void:
 			fig.position += to / dist * step
 		if dist > 0.001:
 			turning = _turn_toward(atan2(to.x, to.z), d * 9.0)
-		phase += step / STRIDE * PI
+		phase += step / (STRIDE * (1.25 if hurry else 1.0)) * PI
 		amp = move_toward(amp, 1.0, d * 4.0)
 	else:
 		amp = move_toward(amp, 0.0, d * 5.0)

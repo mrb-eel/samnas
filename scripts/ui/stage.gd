@@ -439,7 +439,7 @@ func _gui_input(event: InputEvent) -> void:
 			return
 		var sid2 := _pick_spot(event.position)
 		if sid2 != "":
-			_go_spot(sid2)
+			_go_spot(sid2, event.double_click)
 			return
 		if walker == null:
 			return
@@ -451,9 +451,9 @@ func _gui_input(event: InputEvent) -> void:
 				var path := nav.path(walker.fig.position, dest)
 				if not path.is_empty():
 					marks.flag(dest)
-					walker.go(path)
+					walker.go(path, Vector3.INF, event.double_click)
 
-func _go_spot(sid: String) -> void:
+func _go_spot(sid: String, fast: bool = false) -> void:
 	var hs: Dictionary = current.hotspots[sid]
 	if walker == null:
 		Audio.sfx("click", -10.0)
@@ -468,8 +468,9 @@ func _go_spot(sid: String) -> void:
 			pending_spot = ""
 			walk_picked.emit(sid), CONNECT_ONE_SHOT)
 	if path.is_empty():
+		push_warning("No path to hotspot '%s' in %s" % [sid, set_name])
 		path = PackedVector3Array([walker.fig.position])
-	walker.go(path, hs["face"])
+	walker.go(path, hs["face"], fast)
 
 ## Keyboard: step through the live hotspots and pick one.
 func cycle_spot(dir: int) -> void:

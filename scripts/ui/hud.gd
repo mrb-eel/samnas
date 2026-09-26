@@ -48,8 +48,8 @@ func caption(s: String) -> void:
 	_caption_life = 7.0
 
 func toast(title: String, body: String) -> void:
-	_toasts.append({"title": title, "body": body, "life": 6.0})
-	while _toasts.size() > 3:
+	_toasts.append({"title": title, "body": body, "life": 4.5})
+	while _toasts.size() > 2:
 		_toasts.pop_front()
 
 func _process(d: float) -> void:

@@ -127,11 +127,11 @@ func _apply_comp(c: String) -> void:
 
 func _layout() -> void:
 	var call_active: bool = Game.phone.get("call", {}).get("active", false)
-	var xw: Dictionary = Game.pres.get("xwins", {})
-	var xview: bool = xw.has("1") and xw["1"].size() > 0 and xw["1"][0] == "view"
 	xlayer.visible = comp == "exchange"
-	stage.visible = comp in ["room", "building", "call"] or (comp == "exchange" and xview)
-	xlayer.stage_full = stage.visible
+	stage.visible = comp in ["room", "building", "call", "exchange"]
+	xlayer.stage_full = true
+	if xlayer.visible:
+		root.move_child(xlayer, stage.get_index() + 1)
 	if comp == "black":
 		if console.mode != "center":
 			console.set_mode("center")
