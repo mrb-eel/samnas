@@ -82,6 +82,13 @@ godot --path . -- --shots OUT_DIR "new" "autoplay 11 3000 25"
 Scripted screenshots, and a whole night played through the real interface
 (walking to hotspots, using the Board), with a picture every N choices.
 
+```
+godot --headless --path . res://scenes/navcheck.tscn
+```
+
+Builds every walkable room and checks that every door and hotspot can be
+walked to from every other.
+
 ## State of it
 
 Done: the full script (five chapters, three endings, all routes playable), every

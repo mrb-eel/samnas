@@ -110,7 +110,7 @@ func build(_v: String) -> void:
 
 func _walk(W: float, D: float, H: float) -> void:
 	add_floor(Rect2(-W / 2 + 0.06, -D / 2 + 0.06, W - 0.12, D - 0.12))
-	add_floor(Rect2(W / 2 - 0.4, -0.05, 1.4, 0.8))  # the doorway
+	add_floor(Rect2(W / 2 - 0.9, -0.05, 1.9, 0.8))  # the doorway, overlapping the room
 	add_block(-0.4, -0.35, 1.0, 2.0)  # the cradle on its plinth
 	add_block(W / 2 - 0.25, 1.1, 0.4, 0.66)  # the shelf with the ledger
 	add_entry("door", Vector3(W / 2 + 0.5, 0, 0.35), -PI / 2)

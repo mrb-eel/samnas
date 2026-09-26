@@ -247,8 +247,9 @@ func _process(delta: float) -> void:
 func _walk(hx: float, hz: float, near_walls: Array) -> void:
 	add_floor(Rect2(-hx + 0.3, PW / 2 + 0.35, hx * 2 - 0.6, hz - PW / 2 - 0.6))
 	add_floor(Rect2(-hx + 0.3, -hz + 0.3, hx * 2 - 0.6, hz - PW / 2 - 0.65))
-	add_floor(Rect2(-hx + 0.3, -PW / 2 - 0.5, hx - PL / 2 - 0.65, PW + 1.0))
-	add_floor(Rect2(PL / 2 + 0.35, -PW / 2 - 0.5, hx - PL / 2 - 0.65, PW + 1.0))
+	# the ends run the full depth of the hall so they join the long sides
+	add_floor(Rect2(-hx + 0.3, -hz + 0.3, hx - PL / 2 - 0.65, hz * 2 - 0.6))
+	add_floor(Rect2(PL / 2 + 0.35, -hz + 0.3, hx - PL / 2 - 0.65, hz * 2 - 0.6))
 	add_block(PL / 2 + 1.4, 0.0, 1.3, 1.5)  # the diving stand
 	add_entry("frame_door", Vector3(hx - 0.9, 0, 6.6), -PI / 2)
 	add_entry("receiving_door", Vector3(hx - 1.0, 0, -4.0), -PI / 2)
