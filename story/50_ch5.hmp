@@ -784,28 +784,53 @@ else:
 === future_accept
 @comp room
 @set office
-@cam main
 @view ari
-@amb office_room
 @state morning on
 @state lanyard on
+@state jad off
 if end_limits:
     @state roster limited
 else:
     @state roster on
+if coat_fate == "returned":
+    @walk ari_work middle down
+else:
+    @walk ari middle down
+@amb office_room
 @clear
-G/1. Your office. That's what it says on the lanyard Sal left on the desk: COMMUNITY RESPONDER. ARI. G/1.
-if end_limits:
-    @show_doc roster_limited
-else:
-    @show_doc roster_continuous
-if end_limits:
-    On the wall by the door, a roster in Sal's handwriting with lines through it and initials. ARI: NIGHTS, 22:00 TO 06:00, MON TO THU. Under it, in three other hands: N. AMADI, TUESDAYS. T. VASS, NIGHTS (MOST). I. CARVALHO, THE FRAME. And across the bottom in red felt tip, Nell again: DAYS ARE NOBODY'S. THAT'S THE POINT.
-else:
-    On the wall by the door, a roster in Sal's handwriting. ARI. And down every day, through every hour, one word and an arrow: CONTINUOUS.
+G/1. Your office. You're standing in it, on your own feet, which is a different thing from knowing it.
+THINK: Nobody's lending you this. You can go where you like. It's a small room. You could go to the window.
 SOUND: A council phone on the desk. Ringing.
 It's six minutes past six.
-* [answer] Plug in and answer.
+-> future_accept_room
+
+=== future_accept_room
+* [answer][spot:phone] Pick it up and answer.
+    -> future_accept_call
++ [look][spot:window] The window.
+    @state reflect ari
+    @cam window
+    The black glass with the office laid over it: the lamp, the camp bed, the kettle. And a person standing where you're standing, in a coat, with a face you can't hold still long enough to learn.
+    You lift a hand. So do they.
+    THINK: There. That one. That's the first time anyone's been in it.
+    ~ saw_self_window = true
+    @state reflect off
+    SOUND: The phone, still going.
+    -> future_accept_room
++ [read][spot:roster] The roster by the door.
+    if end_limits:
+        @show_doc roster_limited
+        A roster in Sal's handwriting with lines through it and initials. ARI: NIGHTS, 22:00 TO 06:00, MON TO THU. Under it, in three other hands: N. AMADI, TUESDAYS. T. VASS, NIGHTS (MOST). I. CARVALHO, THE FRAME. And across the bottom in red felt tip, Nell again: DAYS ARE NOBODY'S. THAT'S THE POINT.
+    else:
+        @show_doc roster_continuous
+        A roster in Sal's handwriting. ARI. And down every day, through every hour, one word and an arrow: CONTINUOUS.
+    -> future_accept_room
++ [look][spot:lanyard] The lanyard on the desk.
+    A lanyard Sal left on the desk, the council's red ribbon: COMMUNITY RESPONDER. ARI. G/1.
+    THINK: It says what you do. It doesn't say what you're like. Nothing does yet.
+    -> future_accept_room
+
+=== future_accept_call
 KAYE: No, dear, it's only me. I just wanted to hear it answered.
 if end_limits and jad_right_to_stop:
     KAYE: Nell says you're not on till ten tonight. I'll let you go. Go and have your toast.
@@ -829,11 +854,15 @@ else:
 === future_refuse
 @comp room
 @set lobby
-@cam main
 @view ari
 @amb lobby_morning
 @state morning on
 @state desk closed
+@state residents on
+if coat_fate == "returned":
+    @walk ari_work corridor_mouth down
+else:
+    @walk ari corridor_mouth down
 @clear
 The lobby, with you in it. The desk lamp is off. The tube over it is dark, or it's ticking; either way, it's somebody else's problem now.
 if coat_fate == "returned":
@@ -865,10 +894,11 @@ if need_kaye_arr and arr_kaye == "":
     ~ arr_kaye = "nell"
     ~ arr_kaye_late = true
 INEZ: G/1's yours till somebody notices. The council doesn't know it exists.
-* "I'll stay. For now."
+THINK: The corridor goes back down to G/1. The street door goes out into the fog. Either way, you'd be walking.
+* [go][spot:corridor] "I'll stay. For now."
     ~ stay_building = true
     INEZ: For now's the only length a tenancy comes in.
-* "I want to see outside first."
+* [go][spot:street_door] "I want to see outside first."
     ~ stay_building = false
     ~ going_out = true
     NELL: Outside's foggy. Outside's mostly a bus stop.
@@ -1152,28 +1182,49 @@ if end_body:
     @comp room
     @set exchange
     @view ari
-    @cam board_outside
+    @state inez off
+    if coat_fate == "returned":
+        @walk ari_work door down
+    else:
+        @walk ari door down
     @amb exchange_relays
     On the way up you pass the frame room, and the door's open, so you go in.
     The board is there. Dark wood and brass, forty-two lamps, the tags cut off food packets. Smaller than it was. It was everything, and now it's a thing against a wall that you could get your arms round.
-    Your cord is lying in 247, where it lives. You pick it up. The plug is warm from the room and heavier than it ever felt from inside.
-    * Put it back in 247.
-        ~ cord_home = true
-        It goes home with a sound you've heard all night from the other side.
-    * Hang it over the Virgin's raised hand, next to Inez's head torch.
-        ~ cord_virgin = true
-        It hangs there, swinging a little, and stops. Inez will have something to say about that.
-    * Hold it a while longer.
-        ~ cord_held = true
-        You hold it. Nobody's ringing. It's just a plug on a cord in a hand.
-    Inez's Casio is on the shelf above the board, where it's always been. The masking tape on it has been crossed out and rewritten underneath: TEST TONES. OR NOT.
-    Nobody's here. Nobody needs anything played.
+    -> ch5_casio_room
 else:
     @comp exchange
     @set exchange
     @view none
     Inez has wired the Casio into 247 before going up to bed, so the keys come through on your line. The masking tape on it has been crossed out and rewritten underneath: TEST TONES. OR NOT.
     Nobody's on the line. Nobody needs anything played.
+    -> ch5_casio_play
+
+=== ch5_casio_room
+* [use][spot:board] Your cord, in 247.
+    Your cord is lying in 247, where it lives. You pick it up. The plug is warm from the room and heavier than it ever felt from inside.
+    * [use][spot:board] Put it back in 247.
+        ~ cord_home = true
+        @state cord home
+        It goes home with a sound you've heard all night from the other side.
+    * [use][spot:figure] Hang it over the Virgin's raised hand, next to Inez's head torch.
+        ~ cord_virgin = true
+        @state cord virgin
+        It hangs there, swinging a little, and stops. Inez will have something to say about that.
+    * Hold it a while longer.
+        ~ cord_held = true
+        @state cord held
+        You hold it. Nobody's ringing. It's just a plug on a cord in a hand.
+    -> ch5_casio_room
++ [look][spot:figure] The figure in the gap.
+    The Virgin, with Inez's head torch hung on her raised hand and her face dusted. Up close she's smaller than you thought, and chipped at the hem.
+    THINK: She's been hearing it all night too. Inez tells her what she's doing.
+    -> ch5_casio_room
+* {cord_home or cord_virgin or cord_held} [use][spot:casio] The Casio.
+    Inez's Casio is on her bench, where it's always been. The masking tape on it has been crossed out and rewritten underneath: TEST TONES. OR NOT.
+    Nobody's here. Nobody needs anything played.
+    -> ch5_casio_play
+
+=== ch5_casio_play
 @casio
 if casio_resolved:
     ~ phrase_resolved = true

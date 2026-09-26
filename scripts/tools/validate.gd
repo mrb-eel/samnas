@@ -19,6 +19,7 @@ const KNOWN_CMDS := {
 	"phone_lock": 1, "contact_add": 1, "avail": 2, "callable": 2, "reply": 3, "reply_clear": 1,
 	"text": 2, "sent": 2, "text_doc": 2, "vm_add": 1, "vm_archive_open": 0, "vm_mark": 1,
 	"gallery_add": 1, "log": 2, "board": 1, "board_lock": 1, "hold": 1, "saved_as": 2, "xwin": 2, "clear": 0, "faint": 1, "pause": 0,
+	"walk": 1, "walkto": 2, "place": 2,
 }
 const SPEAKERS := ["ARI", "JAD", "INEZ", "DIMA", "SAL", "TEODOR", "KAYE", "NELL", "TOBI", "JUNE", "ADEYEMI", "MAN", "WOMAN", "LINE", "OPERATOR", "DRIVER", "RADIO"]
 const SETS := ["street", "lobby", "office", "building", "courtyard", "nell", "pool", "exchange", "receiving", "copyshop", "bakery"]
@@ -27,6 +28,8 @@ var game
 var out_dir := ""
 var problems: PackedStringArray = []
 var warnings: PackedStringArray = []
+var _set_cache: Dictionary = {}
+var _spot_warned: Dictionary = {}
 
 func _init() -> void:
 	var args := OS.get_cmdline_user_args()
@@ -180,14 +183,74 @@ func _static_checks() -> void:
 
 func _routes() -> Array:
 	return [
-		{"name": "accept_warm", "prefer": ["Plug in", "\"Yes.\"", "Please", "Look", "look", "I'll look away", "I'll ring at three", "Tell me about paper", "Yes. Do it.", "Do it.", "Would you hold the place", "Ring Nell", "Could you take Mrs. Kaye", "If the desk's gone", "Ring Teodor", "I know what I want", "come through. And take the job", "Jad said he would", "Cross out continuous", "Stay.", "Tomorrow"]},
-		{"name": "refuse_name", "prefer": ["Plug in", "Can I look", "Don't go through it", "\"I'll look away", "Look at the ceiling", "I'm not him", "Text Dima", "Ring Dima", "Did you make me up", "Now.", "Who knew", "Why?", "Is your name on one", "Do it.", "Ring Teodor", "Would you hold the place", "Ring Mrs. Kaye", "Can I tell you what I am", "I can't promise Thursday", "Ring Nell", "Could you take Mrs. Kaye", "I know what I want", "Not the job", "Teodor said he would", "Something else", "Go.", "Tomorrow"]},
-		{"name": "shared_line", "prefer": ["Plug in", "Can I look", "Please", "The rain", "Okay.", "I'll look away", "I'll stay on, but I won't look", "Can I keep it", "What rules", "Ring Nell", "If the desk's gone", "Ring Teodor", "Ring Mrs. Kaye", "I'll make sure someone takes you", "Could you take Mrs. Kaye", "Would you check the frame", "I know what I want", "stay on the line", "Yes. To the rules", "I don't want to decide", "Tomorrow"]},
-		{"name": "angry_at_jad", "prefer": ["Plug in", "Why would you", "I'll manage", "\"Don't.\"", "You've got another reason", "Did you make me up", "Now.", "You made me up to fill a box", "You let me think the bag was mine", "You listened", "Get out of my office", "Let it ring", "No. Don't.", "Don't ring me again", "I know what I want", "Not the job", "You. Would you", "Tomorrow"]},
-		{"name": "firm_boundaries", "prefer": ["Plug in", "Don't go through it", "I'll manage", "I'll look away", "I might not be able to", "Look at the ceiling", "I don't think I've got hands", "Okay.", "I might be busy", "I don't know if I play", "\"Don't look at it like that", "Don't do anything else for me", "No. Don't.", "I can't do Thursday", "I know what I want", "Not the job", "Teodor said he would", "You. Would you", "I don't want to decide", "Tomorrow"]},
-		{"name": "renegotiate", "prefer": ["Plug in", "Read it now", "Thursday, the 36", "I'll ring at three", "I'll pick up", "Text Dima", "Ring Dima", "Ring Mrs. Kaye", "I can't promise Thursday", "Ring Teodor", "Could you take Mrs. Kaye", "Would you hold the place", "I know what I want", "stay on the line", "Yes. And I want to be able", "Tomorrow"]},
-		{"name": "violations", "prefer": ["Plug in", "Keep looking", "Read the name", "Why fake", "Get out of my office", "Let it ring", "I know what I want", "take the job", "You. Would you", "Sign it as it is", "Go."]},
+		{"name": "accept_warm", "prefer": ["Plug in", "Pick it up", "\"Yes.\"", "Please", "Look", "look", "I'll look away", "I'll ring at three", "Tell me about paper", "Yes. Do it.", "Do it.", "Would you hold the place", "Ring Nell", "Could you take Mrs. Kaye", "If the desk's gone", "Ring Teodor", "I know what I want", "come through. And take the job", "Jad said he would", "Cross out continuous", "Stay.", "Tomorrow"]},
+		{"name": "refuse_name", "prefer": ["Plug in", "Pick it up", "Can I look", "Don't go through it", "\"I'll look away", "Look at the ceiling", "I'm not him", "Text Dima", "Ring Dima", "Did you make me up", "Now.", "Who knew", "Why?", "Is your name on one", "Do it.", "Ring Teodor", "Would you hold the place", "Ring Mrs. Kaye", "Can I tell you what I am", "I can't promise Thursday", "Ring Nell", "Could you take Mrs. Kaye", "I know what I want", "Not the job", "Teodor said he would", "Something else", "Go.", "Tomorrow"]},
+		{"name": "shared_line", "prefer": ["Plug in", "Pick it up", "Can I look", "Please", "The rain", "Okay.", "I'll look away", "I'll stay on, but I won't look", "Can I keep it", "What rules", "Ring Nell", "If the desk's gone", "Ring Teodor", "Ring Mrs. Kaye", "I'll make sure someone takes you", "Could you take Mrs. Kaye", "Would you check the frame", "I know what I want", "stay on the line", "Yes. To the rules", "I don't want to decide", "Tomorrow"]},
+		{"name": "angry_at_jad", "prefer": ["Plug in", "Pick it up", "Why would you", "I'll manage", "\"Don't.\"", "You've got another reason", "Did you make me up", "Now.", "You made me up to fill a box", "You let me think the bag was mine", "You listened", "Get out of my office", "Let it ring", "No. Don't.", "Don't ring me again", "I know what I want", "Not the job", "You. Would you", "Tomorrow"]},
+		{"name": "firm_boundaries", "prefer": ["Plug in", "Pick it up", "Don't go through it", "I'll manage", "I'll look away", "I might not be able to", "Look at the ceiling", "I don't think I've got hands", "Okay.", "I might be busy", "I don't know if I play", "\"Don't look at it like that", "Don't do anything else for me", "No. Don't.", "I can't do Thursday", "I know what I want", "Not the job", "Teodor said he would", "You. Would you", "I don't want to decide", "Tomorrow"]},
+		{"name": "renegotiate", "prefer": ["Plug in", "Pick it up", "Read it now", "Thursday, the 36", "I'll ring at three", "I'll pick up", "Text Dima", "Ring Dima", "Ring Mrs. Kaye", "I can't promise Thursday", "Ring Teodor", "Could you take Mrs. Kaye", "Would you hold the place", "I know what I want", "stay on the line", "Yes. And I want to be able", "Tomorrow"]},
+		{"name": "violations", "prefer": ["Plug in", "Pick it up", "Keep looking", "Read the name", "Why fake", "Get out of my office", "Let it ring", "I know what I want", "take the job", "You. Would you", "Sign it as it is", "Go."]},
 	]
+
+## What the set that's up declares: hotspots, doors, whether it has a floor.
+## Read from the set's source (sets use autoloads, which a -s script can't
+## compile), so every add_hotspot / add_entry / person_spot must name its
+## spot with a literal string.
+func _current_set() -> Dictionary:
+	var name: String = game.pres.get("set", "")
+	if name == "":
+		return {}
+	if not _set_cache.has(name):
+		var path := "res://scripts/sets/set_%s.gd" % name
+		var info := {"hotspots": {}, "entries": {}, "floor": false}
+		if FileAccess.file_exists(path):
+			var src := FileAccess.get_file_as_string(path)
+			for m in RegEx.create_from_string("(?:add_hotspot|person_spot)\\(\"([A-Za-z0-9_]+)\"").search_all(src):
+				info["hotspots"][m.get_string(1)] = true
+			for m in RegEx.create_from_string("add_entry\\(\"([A-Za-z0-9_]+)\"").search_all(src):
+				info["entries"][m.get_string(1)] = true
+			info["floor"] = src.find("add_floor(") != -1
+			if src.find("_flat_spot(") != -1:
+				for f in range(1, 7):
+					for l in ["A", "B", "C", "D", "E", "F", "G"]:
+						info["hotspots"]["%d%s" % [f, l]] = true
+		_set_cache[name] = info
+	return _set_cache[name]
+
+func _check_target(target: String, src: String) -> void:
+	var st := _current_set()
+	if st.is_empty():
+		return
+	if not st["hotspots"].has(target) and not st["entries"].has(target):
+		var k := "%s:%s" % [src, target]
+		if not _spot_warned.has(k):
+			_spot_warned[k] = true
+			problems.append("%s: '%s' is neither a hotspot nor a door in set '%s'" % [src, target, game.pres.get("set", "")])
+
+func _check_spots() -> void:
+	var w: Array = game.pres.get("walk", [])
+	if w.is_empty():
+		return
+	var st := _current_set()
+	if st.is_empty():
+		return
+	if w.size() > 1 and w[1] != "" and not st["entries"].has(w[1]):
+		var k0 := "entry:%s:%s" % [game.pres.get("set", ""), w[1]]
+		if not _spot_warned.has(k0):
+			_spot_warned[k0] = true
+			problems.append("@walk %s: no door '%s' in set '%s'" % [w[0], w[1], game.pres.get("set", "")])
+	if w[0] != "none" and not st["floor"]:
+		var k1 := "floor:%s" % game.pres.get("set", "")
+		if not _spot_warned.has(k1):
+			_spot_warned[k1] = true
+			problems.append("@walk %s: set '%s' has no floor" % [w[0], game.pres.get("set", "")])
+	for o in game.runner.current_options:
+		for t in o["tags"]:
+			if str(t).begins_with("spot:") and not st["hotspots"].has(str(t).substr(5)):
+				var k := "%s:%s" % [o["src"], t]
+				if not _spot_warned.has(k):
+					_spot_warned[k] = true
+					problems.append("%s: %s has no hotspot in set '%s'" % [o["src"], t, game.pres.get("set", "")])
 
 func _pick(options: Array, prefer: Array, rng: RandomNumberGenerator) -> int:
 	for want in prefer:
@@ -221,6 +284,7 @@ func _play(prefer: Array, rng: RandomNumberGenerator, interrupts: bool, transcri
 					continue
 				game.runner.advance()
 			"choice":
+				_check_spots()
 				if interrupts and rng.randf() < 0.05:
 					_try_interrupt(rng, transcript)
 					continue
@@ -244,6 +308,8 @@ func _play(prefer: Array, rng: RandomNumberGenerator, interrupts: bool, transcri
 				elif op["name"] == "ending":
 					transcript.append("== ENDING %s %s" % op["args"])
 					game.vars["ending_seen"] = op["args"][0]
+				elif op["name"] == "walkto":
+					_check_target(op["args"][1], op["src"])
 				game.runner.resume()
 			_:
 				err = "stuck waiting='%s'" % game.runner.waiting

@@ -12,8 +12,8 @@
 @callable dima off "At work. Break at three."
 @comp exchange
 @set exchange
-@cam inez_eye
 @view inez
+@walk inez frame
 @acoustic tiles
 @amb exchange_relays
 @amb2 off
@@ -29,9 +29,6 @@ One section, left of centre, is clean. Somebody dusts that bit.
 And in a gap in the middle, where a board should be, a plaster Virgin about the length of a forearm. Her robe has gone the colour of old teeth. One hand is raised.
 Inez takes off her head torch and hangs it on the raised hand. She takes a dry paintbrush out of her top pocket and goes over the statue's face, the folds of the veil, the fingers. Then she tilts the figure an inch, looks underneath at a grey ribbon cable pinned flat by its base, and sets it back exactly where it was.
 ~ saw_figure = true
-@spot figure 0.40 0.20 0.20 0.60
-@spot tags 0.02 0.30 0.30 0.40
-@spot clean 0.68 0.20 0.28 0.50
 -> ch3_frame
 
 === ch3_frame
@@ -59,11 +56,33 @@ Inez takes off her head torch and hangs it on the raised hand. She takes a dry p
 * [look][spot:clean] The clean section.
     INEZ: That's the part I rebuilt after the flood. Everything else is older than me. That bit's mine.
     -> ch3_frame
++ [look][spot:board] The board.
+    Against the side wall, the attendant's board: a slope of dark wood, rows of holes, a red cord with a brass plug sitting in 247.
+    THINK: That's where you are. It looks smaller from out here.
+    INEZ: Nobody's sat at that since nineteen eighty. Except you, and you don't sit.
+    -> ch3_frame
++ [look][spot:printer] The printer.
+    A beige booking printer gone the colour of a smoker's ceiling. A paper strip curls out of it, printed in dots.
+    INEZ: Bookings. Swimming lessons, private lanes. Then nothing for thirty years. Now it's you.
+    -> ch3_frame
++ [look][spot:tape] The answering machine.
+    A reel-to-reel machine, patched into the frame with crocodile clips. A counter with three white digits.
+    INEZ: Jad asked me for a voicemail. I had that in a cupboard. I have most things in a cupboard.
+    -> ch3_frame
++ [look][spot:casio] The Casio.
+    A keyboard the length of an arm, grey plastic, with a strip of masking tape across the keys: TEST TONES. DON'T.
+    INEZ: Don't.
+    -> ch3_frame
++ [look][spot:looms] The cable looms.
+    Bundles of wire as thick as an arm, tied with waxed string and, further along, with bread-bag ties, drooping between hooks like washing.
+    INEZ: Every tie's a year. You could date the building off them, like a tree.
+    -> ch3_frame
 * "What am I sitting on, then?"
     -> ch3_hold
 
 === ch3_hold
 @spots_clear
+@walkto inez frame
 INEZ: You said you lose time.
 ARI: When nobody's on the line.
 INEZ: That's because nobody's holding you. A call on this frame is held two ways. Somebody's on the other end of it, or it's on hold.
@@ -121,6 +140,7 @@ The same four notes as the ring, and one more. Then round again before it gets a
 === ch3_casio
 @music off
 INEZ: Let's see if it passes a tone.
+@walkto inez casio
 She takes a keyboard down off a shelf, a Casio the length of an arm with a strip of masking tape across it: TEST TONES. DON'T.
 She plays four notes into the line.
 @sfx casio_E5
@@ -145,6 +165,7 @@ INEZ: Nobody on that tape ever gets to the end either.
 
 === ch3_archive
 INEZ: While I'm in here. That answering machine's only showing you the last four. The first reel's got the rest. I'll thread it.
+@walkto inez tape
 @vm_archive_open
 SOUND: A reel going onto a spindle. Leader tape. The counter wound back to nought.
 INEZ: One of them's me. Testing, when we set the line up. Don't mind that one.
@@ -243,7 +264,6 @@ INEZ: Get out of my eyes, please.
 ->> tick
 @comp room
 @set receiving
-@cam main
 @acoustic tiles
 @amb receiving_room
 @xwin 1 off
@@ -253,17 +273,12 @@ if inez_no_look:
 else:
     @view inez
     @comp call
-    @cam inez_eye
+@walk inez door
 Behind the deep end there's a door in the tiled wall, painted the same cream as the wall so you'd miss it. An enamel plate on it that somebody has scraped the paint off: RECEIVING.
 Inside, white tiles, small ones, floor and walls and ceiling. A shallow porcelain basin shaped like a reclining chair, sitting on a plinth, with a drain under it. A brass meter on the wall with a coin slot and a crank. A cream handset on a bracket with a number on the cradle: 201. A towel rail with no towels. A mirror gone brown at the edges.
 It's colder than the pool. You can tell because she puts her hands in her armpits.
+@walkto inez middle
 INEZ: Receiving room. Nineteen fifty-one to seventy-nine. About a hundred and forty people came through this.
-@spot cradle 0.30 0.50 0.34 0.34
-@spot meter 0.70 0.30 0.12 0.18
-@spot photos 0.06 0.18 0.22 0.24
-@spot poster 0.44 0.10 0.18 0.30
-@spot register 0.82 0.56 0.14 0.16
-@spot notes 0.66 0.52 0.14 0.14
 -> ch3_receiving_look
 
 === ch3_receiving_look
@@ -318,6 +333,18 @@ INEZ: Receiving room. Nineteen fifty-one to seventy-nine. About a hundred and fo
     INEZ: The cradle. Warm feed from the old boiler, through the meter. You lie in it, or you... arrive in it, I suppose. There isn't a proper word. The ledger says received.
     ~ k_cradle = true
     -> ch3_receiving_look
++ [use][spot:handset] The handset on 201.
+    A cream handset on a bracket. The number on the cradle, 201, in the same enamel as the plate on the door. The line in it feels cold, like a pipe does.
+    INEZ: Not yet. Look at everything else first. That's what A.R. would've said.
+    -> ch3_receiving_look
++ [look][spot:mirror] The mirror.
+    A mirror gone brown at the edges, like a photograph left in a window. In it: tiles, the basin, a woman in a work coat with her hands in her armpits.
+    Nobody else.
+    THINK: Nobody else. Of course nobody else.
+    -> ch3_receiving_look
++ [go][spot:door] The door.
+    INEZ: We're not done. I didn't bring you all the way round the deep end to look at a door.
+    -> ch3_receiving_look
 * {k_register and k_photos and k_token_talk} "Show me what it does."
     -> ch3_demo
 
@@ -343,6 +370,7 @@ else:
 
 === ch3_demo
 INEZ: I've got the engineer's key. It's not the token. It gives you a test: ten seconds, no more. The token's for the real thing.
+@walkto inez handset
 There's a wall box by the door with its own row of jacks. She takes a patch cord out of her pocket and holds it up where you can see it, or where you can hear it, a little rattle of brass.
 INEZ: Two-four-seven to two-oh-one. Ready?
 * "Ready."
@@ -550,8 +578,33 @@ JAD: Can you... do you want to look? I'd like you to look, actually.
     JAD: Because I'd rather show you than say it. Some of it.
     * [look] Look.
 @view jad
+@walk jad door
 ~ looked_shop = true
 A long room lit by the strip over the counter and nothing else. Six copiers in a row with their lids up. The self-service computer glowing. A guillotine with a sign: ASK STAFF. DO NOT ASK TWICE.
+JAD: It's on the counter. Whenever you're ready. I'm not going to make you.
+-> ch3_shop_look
+
+=== ch3_shop_look
++ [look][spot:copiers] The copiers.
+    Six of them in a row, lids up like mouths. The nearest one wakes on its own and runs its lamp along the glass over nothing, then settles.
+    JAD: They do that. They think somebody's coming.
+    -> ch3_shop_look
++ [look][spot:computer] The self-service computer.
+    A beige tower and a monitor with a sign taped to it: 20P A PAGE. PAY AT COUNTER. PLEASE DO NOT PRINT FLIGHTS.
+    JAD: People print their whole lives on that. Boarding passes. Eviction notices. Wedding speeches. I've read all of them. You can't not.
+    -> ch3_shop_look
++ [look][spot:guillotine] The guillotine.
+    ASK STAFF. DO NOT ASK TWICE.
+    JAD: Nobody's lost a finger. One man lost a very good fringe.
+    -> ch3_shop_look
++ [look][spot:shelf] The paper shelf.
+    Reams in their wrappers, stacked by weight. Eighty gram. A hundred. Card.
+    JAD: Eighty gram for forms. Everybody uses eighty gram for forms. Nobody asks why.
+    -> ch3_shop_look
+* [look][spot:forms] The paper on the counter.
+    -> ch3_shop_forms
+
+=== ch3_shop_forms
 On the counter, a stack of paper still warm from the printer. He fans it out for you.
 Forms. The same form, nine times. Nearly the same. Different names in the top boxes, different handwriting, different signatures. In the contact box, nine times, in the same neat capitals: ARI. FRIEND. And a telephone number that ends 247. On the last one the capitals start at the top of the page.
 ~ saw_stack_copies = true

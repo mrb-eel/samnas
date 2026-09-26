@@ -47,6 +47,11 @@ const CAST := {
 		"hair_style": "set", "height": 1.6, "shape": "f", "face": "june"},
 	"adeyemi": {"coat": Color("4a4a50"), "trousers": Color("2a2a30"), "skin": Color("5a3a2a"), "hair": Color("1a1412"),
 		"hair_style": "short", "height": 1.74, "build": 1.08, "shape": "m", "face": "adeyemi"},
+	# Ari, arrived: a new body in a borrowed coat, the face not yet anyone's
+	"ari": {"coat": Color("6b4a2e"), "trousers": Color("2e2a28"), "skin": Color("c49a80"), "hair": Color("3a2e26"),
+		"hair_style": "short", "height": 1.76, "long_coat": true, "shape": "n", "face": "blank"},
+	"ari_work": {"coat": Color("2e3a4a"), "trousers": Color("2e2a28"), "skin": Color("c49a80"), "hair": Color("3a2e26"),
+		"hair_style": "short", "height": 1.76, "shape": "n", "face": "blank"},
 }
 
 ## Sets that describe somebody by colour alone still get the right face.
@@ -359,6 +364,14 @@ static func face_mat(look: Dictionary) -> StandardMaterial3D:
 	var expr: String = look.get("expr", "neutral")
 	var path := ""
 	var modulate := false
+	if id == "blank":
+		var bk := "blank|%s" % skin
+		if not _mat_cache.has(bk):
+			var bm := StandardMaterial3D.new()
+			bm.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+			bm.albedo_color = skin
+			_mat_cache[bk] = bm
+		return _mat_cache[bk]
 	if id != "":
 		path = "res://assets/tex/face_%s_%s.png" % [id, expr]
 		if not ResourceLoader.exists(path):

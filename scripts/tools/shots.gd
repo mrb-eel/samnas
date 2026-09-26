@@ -56,6 +56,27 @@ func _go() -> void:
 						for ch in main.overlay_root.get_children():
 							ch.queue_free()
 						main.overlay_open = false
+			"until":
+				# auto-play (first choice each time) until a choice inside KNOT
+				var n3 := 0
+				while n3 < 2000:
+					await _settle()
+					n3 += 1
+					if Game.runner.waiting == "choice" and Game.parser.locate(Game.runner.pc)[0] == parts[1]:
+						break
+					match Game.runner.waiting:
+						"line":
+							main.console.finish_typing()
+							Game.runner.advance()
+						"choice":
+							main._on_chosen(0)
+						"cmd":
+							Game.runner.resume()
+							for ch in main.overlay_root.get_children():
+								ch.queue_free()
+							main.overlay_open = false
+						_:
+							break
 			"play":
 				for i in int(parts[1]):
 					await _settle()

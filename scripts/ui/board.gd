@@ -161,7 +161,6 @@ func _fill_strip(who: String) -> void:
 	var c: Dictionary = Game.phone["contacts"][who]
 	var d := _cdef(who)
 	# every thread, as tabs along the top
-	var names := ""
 	for id in Game.contacts_order:
 		if Game.phone["contacts"][id]["thread"].size() > 0:
 			_row("thread", str(_cdef(id).get("name", id)).to_upper(), Grim.AMBER if id == who else Grim.AMBER_DIM, "thread:" + id)
@@ -183,9 +182,9 @@ func _fill_strip(who: String) -> void:
 		_row("button", "ANSWER: " + str(c["reply_prompt"]).to_upper(), Grim.RED, "reply:" + who if Game.can_interrupt() else "")
 		if not Game.can_interrupt():
 			_row("note", "You can answer once this moment lets you.", Grim.PHOS_DIM)
-	Game.mark_thread_read(who)
-	names = names
 	_scroll = 1e9
+	if int(c["unread"]) > 0 and visible:
+		Game.mark_thread_read.call_deferred(who)
 
 func _doc_tex(id: String, printed: bool) -> Texture2D:
 	var dd: Dictionary = Game.docs_def.get(id, {})

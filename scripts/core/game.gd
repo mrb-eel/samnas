@@ -366,7 +366,7 @@ func phone_reply(who: String) -> bool:
 	return runner.interrupt(label)
 
 func mark_thread_read(who: String) -> void:
-	if phone["contacts"].has(who):
+	if phone["contacts"].has(who) and int(phone["contacts"][who]["unread"]) > 0:
 		phone["contacts"][who]["unread"] = 0
 		phone_changed.emit()
 

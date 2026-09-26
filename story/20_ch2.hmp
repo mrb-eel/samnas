@@ -61,6 +61,7 @@ The building arrives the way the office did. Not seen. Known, the way the wiring
 Six floors of flats stacked over a hollow. Forty-two phones. A lift shaft, a stair. Under all of it the pool, and off the pool a room of relays, and somewhere in the relays, you.
 Some of the phones are warm, the way a phone is warm when there's someone near it. On the board their lamps are lit. 3D. 3B. 5A. The lobby desk.
 @state lit 3D,3B,5A,lobby
+THINK: The lit windows are people near a phone. Point at one and the board will ring it.
 -> ch2_hub
 
 === ch2_hub
@@ -68,22 +69,32 @@ Some of the phones are warm, the way a phone is warm when there's someone near i
 @comp room
 @view plan
 @cam main
+@walk none
 if ch2_dima_done and not ch2_nell_texted:
     ~ ch2_nell_texted = true
     ->> ch2_nell_text
 if ch2_dima_done and not ch2_sal_done:
     -> ch2_sal
-* [call][jack:dima] {not ch2_dima_done} Ring 3D. Dima.
+* [call][jack:dima][spot:3D] {not ch2_dima_done} Ring 3D. Dima.
     ->> ch2_dima_call
     -> ch2_hub
-* [call][jack:nell] {not ch2_nell_done} Ring 3B. Nell.
+* [call][jack:nell][spot:3B] {not ch2_nell_done} Ring 3B. Nell.
     ->> ch2_nell_call
     -> ch2_hub
-* [call][jack:teodor] {not ch2_teodor_tried} Ring 5A. Teodor.
+* [call][jack:teodor][spot:5A] {not ch2_teodor_tried} Ring 5A. Teodor.
     ->> ch2_teodor_try
     -> ch2_hub
-* [call][jack:kaye] {not ch2_kaye_tried} Ring 2C. Mrs. Kaye.
+* [call][jack:kaye][spot:2C] {not ch2_kaye_tried} Ring 2C. Mrs. Kaye.
     ->> ch2_kaye_try
+    -> ch2_hub
++ [look][spot:g1] G/1.
+    Your office, the lamp left on. The camp bed made. The bag at the foot of it. From here it's a lit box on the ground floor, the same as everyone's.
+    -> ch2_hub
++ [look][spot:frame] The frame.
+    Under the pool, a room of relays, going. Somewhere in them, the thing that's listening is you.
+    -> ch2_hub
++ [dial][spot:4B] 4B. Jad.
+    His window's dark. He said twenty minutes. He said he'd ring.
     -> ch2_hub
 + {ch2_dima_done and not ch2_sal_done} Wait.
     -> ch2_hub
@@ -836,14 +847,43 @@ INEZ: Hang on, I'll put you through to my mobile. I'm going next door.
 SOUND: A click, a transfer. The relays keep going under everything, on both lines at once, as if the building's pulse came with you.
 * [look] Look.
 @set pool
-@cam inez_eye
 @view inez
+@walk inez frame_door
+@state torch on
 @acoustic pool
 @amb pool_hall
 ~ looked_inez = true
 Dark, and a head torch making a disc of it. The disc moves across tiles, dry, blue under the dust. Leaves in the corners. A crisp packet. A ladder going down into nothing.
 She walks the edge of the deep end without looking at her feet.
 INEZ: I test them once a month. The council thinks they're disconnected. They're not.
+INEZ: The box is on the wall by the deep end. You can steer. I'll know if you walk me in.
+-> ch2_pool_walk
+
+=== ch2_pool_walk
+* [use][spot:switchbox] The switch box.
+    -> ch2_pool_lamps
++ [look][spot:ladder] The ladder.
+    A steel ladder going down the wall of the deep end into the dark. The rungs are furred with dust, except the top two.
+    INEZ: Twelve feet at that end. People used to go off the top board into it.
+    -> ch2_pool_walk
++ [look][spot:crisps] The crisp packet.
+    Down on the slope of the shallow end, a crisp packet, the old design, the colours gone to ghosts.
+    INEZ: That's been there since before the millennium. I've decided it's a listed building.
+    -> ch2_pool_walk
++ [look][spot:shallow] The shallow end.
+    The floor rises toward the far wall. Lane lines, dark blue on light blue, going under the dust.
+    INEZ: Three foot six. You could stand up in it, if there was anything to stand up in.
+    -> ch2_pool_walk
++ [look][spot:g1_window] The lit window, high up.
+    High on the far wall, one lit window, small, like a stamp.
+    THINK: That's G/1. That's the office. You've been on the other side of that glass.
+    -> ch2_pool_walk
++ [go][spot:receiving_door] The door with the enamel plate.
+    A door in the tiled wall, painted the same colour as the wall. An enamel plate somebody has scraped clean.
+    INEZ: Not that one. Not yet.
+    -> ch2_pool_walk
+
+=== ch2_pool_lamps
 A grey switch box on the wall. She opens it. Six brass levers with labels, some in her writing, some in older writing that has gone brown.
 INEZ: One.
 @sfx lamp_switch

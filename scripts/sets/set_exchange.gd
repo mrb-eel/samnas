@@ -124,12 +124,32 @@ func build(_v: String) -> void:
 	work_light = K.omni(self, Vector3(-1.2, 2.3, -D / 2 + 1.2), Color("fff0d0"), 1.3, 6.0)
 	K.omni(self, Vector3(0, 2.4, 1.0), Color("c0c8d0"), 0.4, 8.0)
 	# Inez
-	inez = K.person(self, Vector3(0.3, 0, -1.7), PI, {"coat": Color("3a4a5a"), "trousers": Color("3a4a5a"), "skin": Color("c8a088"), "hair": Color("b8b4ac"), "hair_style": "short", "height": 1.62, "arms": "forward"})
+	inez = K.person(self, Vector3(0.3, 0, -1.7), PI, {"coat": Color("3a4a5a"), "trousers": Color("3a4a5a"), "skin": Color("c8a088"), "hair": Color("b8b4ac"), "hair_style": "short", "height": 1.62, "arms": "phone_low"})
+	set_actor("inez", inez)
 	cam_hide = {"inez_eye": [inez], "casio": [inez]}
 	add_cam("main", Vector3(1.8, 3.9, 6.8), Vector3(-0.2, 1.1, -1.6), 56)
 	add_cam("inez_eye", Vector3(0.15, 1.55, -1.75), Vector3(0.0, 1.28, -3.0), 56)
 	add_cam("board_outside", Vector3(-2.4, 1.62, 0.9), Vector3(-4.25, 0.95, -0.35), 58)
 	add_cam("casio", Vector3(2.4, 1.55, -1.7), Vector3(2.55, 0.95, -2.9), 58)
+	_walk(W, D)
+
+func _walk(W: float, D: float) -> void:
+	add_floor(Rect2(-W / 2 + 0.15, -D / 2 + 0.55, W - 0.3, D - 0.7))
+	add_block(2.7, -D / 2 + 0.95, 1.95, 0.6)  # Inez's bench
+	add_block(-W / 2 + 0.55, -0.2, 0.95, 1.85)  # the attendant's board
+	add_block(-W / 2 + 1.35, -0.2, 0.45, 0.45)  # its stool
+	add_entry("door", Vector3(0.6, 0, D / 2 - 0.5), PI)
+	add_entry("frame", Vector3(0.3, 0, -1.8), PI)
+	add_hotspot("figure", Vector3(0.0, 1.3, -D / 2 + 0.33), Vector3(0.34, 0.75, 0.3), Vector3(0.0, 0, -D / 2 + 1.15), "The figure in the gap", "ask")
+	add_hotspot("tags", Vector3(1.4, 1.8, -D / 2 + 0.5), Vector3(1.2, 1.0, 0.12), Vector3(1.4, 0, -D / 2 + 1.15), "The labels on the cables")
+	add_hotspot("clean", Vector3(-2.1, 1.35, -D / 2 + 0.35), Vector3(1.2, 2.3, 0.3), Vector3(-2.1, 0, -D / 2 + 1.15), "The clean section")
+	add_hotspot("casio", Vector3(2.5, 0.99, -D / 2 + 0.95), Vector3(0.9, 0.14, 0.3), Vector3(2.5, 0, -D / 2 + 1.6), "The Casio")
+	add_hotspot("tape", Vector3(3.3, 1.5, -D / 2 + 0.95), Vector3(0.4, 0.26, 0.3), Vector3(3.3, 0, -D / 2 + 1.6), "The answering machine")
+	add_hotspot("printer", Vector3(2.1, 1.55, -D / 2 + 0.95), Vector3(0.42, 0.5, 0.32), Vector3(2.0, 0, -D / 2 + 1.6), "The printer")
+	add_hotspot("board", Vector3(-W / 2 + 0.55, 1.0, -0.2), Vector3(0.9, 1.4, 1.8), Vector3(-W / 2 + 1.9, 0, -0.2), "The board", "look")
+	add_hotspot("looms", Vector3(-2.6, 2.7, -D / 2 + 0.45), Vector3(2.4, 0.5, 0.3), Vector3(-2.6, 0, -D / 2 + 1.2), "The cable looms")
+	walk_cam = {"offset": Vector3(0.8, 3.8, 5.6), "look": Vector3(0, 1.0, -1.2), "fov": 54.0,
+		"min": Vector3(-1.6, 0, 0), "max": Vector3(1.6, 0, 0)}
 
 ## A painted plaster Madonna, about two feet high: white robe, a mantle whose
 ## blue has faded to the colour of the frame's oldest boards, one hand raised.

@@ -134,6 +134,9 @@ func set_cam(name: String) -> void:
 func apply_state(key: String, value: String) -> void:
 	if current:
 		current.apply_state(key, value)
+		if current.nav_changed:
+			current.nav_changed = false
+			nav.build(current)
 
 func set_view(who: String, calling: bool) -> void:
 	view = who
@@ -188,7 +191,16 @@ func can_walk() -> bool:
 ## Hand the lender over to the player. `entry` names a door in the set;
 ## empty keeps them where they are.
 func walk_begin(who: String, entry: String = "", pose: String = "phone") -> void:
-	if current == null or not current.can_walk():
+	if current == null:
+		return
+	if who == "none":
+		# a map: things to click, nobody to walk (the building, a close-up)
+		walking = true
+		walk_who = "none"
+		walker = null
+		cutaway = ""
+		return
+	if not current.can_walk():
 		return
 	var w := _walker_for(who, pose)
 	if w == null:
@@ -220,6 +232,13 @@ func _walker_for(who: String, pose: String = "phone") -> Walker:
 		var at: Array = current.entries.values()[0] if not current.entries.is_empty() else [Vector3.ZERO, 0.0]
 		fig = Figure.build(current, at[0], at[1], Figure.cast(who, {"arms": pose}))
 		current.set_actor(who, fig)
+		# cameras that are somebody's eyes shouldn't see that somebody
+		var base := who.split("_")[0]
+		for cn in current.cams:
+			if cn == base + "_eye" or cn in ["window", "window_close", "door"]:
+				if not current.cam_hide.has(cn):
+					current.cam_hide[cn] = []
+				current.cam_hide[cn].append(fig)
 	fig.visible = true
 	var w := Walker.new()
 	w.name = "walker_" + who
@@ -255,9 +274,11 @@ func _clamped(p: Vector3) -> Vector3:
 func set_walk_spots(spots: Dictionary) -> void:
 	walk_spots = spots
 	interactive = true
-	if walking and cutaway != "":
+	if walking and cutaway != "" and walker != null:
 		cutaway = ""
 		_ensure_walk_cam(false)
+	elif walking and walker == null:
+		cutaway = ""
 	marks.queue_redraw()
 
 func clear_walk_spots() -> void:
@@ -396,7 +417,7 @@ func spot_rect(sid: String) -> Rect2:
 	return r
 
 func _gui_input(event: InputEvent) -> void:
-	var live := walking and interactive and walker != null and cutaway == ""
+	var live := walking and interactive and cutaway == ""
 	if event is InputEventMouseMotion:
 		if live:
 			var sid := _pick_spot(event.position)
@@ -408,7 +429,7 @@ func _gui_input(event: InputEvent) -> void:
 			if sid != "":
 				var ws: Dictionary = walk_spots[sid]
 				ScreenFx.want(ws.get("verb", "look"), ws.get("label", ""))
-			else:
+			elif walker != null:
 				var fp := _pick_floor(event.position)
 				ScreenFx.want("walk" if fp != Vector3.INF and nav.walkable(nav.nearest(fp)) and fp.distance_to(nav.nearest(fp)) < 0.8 else "point")
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -419,6 +440,8 @@ func _gui_input(event: InputEvent) -> void:
 		var sid2 := _pick_spot(event.position)
 		if sid2 != "":
 			_go_spot(sid2)
+			return
+		if walker == null:
 			return
 		var fp2 := _pick_floor(event.position)
 		if fp2 != Vector3.INF:
@@ -432,6 +455,10 @@ func _gui_input(event: InputEvent) -> void:
 
 func _go_spot(sid: String) -> void:
 	var hs: Dictionary = current.hotspots[sid]
+	if walker == null:
+		Audio.sfx("click", -10.0)
+		walk_picked.emit(sid)
+		return
 	pending_spot = sid
 	var path := nav.path(walker.fig.position, hs["stand"])
 	for c in walker.arrived.get_connections():

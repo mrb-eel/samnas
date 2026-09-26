@@ -65,6 +65,17 @@ func build(_v: String) -> void:
 	for k in figures:
 		figures[k].visible = false
 	add_cam("main", Vector3(5.0, 9.5, 32.0), Vector3(0.0, 7.4, -2.5), 0.0, 25.0)
+	# every flat can be pointed at; the story decides which ones answer
+	for f in range(1, 7):
+		for i in 7:
+			var flat := "%d%s" % [f, FLATS[i]]
+			_flat_spot(flat, Vector3(x0 + i * FW, f * FH + FH / 2, -DEPTH / 2))
+	add_hotspot("lobby", Vector3(-width * 0.22, FH / 2, -DEPTH / 2), Vector3(width * 0.55, FH, DEPTH), Vector3.ZERO, "The lobby desk", "dial")
+	add_hotspot("g1", Vector3(6.2, FH / 2, -DEPTH / 2), Vector3(width * 0.3, FH, DEPTH), Vector3.ZERO, "G/1", "look")
+	add_hotspot("frame", Vector3(8.2, -2.2, -DEPTH / 2), Vector3(4.4, 4.4, DEPTH), Vector3.ZERO, "The frame", "look")
+
+func _flat_spot(flat: String, c: Vector3) -> void:
+	add_hotspot(flat, c, Vector3(FW - 0.1, FH - 0.1, DEPTH), Vector3.ZERO, flat, "dial")
 
 func apply_state(key: String, value: String) -> void:
 	super.apply_state(key, value)

@@ -28,6 +28,10 @@ var actors: Dictionary = {}  # who -> Node3D
 var walk_cam := {"offset": Vector3(0, 3.4, 4.2), "look": Vector3(0, 0.9, 0), "fov": 50.0,
 	"min": Vector3(-100, 0, -100), "max": Vector3(100, 0, 100)}
 
+## Set true when a state change moves furniture or people about, so the
+## stage rebuilds its walking grid.
+var nav_changed := false
+
 func can_walk() -> bool:
 	return not floors.is_empty()
 

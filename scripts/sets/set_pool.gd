@@ -188,6 +188,7 @@ func build(v: String) -> void:
 	torch = K.spot(self, Vector3(PL / 2 + 1.0, 1.6, 5.8), Vector3(4, -2.5, -1), Color("fff4d8"), 0.0, 22.0, 18.0)
 	cam_hide = {"meeting": [roof, sky] + near_walls, "main": near_walls}
 	add_cam("main", Vector3(-15.5, 6.2, 10.5), Vector3(6.0, -1.8, 0.0), 52)
+	_walk(hx, hz, near_walls)
 	add_cam("inez_eye", Vector3(PL / 2 + 1.0, 1.62, 5.9), Vector3(4.0, -2.4, -1.2), 60)
 	add_cam("deep", Vector3(6.2, -2.3, 3.0), Vector3(10.0, -2.8, -0.4), 60)
 	add_cam("meeting", Vector3(9.5, 10.5, 12.5), Vector3(9.3, -2.2, 0.0), 44)
@@ -221,6 +222,12 @@ func apply_state(key: String, value: String) -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	# the head torch goes where Inez goes, pointing where she's facing
+	if states.get("torch", "") == "on" and actors.has("inez") and is_instance_valid(actors["inez"]):
+		var f: Node3D = actors["inez"]
+		var fwd := Vector3(sin(f.rotation.y), 0, cos(f.rotation.y))
+		torch.position = f.position + Vector3(0, 1.62, 0) + fwd * 0.15
+		torch.look_at(f.position + fwd * 5.0 + Vector3(0, -1.6, 0), Vector3.UP)
 	if Settings.reduced_motion:
 		return
 	# old ballasts: the light wobbles like light through water
@@ -235,3 +242,24 @@ func _process(delta: float) -> void:
 		var k := ph if ph < 1.0 else 2.0 - ph
 		walker.position = Vector3(5.2 + k * 7.0, -DEEP, -2.2)
 		walker.rotation.y = PI / 2 if ph < 1.0 else -PI / 2
+
+## The deck round the basin is walkable; the basin isn't (it's a long way down).
+func _walk(hx: float, hz: float, near_walls: Array) -> void:
+	add_floor(Rect2(-hx + 0.3, PW / 2 + 0.35, hx * 2 - 0.6, hz - PW / 2 - 0.6))
+	add_floor(Rect2(-hx + 0.3, -hz + 0.3, hx * 2 - 0.6, hz - PW / 2 - 0.65))
+	add_floor(Rect2(-hx + 0.3, -PW / 2 - 0.5, hx - PL / 2 - 0.65, PW + 1.0))
+	add_floor(Rect2(PL / 2 + 0.35, -PW / 2 - 0.5, hx - PL / 2 - 0.65, PW + 1.0))
+	add_block(PL / 2 + 1.4, 0.0, 1.3, 1.5)  # the diving stand
+	add_entry("frame_door", Vector3(hx - 0.9, 0, 6.6), -PI / 2)
+	add_entry("receiving_door", Vector3(hx - 1.0, 0, -4.0), -PI / 2)
+	add_entry("deep_edge", Vector3(9.5, 0, PW / 2 + 0.8), PI)
+	add_hotspot("switchbox", Vector3(PL / 2 + 2.6, 1.4, hz - 0.2), Vector3(0.7, 0.9, 0.3), Vector3(PL / 2 + 2.6, 0, hz - 1.0), "The switch box", "use")
+	add_hotspot("ladder", Vector3(PL / 2 - 0.25, -1.2, PW / 2 - 0.7), Vector3(0.5, 3.4, 0.9), Vector3(PL / 2 + 0.9, 0, PW / 2 - 0.7), "The ladder")
+	add_hotspot("chair", Vector3(9.5, -DEEP + 0.45, 0.0), Vector3(0.7, 1.0, 0.7), Vector3(9.5, 0, PW / 2 + 0.8), "The chair in the deep end")
+	add_hotspot("crisps", Vector3(-2.0, -1.4, 1.8), Vector3(0.5, 0.3, 0.4), Vector3(-2.0, 0, PW / 2 + 0.8), "The crisp packet")
+	add_hotspot("g1_window", Vector3(-hx + 0.16, 4.7, -3.0), Vector3(0.3, 1.2, 1.8), Vector3(-hx + 1.4, 0, -3.0), "The lit window, high up")
+	add_hotspot("receiving_door", Vector3(hx - 0.2, 1.05, -4.0), Vector3(0.3, 2.1, 1.1), Vector3(hx - 1.0, 0, -4.0), "The door with the enamel plate", "go")
+	add_hotspot("shallow", Vector3(-8.0, -0.6, 0.0), Vector3(8.0, 1.2, PW - 1.0), Vector3(-8.0, 0, PW / 2 + 0.8), "The shallow end")
+	walk_cam = {"offset": Vector3(0, 5.2, 6.8), "look": Vector3(0, 0.2, -1.2), "fov": 56.0,
+		"min": Vector3(-12.0, 0, -3.5), "max": Vector3(14.5, 0, 3.0)}
+	cam_hide["walk"] = near_walls

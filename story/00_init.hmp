@@ -326,6 +326,7 @@ return
 ~ said_tomorrow = false
 ~ phrase_resolved = false
 ~ cord_home = false
+~ saw_self_window = false
 ~ cord_virgin = false
 ~ cord_held = false
 return

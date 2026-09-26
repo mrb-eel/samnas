@@ -15,6 +15,7 @@ var flask_n: Node3D
 var postcard: MeshInstance3D
 var paperback: Node3D
 var reflection: Node3D
+var reflection_ari: Node3D
 var pool_fig: Node3D
 var roster: MeshInstance3D
 var roster_lim: MeshInstance3D
@@ -115,6 +116,14 @@ func build(_v: String) -> void:
 		(m as MeshInstance3D).transparency = 0.45
 	K.sphere(reflection, 0.08, Vector3(0.6, 1.1, -D - 1.1), K.emis(Color("ffe0a0"), 0.7), 6)
 	reflection.visible = false
+	# the same glass, later: somebody in it who isn't anybody else
+	reflection_ari = Node3D.new()
+	add_child(reflection_ari)
+	var ra := K.person(reflection_ari, Vector3(0.55, 0, -D - 0.45), 0.0, Figure.cast("ari"))
+	for m in ra.find_children("*", "MeshInstance3D"):
+		(m as MeshInstance3D).transparency = 0.45
+	K.sphere(reflection_ari, 0.08, Vector3(0.6, 1.1, -D - 1.1), K.emis(Color("ffe0a0"), 0.7), 6)
+	reflection_ari.visible = false
 	# the pool hall below, dark
 	var hall := Node3D.new()
 	hall.position = Vector3(0, -3.2, -D / 2 - 8.0)
@@ -156,6 +165,8 @@ func _walk(W: float, D: float) -> void:
 	add_hotspot("bag", Vector3(-W / 2 + 0.5, 0.2, 1.35), Vector3(0.42, 0.42, 0.36), Vector3(-0.6, 0, 1.15), "The bag")
 	add_hotspot("hook", Vector3(-W / 2 + 0.1, 1.72, -0.95), Vector3(0.2, 0.3, 0.3), Vector3(-1.05, 0, -1.08), "The coat hook")
 	add_hotspot("door", Vector3(W / 2 + 0.02, 1.05, 0.8), Vector3(0.2, 2.1, 1.2), Vector3(W / 2 - 0.2, 0, 0.95), "The door", "go", Vector3(W / 2 + 2.0, 1.2, 0.8))
+	add_hotspot("roster", Vector3(W / 2 - 0.07, 1.5, -0.2), Vector3(0.1, 0.45, 0.6), Vector3(1.1, 0, 0.0), "The roster", "read")
+	add_hotspot("lanyard", Vector3(0.3, 0.78, -D / 2 + 0.55), Vector3(0.32, 0.08, 0.2), Vector3(0.58, 0, -0.38), "The lanyard")
 	if teodor_door:
 		person_spot("teodor", teodor_door, "Teodor", Vector3(0, 0, 0.8))
 	walk_cam = {"offset": Vector3(2.9, 3.3, 4.4), "look": Vector3(-0.3, 0.55, -0.35), "fov": 50.0,
@@ -187,6 +198,7 @@ func apply_state(key: String, value: String) -> void:
 			paperback.visible = value == "on"
 		"reflect":
 			reflection.visible = value == "on"
+			reflection_ari.visible = value == "ari"
 		"pool_figure":
 			pool_fig.visible = value == "on"
 		"roster":

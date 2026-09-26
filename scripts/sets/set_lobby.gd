@@ -12,6 +12,7 @@ var desk_lamp_light: OmniLight3D
 var residents: Node3D
 var sal: Node3D
 var sun: OmniLight3D
+var _resident_blocks: Array = []
 var _t := 0.0
 
 func build(_v: String) -> void:
@@ -123,6 +124,7 @@ func _walk(L: float) -> void:
 	add_entry("street_door", Vector3(-L / 2 + 0.7, 0, 0.0), PI / 2)
 	add_entry("corridor", Vector3(L / 2 + 0.8, 0, 0.0), -PI / 2)
 	add_entry("desk", Vector3(1.0, 0, -0.9), PI)
+	add_entry("corridor_mouth", Vector3(L / 2 - 0.9, 0, 0.0), -PI / 2)
 	add_hotspot("notice", Vector3(3.7, 1.55, -2.42), Vector3(1.4, 0.95, 0.14), Vector3(3.7, 0, -1.55), "The notice", "read")
 	add_hotspot("chairs", Vector3(-2.6, 0.45, 1.4), Vector3(4.2, 0.9, 0.5), Vector3(-3.35, 0, 0.72), "The chairs", "look", Vector3(-3.35, 0.45, 1.4))
 	add_hotspot("tray", Vector3(-0.35, 1.1, -1.8), Vector3(0.5, 0.2, 0.45), Vector3(-0.35, 0, -0.98), "The wire tray", "look")
@@ -135,7 +137,7 @@ func _walk(L: float) -> void:
 	add_hotspot("corridor", Vector3(L / 2 + 0.3, 1.1, 0.0), Vector3(0.7, 2.2, 1.4), Vector3(L / 2 + 0.9, 0, 0.0), "The corridor", "go", Vector3(L / 2 + 6.0, 1.2, 0.0))
 	add_hotspot("g1_door", Vector3(L / 2 + 9.9, 1.1, 0.0), Vector3(0.2, 2.2, 1.4), Vector3(L / 2 + 9.2, 0, 0.0), "G/1", "go")
 	walk_cam = {"offset": Vector3(0, 3.2, 5.2), "look": Vector3(0, 0.95, -0.6), "fov": 50.0,
-		"min": Vector3(-4.0, 0, 0), "max": Vector3(3.4, 0, 0)}
+		"min": Vector3(-4.0, 0, 0), "max": Vector3(4.0, 0, 0)}
 
 func apply_state(key: String, value: String) -> void:
 	super.apply_state(key, value)
@@ -155,6 +157,16 @@ func apply_state(key: String, value: String) -> void:
 			env.environment.ambient_light_energy = 1.2 if value == "on" else 0.75
 		"residents":
 			residents.visible = value == "on"
+			# people standing about are in the way
+			for rp in _resident_blocks:
+				blocks.erase(rp)
+			_resident_blocks.clear()
+			if value == "on":
+				for c in residents.get_children():
+					var b := Rect2(c.position.x - 0.3, c.position.z - 0.3, 0.6, 0.6)
+					blocks.append(b)
+					_resident_blocks.append(b)
+			nav_changed = true
 		"sal":
 			sal.visible = value == "desk"
 

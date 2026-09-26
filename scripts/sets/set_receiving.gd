@@ -72,7 +72,7 @@ func build(_v: String) -> void:
 	K.picture(self, "res://assets/docs/photo_arrivals.jpg", 0.5, 0.389, Vector3(-0.9, 1.75, -D / 2 + 0.1))
 	K.box(self, Vector3(0.66, 0.39, 0.03), Vector3(0.05, 1.8, -D / 2 + 0.08), K.mat(Color("3a2a1a")))
 	K.picture(self, "res://assets/docs/photo_attendants.jpg", 0.6, 0.334, Vector3(0.05, 1.8, -D / 2 + 0.1))
-	K.picture(self, "res://assets/docs/poster_received.jpg", 0.45, 0.637, Vector3(W / 2 - 0.07, 1.5, 0.4), Vector3(0, -PI / 2, 0))
+	K.picture(self, "res://assets/docs/poster_received.jpg", 0.45, 0.637, Vector3(-W / 2 + 0.07, 1.45, -0.45), Vector3(0, PI / 2, 0))
 	for i in 3:
 		K.quad(self, 0.12, 0.08, Vector3(W / 2 - 0.07, 1.0 + i * 0.1, -0.55 + i * 0.03), K.mat(Color("e8dcc0")), Vector3(0, -PI / 2, 0.05 * i))
 	K.shelf(self, Vector3(W / 2 - 0.3, 0.6, 1.1), -PI / 2, 0.6, 0.26, 1, 0.3)
@@ -91,7 +91,8 @@ func build(_v: String) -> void:
 		var hp := K.person(self, Vector3(0.75, 0, -D / 2 + 0.55), PI + 0.3, looks[k])
 		hp.visible = false
 		holders[k] = hp
-	inez = K.person(self, Vector3(1.0, 0, 0.9), PI + 0.4, looks["inez"].merged({"arms": "down"}, true))
+	inez = K.person(self, Vector3(1.0, 0, 0.9), PI + 0.4, looks["inez"].merged({"arms": "phone_low"}, true))
+	set_actor("inez", inez)
 	sal = K.person(self, Vector3(1.1, 0, 1.2), PI + 0.6, {"coat": Color("3e5a4e"), "trousers": Color("26262c"), "skin": Color("c89878"), "hair": Color("2a2420"), "hair_style": "short", "glasses": true, "height": 1.7, "arms": "forward"})
 	sal.visible = false
 	pen_hand = Node3D.new()
@@ -105,6 +106,26 @@ func build(_v: String) -> void:
 	add_cam("inez_eye", Vector3(W / 2 - 0.1, 1.58, 1.3), Vector3(-0.6, 1.0, -1.0), 64)
 	add_cam("ari_eye", Vector3(-0.4, 0.8, -0.2), Vector3(0.55, 2.0, -0.7), 74)
 	add_cam("close", Vector3(0.9, 1.45, -0.6), Vector3(W / 2 - 0.1, 1.32, -0.9), 50)
+	_walk(W, D, H)
+
+func _walk(W: float, D: float, H: float) -> void:
+	add_floor(Rect2(-W / 2 + 0.06, -D / 2 + 0.06, W - 0.12, D - 0.12))
+	add_floor(Rect2(W / 2 - 0.4, -0.05, 1.4, 0.8))  # the doorway
+	add_block(-0.4, -0.35, 1.0, 2.0)  # the cradle on its plinth
+	add_block(W / 2 - 0.25, 1.1, 0.4, 0.66)  # the shelf with the ledger
+	add_entry("door", Vector3(W / 2 + 0.5, 0, 0.35), -PI / 2)
+	add_entry("middle", Vector3(0.7, 0, 0.3), PI)
+	add_hotspot("cradle", Vector3(-0.4, 0.5, -0.35), Vector3(0.9, 0.6, 1.9), Vector3(0.4, 0, -0.1), "The basin")
+	add_hotspot("meter", Vector3(W / 2 - 0.1, 1.35, -0.9), Vector3(0.14, 0.4, 0.3), Vector3(1.15, 0, -0.9), "The brass meter")
+	add_hotspot("photos", Vector3(-0.42, 1.78, -D / 2 + 0.1), Vector3(1.35, 0.5, 0.1), Vector3(0.45, 0, -1.2), "The photographs", "look", Vector3(-0.42, 1.78, -D / 2))
+	add_hotspot("poster", Vector3(-W / 2 + 0.07, 1.45, -0.45), Vector3(0.1, 0.64, 0.46), Vector3(-1.3, 0, -0.2), "The poster", "read", Vector3(-W / 2, 1.45, -0.45))
+	add_hotspot("register", Vector3(W / 2 - 0.3, 0.66, 1.1), Vector3(0.36, 0.16, 0.42), Vector3(0.95, 0, 1.1), "The ledger", "read")
+	add_hotspot("notes", Vector3(W / 2 - 0.07, 1.1, -0.52), Vector3(0.1, 0.36, 0.3), Vector3(1.15, 0, -0.5), "Notes on the tiles")
+	add_hotspot("handset", Vector3(0.9, 1.36, -D / 2 + 0.12), Vector3(0.3, 0.36, 0.16), Vector3(0.9, 0, -0.95), "The handset on 201", "use")
+	add_hotspot("mirror", Vector3(-W / 2 + 0.1, 1.5, 0.9), Vector3(0.1, 0.7, 0.5), Vector3(-1.1, 0, 0.9), "The mirror")
+	add_hotspot("door", Vector3(W / 2 + 0.02, 1.05, 0.35), Vector3(0.2, 2.1, 0.9), Vector3(W / 2 - 0.3, 0, 0.35), "The door", "go", Vector3(W / 2 + 2.0, 1.2, 0.35))
+	walk_cam = {"offset": Vector3(2.6, 3.4, 4.6), "look": Vector3(-0.2, 0.8, -0.5), "fov": 54.0,
+		"min": Vector3.ZERO, "max": Vector3.ZERO}
 
 func apply_state(key: String, value: String) -> void:
 	super.apply_state(key, value)
