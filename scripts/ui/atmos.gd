@@ -71,7 +71,7 @@ class Air extends Control:
 			return
 		var g := Kit.tex("res://assets/ui/grain.png")
 		if g:
-			draw_texture_rect_region(g, Rect2(Vector2.ZERO, vs), Rect2(grain_off, vs * 0.5), Color(1, 1, 1, 0.3))
+			draw_texture_rect(g, Rect2(-grain_off, vs + Vector2(256, 256)), true, Color(1, 1, 1, 0.3))
 		# dust, lit only where it crosses the lamp's beam
 		var glow := Kit.tex("res://assets/ui/glow.png")
 		if glow == null or Settings.reduced_motion:

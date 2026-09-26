@@ -82,7 +82,7 @@ class Title extends Control:
 	var going := ""
 	var go_t := 0.0
 	var art: Texture2D
-	var ari_jack := Vector2(1128, 594)
+	var ari_jack := Vector2(1128, 610)
 	const BOARD_Y := 452.0
 
 	func _ready() -> void:
@@ -99,9 +99,8 @@ class Title extends Control:
 			j.label = items[i][0] if items[i][2] else ""
 			j.enabled = items[i][2]
 			j.tape_angle = [-0.035, 0.025, -0.015, 0.04, -0.03][i]
-			j.key_hint = str(i + 1)
 			j.size = Vector2(170, 200)
-			var home := Vector2(x0 + i * step - 85, 516)
+			var home := Vector2(x0 + i * step - 85, 532)
 			j.position = home
 			var what: String = items[i][1]
 			var idx: int = i
@@ -178,8 +177,8 @@ class Title extends Control:
 		draw_rect(Rect2(wo + Vector2(-40, 382), Vector2(W + 80, 3)), Color(0, 0, 0, 0.4))
 		# the mosaic, lifted from the baths' entrance and screwed to the wall
 		var mo := Atmos.off(0.3)
-		var tile := 11.0
-		var mpos := Vector2(66, 58) + mo
+		var tile := 10.0
+		var mpos := Vector2(62, 62) + mo
 		var msz := Vector2(Kit.mosaic_cols("HOLD MY PLACE") + 6, 13) * tile
 		Kit.shadow(self, Rect2(mpos, msz), 0.35)
 		var reveal := 1.0 if Settings.reduced_motion else clampf(t * 0.8 - 0.05, 0.0, 1.0)
@@ -190,8 +189,8 @@ class Title extends Control:
 		Kit.dymo(self, mpos + Vector2(8, msz.y + 22), "One night at Ferrier Court · the overnight service closes at six", 15, Color("1a1a1c"), -0.012)
 		# the porthole into the deep end
 		var po := Atmos.off(0.5)
-		var pc := Vector2(1062, 232) + po
-		var pr := 150.0
+		var pc := Vector2(1086, 226) + po
+		var pr := 138.0
 		draw_circle(pc + Vector2(10, 16), pr + 26, Color(0, 0, 0, 0.45))
 		if art:
 			var pts := PackedVector2Array()
@@ -244,7 +243,7 @@ class Title extends Control:
 		# a row of the building's own jacks, for company
 		for i in 26:
 			var jx := 110.0 + i * 41.0 + bo.x
-			var jy := top + 70
+			var jy := top + 66
 			Kit.jack(self, Vector2(jx, jy), 6.0)
 			Kit.text(self, Vector2(jx - 14, jy + 20), str(201 + i), "dotline", 10, Color(Kit.IVORY_DIM, 0.5), 28, HORIZONTAL_ALIGNMENT_CENTER)
 		# 247, where Ari is, and where the cord comes up from
@@ -576,8 +575,7 @@ class SaveLoad extends Control:
 			var ink := Color("2a2436") if usable else Color("2a2436", 0.35)
 			Kit.text(ci, Vector2(r.position.x, r.position.y + 34), str(slot), "hand", 30, ink)
 			if slot == 0:
-				Kit.text(ci, Vector2(r.position.x - 4, r.position.y + 58), "kept by", "prose_i", 11, Color(ink, 0.7))
-				Kit.text(ci, Vector2(r.position.x - 4, r.position.y + 72), "the building", "prose_i", 11, Color(ink, 0.7))
+				Kit.text(ci, Vector2(r.position.x + 220, r.position.y + 108), "kept by the building as you go (autosave)", "prose_i", 12, Color(ink, 0.6))
 			var ph := Rect2(r.position.x + 48, r.position.y + 12, 152, 86)
 			var tx: Array = _entry_text(i)
 			var thumb: Texture2D = row["thumb"]
@@ -668,8 +666,8 @@ class Toggle extends Control:
 		draw_circle(c, 29, Color("9a9c9e"))
 		draw_circle(c, 25, Color("7a7c80"))
 		draw_arc(c, 27, PI * 1.1, PI * 1.6, 12, Color(1, 1, 1, 0.4), 2.0)
-		var ang := lerpf(0.55, -0.55, flip)
-		var tip := c + Vector2(sin(ang), -cos(ang) * 0.95) * 44
+		var ang := lerpf(2.6, -0.22, flip)
+		var tip := c + Vector2(sin(ang), -cos(ang)) * 42
 		draw_line(c + Vector2(3, 5), tip + Vector2(3, 5), Color(0, 0, 0, 0.35), 11)
 		draw_line(c, tip, Color("d8d8d4"), 10)
 		draw_line(c + Vector2(-2, 0), tip + Vector2(-2, 0), Color(1, 1, 1, 0.6), 2)
@@ -815,11 +813,14 @@ class Knife extends Toggle:
 			draw_rect(Rect2(size.x * 0.5 + x - 5, 64, 10, 16), Kit.BRASS)
 			draw_rect(Rect2(size.x * 0.5 + x - 5, 122, 10, 14), Kit.BRASS)
 		var hinge := Vector2(size.x * 0.5, 130)
-		var ang := lerpf(1.2, 0.0, flip)
-		var tip := hinge + Vector2(0, -1).rotated(ang) * 70
+		var ang := lerpf(1.25, 0.0, flip)
+		var up := Vector2(0, -1).rotated(ang)
+		var tip := hinge + up * 68
+		var side := Vector2(1, 0)
 		for x in [-18, 18]:
-			draw_line(hinge + Vector2(x, 0), tip + Vector2(x, 0), Color("c8c8c0"), 5)
-		draw_line(tip + Vector2(-26, 0), tip + Vector2(26, 0), Color("1a1a1a"), 10)
+			draw_line(hinge + side * x, tip + side * x, Color("c8c8c0"), 5)
+		draw_line(tip + side * -26 + up * 6, tip + side * 26 + up * 6, Color("1a1a1a"), 12)
+		draw_line(tip + side * -26 + up * 6, tip + side * 26 + up * 6, Color(1, 1, 1, 0.15), 3)
 		Kit.lamp(self, Vector2(size.x * 0.5 + 64, 70), 7.0, Kit.LAMP_GREEN if value else Kit.RED, value)
 		if has_focus() or hover:
 			draw_rect(base.grow(8), Color(Kit.AMBER, 0.6), false, 2.0)
@@ -979,10 +980,13 @@ class Backlog extends Control:
 		sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		sc.add_theme_stylebox_override("panel", Kit.empty_box())
 		add_child(sc)
-		strip = _Roll.new()
+		var roll := _Roll.new()
+		roll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		sc.add_child(roll)
+		strip = VBoxContainer.new()
 		strip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		strip.add_theme_constant_override("separation", 14)
-		sc.add_child(strip)
+		roll.add_child(strip)
 		var top_pad := Control.new()
 		top_pad.custom_minimum_size = Vector2(0, 40)
 		strip.add_child(top_pad)
@@ -1058,23 +1062,31 @@ class Backlog extends Control:
 		Kit.lamp(ci, Vector2(960, 652), 7.0, Kit.LAMP_GREEN, true)
 		Kit.text(ci, Vector2(0, 712), "scroll to pull the paper   ·   L or ESC tear it off", "dotline", 12, Color("3a342c"), 1280, HORIZONTAL_ALIGNMENT_CENTER)
 
-## The roll itself, drawn behind whatever is printed on it.
-class _Roll extends VBoxContainer:
+## The roll itself, drawn behind whatever is printed on it: sprocket holes
+## down both edges, a perforation every sheet.
+class _Roll extends MarginContainer:
+	func _ready() -> void:
+		for side in ["margin_left", "margin_right"]:
+			add_theme_constant_override(side, 50)
+		resized.connect(queue_redraw)
 	func _draw() -> void:
-		var r := Rect2(Vector2(-30, 0), Vector2(size.x + 60, size.y))
+		var r := Rect2(Vector2.ZERO, size)
 		draw_rect(r, Color("ece5d2"))
 		var p := Kit.tex("res://assets/ui/paper.png")
 		if p:
 			draw_texture_rect(p, r, true, Color(1, 1, 1, 0.45))
-		var y := 8.0
+		var y := 10.0
 		while y < size.y:
-			draw_circle(Vector2(-16, y), 5.5, Color("1a1612"))
-			draw_circle(Vector2(size.x + 16, y), 5.5, Color("1a1612"))
+			draw_circle(Vector2(18, y), 5.5, Color("1a1612"))
+			draw_circle(Vector2(size.x - 18, y), 5.5, Color("1a1612"))
 			y += 22.0
+		for x in [36.0, size.x - 36.0]:
+			var yy := 0.0
+			while yy < size.y:
+				draw_line(Vector2(x, yy), Vector2(x, yy + 3), Color(0.55, 0.5, 0.45, 0.5), 1.0)
+				yy += 7.0
 		var perf := 600.0
 		while perf < size.y:
-			for x in range(-30, int(size.x) + 30, 8):
-				draw_line(Vector2(x, perf), Vector2(x + 4, perf), Color(0.5, 0.45, 0.4, 0.45), 1.0)
+			for xx in range(0, int(size.x), 8):
+				draw_line(Vector2(xx, perf), Vector2(xx + 4, perf), Color(0.5, 0.45, 0.4, 0.45), 1.0)
 			perf += 600.0
-		draw_line(Vector2(-4, 0), Vector2(-4, size.y), Color(0.6, 0.55, 0.5, 0.35), 1.0)
-		draw_line(Vector2(size.x + 4, 0), Vector2(size.x + 4, size.y), Color(0.6, 0.55, 0.5, 0.35), 1.0)

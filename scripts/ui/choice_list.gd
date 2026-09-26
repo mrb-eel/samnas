@@ -171,10 +171,11 @@ class Ticket extends MarginContainer:
 		var pt := Kit.tex("res://assets/ui/paper.png")
 		if pt:
 			draw_texture_rect(pt, body_r, true, Color(1, 1, 1, 0.35))
-		draw_rect(Rect2(body_r.position + Vector2(8, 5), Vector2(body_r.size.x - 16, 2)), Color("b8261f", 0.5))
+		if verb == "":
+			draw_rect(Rect2(body_r.position + Vector2(8, 5), Vector2(body_r.size.x - 16, 2)), Color("b8261f", 0.5))
 		draw_rect(Rect2(body_r.position + Vector2(8, body_r.size.y - 7), Vector2(body_r.size.x - 16, 2)), Color("b8261f", 0.5))
 		if verb != "":
-			Kit.stamp(self, body_r.position + Vector2(10, 4), verb, Color("b8261f"), 13, -0.03, false, buff)
+			Kit.stamp(self, body_r.position + Vector2(10, 3), verb, Color("b8261f"), 14, -0.03, false, buff)
 		# the stub, which tears off along the dots when you take it
 		var fall := taken
 		var stub := Rect2(Vector2(0, -lift * 3.0 + fall * fall * 140.0), Vector2(stub_w, size.y))
